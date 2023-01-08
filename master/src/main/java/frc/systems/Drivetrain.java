@@ -16,8 +16,9 @@ import frc.utilities.Toggler;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -82,7 +83,7 @@ public class Drivetrain {
             brDrive = new VictorSP(BRport);
         }
 
-        gearShifter = new DoubleSolenoid(shifterHi, shifterLo);
+        gearShifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, shifterHi, shifterLo);
     }
 
     /**
