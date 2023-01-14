@@ -57,8 +57,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    double angle = Gyroscope.GetAngle();
-    SmartDashboard.putNumber("angle", angle);
+    double yaw = Gyroscope.GetYaw();
+    SmartDashboard.putNumber("yaw", yaw);
+    
+    double pitch = Gyroscope.GetPitch();
+    SmartDashboard.putNumber("pitch", pitch);
+
+    double roll = Gyroscope.GetRoll();
+    SmartDashboard.putNumber("roll", roll);
+
   }
 
   @Override
