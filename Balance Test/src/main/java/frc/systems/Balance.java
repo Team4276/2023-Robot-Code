@@ -38,20 +38,19 @@ public class Balance{
 
             } else if (Pitch < (-1.0 * DEAD_ZONE)){
                 if (Pitch > (-1.0 * SLOW_ZONE)){
-                    Drivetrain.assignMotorPower(-1.0 * SLOW_POWER,SLOW_POWER);
+                    Drivetrain.assignMotorPower(-1.0 * SLOW_POWER,-1.0 * SLOW_POWER);
 
 
                 }
 
                 else if (Pitch < (-1.0 * SLOW_ZONE)){
-                    Drivetrain.assignMotorPower(-1.0 * MAX_POWER,MAX_POWER);
+                    Drivetrain.assignMotorPower(-1.0 * MAX_POWER,-1.0 * MAX_POWER);
 
 
                 }
 
                 else {
                     Drivetrain.assignMotorPower(HOLD_POSITION,HOLD_POSITION);
-
                 }
             } else {
                 Drivetrain.assignMotorPower(HOLD_POSITION,HOLD_POSITION);
