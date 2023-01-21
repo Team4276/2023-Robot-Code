@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.systems.Balance;
+
 // System imports
 import frc.systems.Drivetrain;
 
@@ -30,6 +31,10 @@ public class Robot extends TimedRobot {
   public static Drivetrain mDrivetrain;
 
   public static Timer systemTimer;
+
+  public static double initialPitch = 0;
+  
+  private static double counter = 0;
  
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -37,7 +42,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
- 
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
@@ -49,7 +53,10 @@ public class Robot extends TimedRobot {
 
     // Drive train motor control is done on its own timer driven thread regardless of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
-    driveRateGroup.startPeriodic(0.05);  
+    driveRateGroup.startPeriodic(0.05);
+    
+    xboxController = new XboxController(2);
+
   }
 
   /**
@@ -63,15 +70,24 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     double yaw = Gyroscope.GetYaw();
     SmartDashboard.putNumber("yaw", yaw);
+
+    double rawPitch = Gyroscope.GetPitch();
+    SmartDashboard.putNumber("pitch", rawPitch);
     
-    double pitch = Gyroscope.GetPitch();
-    SmartDashboard.putNumber("pitch", pitch);
+    double pitch = Gyroscope.GetCorrectPitch(rawPitch);
+    SmartDashboard.putNumber("corrected pitch", pitch);
 
     double roll = Gyroscope.GetRoll();
     SmartDashboard.putNumber("roll", roll);
 
-    Balance.balance(pitch);
 
+    if (counter == 1) {
+      Balance.balance(pitch);
+      counter = 0;
+    }
+    counter += 1;
+
+    SmartDashboard.putNumber("initial pitch", initialPitch);
   }
 
   @Override
@@ -83,7 +99,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    Gyroscope.imu.reset();
+
+    initialPitch = Gyroscope.GetPitch();
+    
+  }
 
   /** This function is called periodically during operator control. */
   @Override
