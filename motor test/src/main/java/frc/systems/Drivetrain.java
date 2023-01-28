@@ -267,6 +267,7 @@ public class Drivetrain {
         brakeModeToggler.updateMechanismStateLJoy();
         brakeModeisEngaged = brakeModeToggler.getMechanismState();
         if (brakeModeisEngaged) {
+            flDriveX.setIdleMode(IdleMode.kBrake);
             blDriveX.setIdleMode(IdleMode.kBrake);
             frDriveX.setIdleMode(IdleMode.kBrake);
             brDriveX.setIdleMode(IdleMode.kBrake);

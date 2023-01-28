@@ -10,7 +10,7 @@ public class RoboRioPorts {
 	// Example:
 	// static final int CAN_DRIVE_FR = 0;
 
-	public static final int CAN_DRIVE_R1 = 11;
+	public static final int CAN_DRIVE_R1 = 7;
 	public static final int CAN_DRIVE_R2 = 12;
 	public static final int CAN_DRIVE_L1 = 13;
 	public static final int CAN_DRIVE_L2 = 14;
