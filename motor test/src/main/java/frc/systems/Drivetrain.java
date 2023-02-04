@@ -25,7 +25,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 public class Drivetrain {
-    private boolean hasCANNetwork = false;
+    private static boolean hasCANNetwork = false;
 
     private Encoder m_left_encoder;
     private Encoder m_right_encoder;
@@ -42,10 +42,10 @@ public class Drivetrain {
     private DriveMode currentMode = DriveMode.TANK;
     private String currentMode_s = "Tank";
 
-    private Spark flDrive, blDrive, frDrive, brDrive;
-    private CANSparkMax flDriveX, blDriveX, frDriveX, brDriveX;
-    private double leftPower = 0;
-    private double rightPower = 0;
+    private static Spark flDrive, blDrive, frDrive, brDrive;
+    public static CANSparkMax flDriveX, blDriveX, frDriveX, brDriveX;
+    private static double leftPower = 0;
+    private static double rightPower = 0;
     private Toggler brakeModeToggler;
 
     private double deadband = 0.05;
@@ -53,6 +53,7 @@ public class Drivetrain {
     public Drivetrain(boolean isCAN, int FLport, int BLport, int FRport, int BRport,
             int shifterHi, int shifterLo, int m_right_encoderPortA, int m_right_encoderPortB, int m_left_encoderPortA,
             int m_left_encoderPortB) {
+        
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
@@ -88,7 +89,7 @@ public class Drivetrain {
      * @param leftPow  left motor power
      */
 
-    public void assignMotorPower(double rightPow, double leftPow) {
+    public static void assignMotorPower(double rightPow, double leftPow) {
         if (hasCANNetwork) {
             SmartDashboard.putBoolean("Drive check", true);
             flDriveX.set(leftPow);

@@ -1,41 +1,94 @@
 package frc.systems;
 
+import frc.utilities.PID;
 import frc.utilities.Xbox;
+
 import frc.robot.Robot;
 
-public class Balance{
-    static private final double SLOW_ZONE = 7.5; // Degree
-    static private final double DEAD_ZONE = 3.0;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 
-    static private final double MAX_POWER = 0.3; // Percent motor output
-    static private final double SLOW_POWER = 0.125;
-    static private final double HOLD_POSITION = 0.0;
+public class Balance {
+    private static double DEAD_ZONE = 1;
+    private static double stop = 0;
+    private static double power;
+    private static double aVelocity = 1000;
 
-    public static void balance(double Pitch) {
+    private static boolean mode = true;
+    private static boolean aligned = false;
+    
+    private static Timer timer;
+
+    private static double bound1 = 0;
+    private static double bound2 = 0;
+    private static double middle = 0;
+    private static double allowedErr = 1;
+
+    public static void balanceInit(){
+        timer = new Timer();
+        timer.start();
+    }
+
+    public static void balance(double pitch){
         if (Robot.xboxController.getRawButton(Xbox.B)){
-            if (Pitch > DEAD_ZONE){
-                if (Pitch > SLOW_ZONE){
-                Drivetrain.assignMotorPower(MAX_POWER,-1 * MAX_POWER);
-                }
-                else if (Pitch < SLOW_ZONE){
-                Drivetrain.assignMotorPower(SLOW_POWER,-1 * SLOW_POWER);
-                }
-                else {
-                    Drivetrain.assignMotorPower(HOLD_POSITION,HOLD_POSITION);
-                }
-            } else if (Pitch < (-1.0 * DEAD_ZONE)){
-                if (Pitch > (-1.0 * SLOW_ZONE)){
-                    Drivetrain.assignMotorPower(-1.0 * SLOW_POWER,SLOW_POWER);
-                }
-                else if (Pitch < (-1.0 * SLOW_ZONE)){
-                    Drivetrain.assignMotorPower(-1.0 * MAX_POWER,MAX_POWER);
-                }
-                else {
-                    Drivetrain.assignMotorPower(HOLD_POSITION,HOLD_POSITION);
+            if (mode) {            
+                if (stop == 0){
+                    if (Math.abs(pitch) > DEAD_ZONE ){
+                        AutoDrivetrain.holdPosition = false;
+                        power = PID.getOutput(pitch, 0);
+                        AutoDrivetrain.usingAutoDrivetrain = true;
+                        SmartDashboard.putNumber("Set Velocity", power);
+                    } else {
+                        if (aligned != true){
+                            stop = timer.get() + 3;
+                        }
+                        AutoDrivetrain.holdPosition = true;
+                    }
+                } else if (timer.get() == stop) {
+                        mode = false;
                 }
             } else {
-                Drivetrain.assignMotorPower(HOLD_POSITION,HOLD_POSITION);
+                if (AutoDrivetrain.FR_encoder.getPosition() > (middle + allowedErr)){
+                    if (AutoDrivetrain.FL_encoder.getPosition() < middle - allowedErr){
+                        AutoDrivetrain.holdPosition = true;
+                        aligned = true;
+                        mode = true;
+                    }
+                } else if (pitch > DEAD_ZONE){
+                    bound1 = AutoDrivetrain.FR_encoder.getPosition();
+                } else if (pitch < DEAD_ZONE) {
+                    bound2 = AutoDrivetrain.FR_encoder.getPosition();
+                    middle = (bound2 + Math.abs(bound1-bound2));
+                } else {
+                    if (bound1 == 0){
+                        AutoDrivetrain.holdPosition = false;
+                        AutoDrivetrain.usingAutoDrivetrain = true;
+                        SmartDashboard.putNumber("Set Velocity", aVelocity);
+                    } else if (bound2 == 0){
+                        AutoDrivetrain.holdPosition = false;
+                        AutoDrivetrain.usingAutoDrivetrain = true;
+                        SmartDashboard.putNumber("Set Velocity", -aVelocity);
+                    } else {
+                        AutoDrivetrain.holdPosition = false;
+                        AutoDrivetrain.usingAutoDrivetrain = true;
+                        SmartDashboard.putBoolean("Mode", false);
+                        SmartDashboard.putNumber("Set Position", middle);
+                    }
+                }
             }
+
+
+        } else {
+            AutoDrivetrain.usingAutoDrivetrain = false;
+            AutoDrivetrain.holdPosition = false;
+            mode = true;
+            aligned = false;
+            bound1 = 0;
+            bound2 = 0;
+            middle = 0;
+            allowedErr = 1;
+            stop = 0;
+
         }
     }
 }

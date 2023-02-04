@@ -9,7 +9,7 @@
       "name": "Launch Main",
       "request": "launch",
       "mainClass": "frc.robot.Main",
-      "projectName": "master"
+      "projectName": "motor test"
     },
     {
       "type": "wpilib",

@@ -8,14 +8,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.systems.AutoDrivetrain;
 import frc.systems.Balance;
-
-// System imports
 import frc.systems.Drivetrain;
-
-// Utilities imports
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Gyroscope;
 
@@ -25,16 +21,13 @@ public class Robot extends TimedRobot {
   public static Joystick rightJoystick;
   public static Joystick xboxJoystick;
 
-  public static XboxController xboxController;
-
   Notifier driveRateGroup;
   public static Drivetrain mDrivetrain;
 
   public static Timer systemTimer;
+  public static XboxController xboxController;
 
   public static double initialPitch = 0;
-  
-  private static double counter = 0;
  
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -42,14 +35,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+ 
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
 
-    mDrivetrain = new Drivetrain(true, RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2, RoboRioPorts.CAN_DRIVE_L3,
-    RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.CAN_DRIVE_R3,
+    mDrivetrain = new Drivetrain(true, RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
+    RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2,
     RoboRioPorts.DRIVE_DOUBLE_SOLENOID_FWD, RoboRioPorts.DRIVE_DOUBLE_SOLENOID_REV, RoboRioPorts.DIO_DRIVE_RIGHT_A,
     RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
+
+    AutoDrivetrain.PIDDrivetrainInit();
 
     // Drive train motor control is done on its own timer driven thread regardless of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
@@ -57,6 +53,7 @@ public class Robot extends TimedRobot {
     
     xboxController = new XboxController(2);
 
+    Balance.balanceInit();
   }
 
   /**
@@ -68,26 +65,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    double yaw = Gyroscope.GetYaw();
-    SmartDashboard.putNumber("yaw", yaw);
-
-    double rawPitch = Gyroscope.GetPitch();
-    SmartDashboard.putNumber("pitch", rawPitch);
-    
-    double pitch = Gyroscope.GetCorrectPitch(rawPitch);
-    SmartDashboard.putNumber("corrected pitch", pitch);
-
-    double roll = Gyroscope.GetRoll();
-    SmartDashboard.putNumber("roll", roll);
 
 
-    if (counter == 1) {
-      Balance.balance(pitch);
-      counter = 0;
-    }
-    counter += 1;
+    Gyroscope.gyroscopeUpdate();
 
-    SmartDashboard.putNumber("initial pitch", initialPitch);
+    AutoDrivetrain.PIDDrivetrainUpdate();
+
+    Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+
   }
 
   @Override
@@ -100,10 +85,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    Gyroscope.imu.reset();
-
     initialPitch = Gyroscope.GetPitch();
-    
   }
 
   /** This function is called periodically during operator control. */

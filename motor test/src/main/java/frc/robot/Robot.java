@@ -8,9 +8,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.XboxController;
+import frc.systems.AutoDrivetrain;
+import frc.systems.Balance;
 import frc.systems.Drivetrain;
 import frc.utilities.RoboRioPorts;
+import frc.utilities.Gyroscope;
 
 public class Robot extends TimedRobot {
 
@@ -22,6 +25,9 @@ public class Robot extends TimedRobot {
   public static Drivetrain mDrivetrain;
 
   public static Timer systemTimer;
+  public static XboxController xboxController;
+
+  public static double initialPitch = 0;
  
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -39,9 +45,15 @@ public class Robot extends TimedRobot {
     RoboRioPorts.DRIVE_DOUBLE_SOLENOID_FWD, RoboRioPorts.DRIVE_DOUBLE_SOLENOID_REV, RoboRioPorts.DIO_DRIVE_RIGHT_A,
     RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
 
+    AutoDrivetrain.PIDDrivetrainInit();
+
     // Drive train motor control is done on its own timer driven thread regardless of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
-    driveRateGroup.startPeriodic(0.05);  
+    driveRateGroup.startPeriodic(0.05);
+    
+    xboxController = new XboxController(2);
+
+    
   }
 
   /**
@@ -52,7 +64,17 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    AutoDrivetrain.usingAutoDrivetrain = false;
+    AutoDrivetrain.holdPosition = false;
+
+    Gyroscope.gyroscopeUpdate();
+
+    AutoDrivetrain.PIDDrivetrainUpdate();
+
+    Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+
+  }
 
   @Override
   public void autonomousInit() {}
@@ -63,7 +85,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    initialPitch = Gyroscope.GetPitch();
+  }
 
   /** This function is called periodically during operator control. */
   @Override

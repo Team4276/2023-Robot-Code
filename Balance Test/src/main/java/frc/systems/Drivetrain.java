@@ -18,17 +18,17 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 public class Drivetrain {
-    static private boolean hasCANNetwork = false;
+    private static boolean hasCANNetwork = false;
 
-    private Encoder m_left_encoder;
-    private Encoder m_right_encoder;
+    public static Encoder m_left_encoder;
+    public static Encoder m_right_encoder;
 
     private final int HI_SHIFTER = 4;
     private final int LO_SHIFTER = 3;
@@ -42,17 +42,18 @@ public class Drivetrain {
     private DriveMode currentMode = DriveMode.TANK;
     private String currentMode_s = "Tank";
 
-    static private VictorSP flDrive, mlDrive, blDrive, frDrive, mrDrive, brDrive;
-    static private VictorSPX flDriveX, mlDriveX, blDriveX, frDriveX, mrDriveX, brDriveX;
-    static private double leftPower = 0;
-    static private double rightPower = 0;
+    private static Spark flDrive, blDrive, frDrive, brDrive;
+    public static CANSparkMax flDriveX, blDriveX, frDriveX, brDriveX;
+    private static double leftPower = 0;
+    private static double rightPower = 0;
     private Toggler brakeModeToggler;
 
     private double deadband = 0.05;
 
-    public Drivetrain(boolean isCAN, int FLport, int MLport, int BLport, int FRport, int MRport, int BRport,
+    public Drivetrain(boolean isCAN, int FLport, int BLport, int FRport, int BRport,
             int shifterHi, int shifterLo, int m_right_encoderPortA, int m_right_encoderPortB, int m_left_encoderPortA,
             int m_left_encoderPortB) {
+        
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
@@ -66,21 +67,17 @@ public class Drivetrain {
         if (isCAN) {
             hasCANNetwork = true;
 
-            flDriveX = new VictorSPX(FLport);
-            mlDriveX = new VictorSPX(MLport);
-            blDriveX = new VictorSPX(BLport);
-            frDriveX = new VictorSPX(FRport);
-            mrDriveX = new VictorSPX(MRport);
-            brDriveX = new VictorSPX(BRport);
+            flDriveX = new CANSparkMax(FLport, MotorType.kBrushless);
+            blDriveX = new CANSparkMax(BLport, MotorType.kBrushless);
+            frDriveX = new CANSparkMax(FRport, MotorType.kBrushless);
+            brDriveX = new CANSparkMax(BRport, MotorType.kBrushless);
         } else {
             hasCANNetwork = false;
 
-            flDrive = new VictorSP(FLport);
-            mlDrive = new VictorSP(MLport);
-            blDrive = new VictorSP(BLport);
-            frDrive = new VictorSP(FRport);
-            mrDrive = new VictorSP(MRport);
-            brDrive = new VictorSP(BRport);
+            flDrive = new Spark(FLport);
+            blDrive = new Spark(BLport);
+            frDrive = new Spark(FRport);
+            brDrive = new Spark(BRport);
         }
 
         gearShifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, shifterHi, shifterLo);
@@ -92,22 +89,18 @@ public class Drivetrain {
      * @param leftPow  left motor power
      */
 
-    static public void assignMotorPower(double rightPow, double leftPow) {
+    public static void assignMotorPower(double rightPow, double leftPow) {
         if (hasCANNetwork) {
             SmartDashboard.putBoolean("Drive check", true);
-            flDriveX.set(ControlMode.PercentOutput, leftPow);
-            mlDriveX.set(ControlMode.PercentOutput, leftPow);
-            blDriveX.set(ControlMode.PercentOutput, leftPow);
-            frDriveX.set(ControlMode.PercentOutput, rightPow);
-            mrDriveX.set(ControlMode.PercentOutput, rightPow);
-            brDriveX.set(ControlMode.PercentOutput, rightPow);
+            flDriveX.set(leftPow);
+            blDriveX.set(leftPow);
+            frDriveX.set(rightPow);
+            brDriveX.set(rightPow);
 
         } else {
             flDrive.set(leftPow);
-            mlDrive.set(leftPow);
             blDrive.set(leftPow);
             frDrive.set(rightPow);
-            mrDrive.set(rightPow);
             brDrive.set(rightPow);
         }
         rightPower = rightPow;
@@ -153,10 +146,10 @@ public class Drivetrain {
 
             case TANK:
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
-                    rightY = -Math.pow(Robot.rightJoystick.getY(), 3 / 2);
+                    rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
                 }
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
-                    leftY = Math.pow(Robot.leftJoystick.getY(), 3 / 2);
+                    leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
                 }
                 if (!isShifting) {
                     assignMotorPower(rightY, leftY);
@@ -275,19 +268,15 @@ public class Drivetrain {
         brakeModeToggler.updateMechanismStateLJoy();
         brakeModeisEngaged = brakeModeToggler.getMechanismState();
         if (brakeModeisEngaged) {
-            flDriveX.setNeutralMode(NeutralMode.Brake);
-            mlDriveX.setNeutralMode(NeutralMode.Brake);
-            blDriveX.setNeutralMode(NeutralMode.Brake);
-            frDriveX.setNeutralMode(NeutralMode.Brake);
-            mrDriveX.setNeutralMode(NeutralMode.Brake);
-            brDriveX.setNeutralMode(NeutralMode.Brake);
+            flDriveX.setIdleMode(IdleMode.kBrake);
+            blDriveX.setIdleMode(IdleMode.kBrake);
+            frDriveX.setIdleMode(IdleMode.kBrake);
+            brDriveX.setIdleMode(IdleMode.kBrake);
         } else {
-            flDriveX.setNeutralMode(NeutralMode.Coast);
-            mlDriveX.setNeutralMode(NeutralMode.Coast);
-            blDriveX.setNeutralMode(NeutralMode.Coast);
-            frDriveX.setNeutralMode(NeutralMode.Coast);
-            mrDriveX.setNeutralMode(NeutralMode.Coast);
-            brDriveX.setNeutralMode(NeutralMode.Coast);
+            flDriveX.setIdleMode(IdleMode.kCoast);
+            blDriveX.setIdleMode(IdleMode.kCoast);
+            frDriveX.setIdleMode(IdleMode.kCoast);
+            brDriveX.setIdleMode(IdleMode.kCoast);
         }
     }
 
