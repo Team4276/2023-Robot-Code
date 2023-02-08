@@ -114,19 +114,11 @@ public class TeleopDrivetrain {
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
                 }
-                if (!isShifting) {
-                    assignMotorPower(rightY, leftY);
-                } else {
-
-                    assignMotorPower(0, 0);
-                }
-                break;
-
-            default:
+                assignMotorPower(rightY, leftY);
                 break;
         }
 
-        updateTelemetry();
+        updateTeleopTelemetry();
     }
 
     /**
@@ -246,7 +238,7 @@ public class TeleopDrivetrain {
     /**
      * updates smartdashboard
      */
-    public void updateTelemetry() {
+    public void updateTeleopTelemetry() {
         // shifting status
         SmartDashboard.putBoolean("Shifting", isShifting);
         SmartDashboard.putString("Drive Mode", currentMode_s);

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.AutoDrivetrain;
 import frc.systems.Balance;
 import frc.systems.TeleopDrivetrain;
@@ -58,7 +59,6 @@ public class Robot extends TimedRobot {
     
     xboxController = new XboxController(2);
 
-    Balance.balanceInit();
   }
 
   /**
@@ -75,6 +75,8 @@ public class Robot extends TimedRobot {
     AutoDrivetrain.PIDDrivetrainUpdate();
 
     Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+
+    BaseDrivetrain.updateTelemetry();
 
   }
 

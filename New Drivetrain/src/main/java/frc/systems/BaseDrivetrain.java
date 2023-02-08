@@ -30,7 +30,6 @@ public class BaseDrivetrain {
             BR_encoder = brDriveX.getEncoder();
             BL_encoder = blDriveX.getEncoder();
 
-    
     }
 
     public static void updateTelemetry(){

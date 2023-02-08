@@ -2,17 +2,12 @@ package frc.systems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.lang.reflect.Array;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
 public class AutoDrivetrain {
-    public static boolean holdPosition;
-    
     private static SparkMaxPIDController FR_pidController, FL_pidController, BR_pidController, BL_pidController;
-    public static RelativeEncoder FR_encoder, FL_encoder, BR_encoder, BL_encoder;
 
     private static CANSparkMax FR_motor = BaseDrivetrain.frDriveX;
     private static CANSparkMax FL_motor = BaseDrivetrain.flDriveX;
@@ -20,23 +15,29 @@ public class AutoDrivetrain {
     private static CANSparkMax BL_motor = BaseDrivetrain.blDriveX;
 
     // PID coefficients
-    public static double kP = 5e-5; 
-    public static double kI = 1e-6;
-    public static double kD = 0; 
-    public static double kIz = 0; 
-    public static double kFF = 0.000156; 
-    public static double kMaxOutput = 1; 
-    public static double kMinOutput = -1;
-    public static double maxRPM = 1000;
+    private static double kP = 5e-5; 
+    private static double kI = 1e-6;
+    private static double kD = 0; 
+    private static double kIz = 0; 
+    private static double kFF = 0.000156; 
+    private static double kMaxOutput = 1; 
+    private static double kMinOutput = -1;
 
     // Smart Motion Coefficients
-    public static double maxVel = 1000; // rpm
-    public static double maxAcc = 100;
-    public static double minVel = 0;
+    private static double maxVel = 1000; // rpm
+    private static double maxAcc = 100;
+    private static double minVel = 0;
 
-    public static double allowedErr = 0;
+    private static double allowedErr = 0;
 
-    public static Array motorArray;
+    private static double holdThisPosition = 0;
+    
+    private static boolean newPositiontohold = true;
+
+    public static boolean holdPosition;
+    public static boolean mode;
+
+    public static double setPoint;
 
     public static void PIDDrivetrainInit(){
         int smartMotionSlot = 0;
@@ -89,14 +90,14 @@ public class AutoDrivetrain {
         SmartDashboard.putBoolean("holdPosition", holdPosition);
 
         if (BaseDrivetrain.usingAutoDrivetrain) {
-            Update(FR_pidController, BaseDrivetrain.FR_encoder, 1, BaseDrivetrain.frDriveX, holdPosition);
-            Update(FL_pidController, BaseDrivetrain.FL_encoder, -1, BaseDrivetrain.flDriveX, holdPosition);
-            Update(BR_pidController, BaseDrivetrain.BR_encoder, 1, BaseDrivetrain.brDriveX, holdPosition);
-            Update(BL_pidController, BaseDrivetrain.BL_encoder, -1, BaseDrivetrain.blDriveX, holdPosition);
+            Update(FR_pidController, BaseDrivetrain.FR_encoder, 1, FR_motor);
+            Update(FL_pidController, BaseDrivetrain.FL_encoder, -1, FL_motor);
+            Update(BR_pidController, BaseDrivetrain.BR_encoder, 1, BR_motor);
+            Update(BL_pidController, BaseDrivetrain.BL_encoder, -1, BL_motor);
         }
     }
 
-    public static void Update(SparkMaxPIDController m_pidController, RelativeEncoder m_encoder, double sign, CANSparkMax m_motor, boolean holdPosition){
+    public static void Update(SparkMaxPIDController m_pidController, RelativeEncoder m_encoder, double sign, CANSparkMax m_motor){
         double p = SmartDashboard.getNumber("P Gain", 0);
         double i = SmartDashboard.getNumber("I Gain", 0);
         double d = SmartDashboard.getNumber("D Gain", 0);
@@ -124,15 +125,19 @@ public class AutoDrivetrain {
         if((allE != allowedErr)) { m_pidController.setSmartMotionAllowedClosedLoopError(allE,0); allowedErr = allE; }
 
         if (holdPosition){
-            double currentPosition = m_encoder.getPosition();
+            if (newPositiontohold)
+                holdThisPosition = m_encoder.getPosition();
+                newPositiontohold = false;
+                SmartDashboard.putNumber("holdThisPosition", holdThisPosition);
 
-            m_pidController.setReference(currentPosition, CANSparkMax.ControlType.kSmartMotion);
-            SmartDashboard.putNumber("SetPoint", currentPosition);
+            m_pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
+            SmartDashboard.putNumber("SetPoint", holdThisPosition);
             SmartDashboard.putNumber("Process Variable", m_encoder.getPosition());
 
         } else {
             double setPoint, processVariable;
             boolean mode = SmartDashboard.getBoolean("Mode", false);
+            newPositiontohold = true;
             if(mode) {
                 setPoint = sign * SmartDashboard.getNumber("Set Velocity", 0);
                 m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
