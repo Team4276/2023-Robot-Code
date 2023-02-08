@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-
-import frc.systems.Drivetrain;
+import frc.systems.AutoDrivetrain;
+import frc.systems.TeleopDrivetrain;
+import frc.systems.BaseDrivetrain;
 import frc.utilities.RoboRioPorts;
 
 public class Robot extends TimedRobot {
@@ -19,7 +20,8 @@ public class Robot extends TimedRobot {
   public static Joystick xboxJoystick;
 
   Notifier driveRateGroup;
-  public static Drivetrain mDrivetrain;
+  public static BaseDrivetrain mBaseDrivetrain;
+  public static TeleopDrivetrain mTeleopDrivetrain;
 
   public static Timer systemTimer;
  
@@ -34,14 +36,18 @@ public class Robot extends TimedRobot {
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
 
-    mDrivetrain = new Drivetrain(true, RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2, RoboRioPorts.CAN_DRIVE_L3,
-    RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.CAN_DRIVE_R3,
-    RoboRioPorts.DRIVE_DOUBLE_SOLENOID_FWD, RoboRioPorts.DRIVE_DOUBLE_SOLENOID_REV, RoboRioPorts.DIO_DRIVE_RIGHT_A,
-    RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
+    mBaseDrivetrain = new BaseDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
+     RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
+     RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
+
+    mTeleopDrivetrain = new TeleopDrivetrain();
+
+    AutoDrivetrain.PIDDrivetrainInit();
 
     // Drive train motor control is done on its own timer driven thread regardless of disabled/teleop/auto mode selection
-    driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
-    driveRateGroup.startPeriodic(0.05);  
+    driveRateGroup = new Notifier(mTeleopDrivetrain::operatorDrive);
+    driveRateGroup.startPeriodic(0.05);
+    
   }
 
   /**
@@ -52,7 +58,10 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+     AutoDrivetrain.PIDDrivetrainUpdate();
+
+   }
 
   @Override
   public void autonomousInit() {}
