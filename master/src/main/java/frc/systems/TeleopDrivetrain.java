@@ -8,26 +8,16 @@
 
 package frc.systems;
 
-import frc.utilities.Constants;
 import frc.utilities.LogJoystick;
 import frc.robot.Robot;
-import frc.utilities.SoftwareTimer;
 import frc.utilities.Toggler;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 public class TeleopDrivetrain {
-    private final int HI_SHIFTER = 4;
-    private final int LO_SHIFTER = 3;
-    private Gear currentGear = Gear.HI;
-    private DoubleSolenoid gearShifter;
-    private SoftwareTimer shiftTimer;
-    private boolean shiftInit = true;
-    private boolean isShifting = false;
     private boolean brakeModeisEngaged = true;
 
     private DriveMode currentMode = DriveMode.TANK;
@@ -48,8 +38,6 @@ public class TeleopDrivetrain {
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
-
-        shiftTimer = new SoftwareTimer();
     }
 
     /**
@@ -73,7 +61,6 @@ public class TeleopDrivetrain {
     public void operatorDrive() {
 
         changeMode();
-        checkForGearShift();
         if (currentMode == DriveMode.ARCADE) {
             currentMode_s = "Arcade";
         } else {
@@ -98,13 +85,7 @@ public class TeleopDrivetrain {
 
                 leftY = -linear - turn;
                 rightY = linear - turn;
-                if (!isShifting) {
-                    assignMotorPower(rightY, leftY);
-                } else {
-
-                    assignMotorPower(0, 0);
-                }
-
+                assignMotorPower(rightY, leftY);
                 break;
 
             case TANK:
@@ -114,12 +95,7 @@ public class TeleopDrivetrain {
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
                 }
-                if (!isShifting) {
-                    assignMotorPower(rightY, leftY);
-                } else {
-
-                    assignMotorPower(0, 0);
-                }
+                assignMotorPower(rightY, leftY);
                 break;
 
             default:
@@ -129,102 +105,8 @@ public class TeleopDrivetrain {
         updateTelemetry();
     }
 
-    /**
-     * Checks for joystick input to shift gears. Manages to logic and timing to not
-     * power drive motors while shifting
-     */
-    public void checkForGearShift() {
-        boolean shiftHi = Robot.leftJoystick.getRawButton(HI_SHIFTER);
-        boolean shiftLo = Robot.leftJoystick.getRawButton(LO_SHIFTER);
-
-        if (shiftHi) {
-            currentGear = Gear.HI;
-            if (shiftInit) {
-                shiftTimer.setTimer(Constants.SHIFT_TIME);
-                shiftInit = false;
-            }
-            if (shiftTimer.isExpired()) {
-                isShifting = false;
-                shiftInit = true;
-            } else {
-                isShifting = true;
-            }
-            gearShifter.set(Constants.HI_GEAR_VALUE);
-        } else if (shiftLo) {
-            currentGear = Gear.LO;
-            if (shiftInit) {
-                shiftTimer.setTimer(Constants.SHIFT_TIME);
-                shiftInit = false;
-            }
-            if (shiftTimer.isExpired()) {
-                isShifting = false;
-                shiftInit = true;
-            } else {
-                isShifting = true;
-            }
-            gearShifter.set(Constants.LO_GEAR_VALUE);
-        } else {
-            isShifting = false;
-        }
-
-    }
-
-    /**
-     * current gear status
-     */
-
-    public enum Gear {
-        HI, LO
-    }
-
     public enum DriveMode {
         TANK, ARCADE
-    }
-
-    /**
-     * 
-     * @param shiftTo desired gear
-     */
-    public void shiftGear(Gear shiftTo) {
-        boolean shiftHi = false;
-        boolean shiftLo = false;
-
-        currentGear = shiftTo;
-
-        if (shiftTo == Gear.HI) {
-            shiftHi = true;
-        } else {
-            shiftLo = true;
-        }
-
-        if (shiftHi) {
-            if (shiftInit) {
-                shiftTimer.setTimer(Constants.SHIFT_TIME);
-                shiftInit = false;
-            }
-            if (shiftTimer.isExpired()) {
-                isShifting = false;
-                shiftInit = true;
-            } else {
-                isShifting = true;
-            }
-            gearShifter.set(Constants.HI_GEAR_VALUE);
-        } else if (shiftLo) {
-            if (shiftInit) {
-                shiftTimer.setTimer(Constants.SHIFT_TIME);
-                shiftInit = false;
-            }
-            if (shiftTimer.isExpired()) {
-                isShifting = false;
-                shiftInit = true;
-            } else {
-                isShifting = true;
-            }
-            gearShifter.set(Constants.LO_GEAR_VALUE);
-        } else {
-            isShifting = false;
-        }
-
     }
 
     public void changeMode() {
@@ -248,11 +130,7 @@ public class TeleopDrivetrain {
      */
     public void updateTelemetry() {
         // shifting status
-        SmartDashboard.putBoolean("Shifting", isShifting);
         SmartDashboard.putString("Drive Mode", currentMode_s);
-        // current gear
-        SmartDashboard.putBoolean("HI Gear", (currentGear == Gear.HI));
-        SmartDashboard.putBoolean("LOW Gear", (currentGear == Gear.LO));
         // power outputs
         SmartDashboard.putNumber("Right Power", rightPower);
         SmartDashboard.putNumber("Left Power", leftPower);
