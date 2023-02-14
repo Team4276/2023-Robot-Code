@@ -8,9 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 public class BaseDrivetrain {
-    public static boolean usingAutoDrivetrain;
-
-    public static RelativeEncoder FR_encoder, FL_encoder, BR_encoder, BL_encoder;
+     public static RelativeEncoder FR_encoder, FL_encoder, BR_encoder, BL_encoder;
     
     public static CANSparkMax flDriveX, blDriveX, frDriveX, brDriveX;
 

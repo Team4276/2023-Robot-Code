@@ -14,19 +14,13 @@ import frc.utilities.Toggler;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-public class TeleopDrivetrain {
-    private boolean brakeModeisEngaged = true;
+public class TeleopDrivetrain extends BaseDrivetrain {
+    private static boolean brakeModeisEngaged = true;
 
     private DriveMode currentMode = DriveMode.TANK;
-    private String currentMode_s = "Tank";
-
-    private static CANSparkMax flDriveX = BaseDrivetrain.flDriveX;
-    private static CANSparkMax blDriveX = BaseDrivetrain.blDriveX;
-    private static CANSparkMax frDriveX = BaseDrivetrain.frDriveX;
-    private static CANSparkMax brDriveX = BaseDrivetrain.brDriveX;
+    private static String currentMode_s = "Tank";
 
     private static double leftPower = 0;
     private static double rightPower = 0;
@@ -34,7 +28,11 @@ public class TeleopDrivetrain {
 
     private double deadband = 0.05;
 
-    public TeleopDrivetrain() {
+    public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport, int m_right_encoderPortA,
+            int m_right_encoderPortB, int m_left_encoderPortA, int m_left_encoderPortB) {
+
+        super(FLport, BLport, FRport, BRport, m_right_encoderPortA, m_right_encoderPortB, m_left_encoderPortA,
+                m_left_encoderPortB);
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
@@ -128,7 +126,7 @@ public class TeleopDrivetrain {
     /**
      * updates smartdashboard
      */
-    public void updateTelemetry() {
+    public static void updateTelemetry() {
         // shifting status
         SmartDashboard.putString("Drive Mode", currentMode_s);
         // power outputs
