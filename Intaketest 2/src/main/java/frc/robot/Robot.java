@@ -13,6 +13,9 @@ import frc.systems.TeleopDrivetrain;
 import frc.systems.BaseDrivetrain;
 import frc.systems.Intake;
 import frc.utilities.RoboRioPorts;
+import frc.utilities.Xbox;
+import edu.wpi.first.wpilibj.XboxController;
+
 
 public class Robot extends TimedRobot {
 
@@ -27,6 +30,9 @@ public class Robot extends TimedRobot {
   public static Timer systemTimer;
 
   public static Intake mIntake;
+
+  public static XboxController xboxController;
+
  
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -81,7 +87,17 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+       
+    if (Robot.xboxController.getRawButton(Xbox.A)) {
+      // Intake
+      mIntake.setSpeed(1.0);
+
+    } else if (Robot.xboxController.getRawButton(Xbox.Y)) {
+      // Outtake
+      mIntake.setSpeed(-1.0);
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
