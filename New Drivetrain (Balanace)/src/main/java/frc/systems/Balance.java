@@ -21,7 +21,7 @@ public class Balance {
                 if (Math.abs(pitch) > DEAD_ZONE ){
                     AutoDrivetrain.holdPosition = false;
                     BaseDrivetrain.usingAutoDrivetrain = true;
-                    SmartDashboard.putNumber("Set Velocity", PID.getOutput(pitch, 0));
+                    AutoDrivetrain.setPoint = PID.getOutput(pitch, 0);
                 } else {
                     stop = true;
                 }

@@ -6,7 +6,14 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-public class AutoDrivetrain {
+public class AutoDrivetrain extends BaseDrivetrain {
+    public AutoDrivetrain(int FLport, int BLport, int FRport, int BRport, int m_right_encoderPortA,
+    int m_right_encoderPortB, int m_left_encoderPortA, int m_left_encoderPortB) {
+        
+    super(FLport, BLport, FRport, BRport, m_right_encoderPortA, m_right_encoderPortB, m_left_encoderPortA,
+    m_left_encoderPortB);
+// TODO Auto-generated constructor stub
+}
     private static SparkMaxPIDController FR_pidController, FL_pidController, BR_pidController, BL_pidController;
 
     private static CANSparkMax FR_motor = BaseDrivetrain.frDriveX;
@@ -38,6 +45,8 @@ public class AutoDrivetrain {
     public static boolean mode;
 
     public static double setPoint;
+
+    public static boolean usingSmartDashboard = false;
 
     public static void PIDDrivetrainInit(){
         int smartMotionSlot = 0;
@@ -98,31 +107,33 @@ public class AutoDrivetrain {
     }
 
     public static void Update(SparkMaxPIDController m_pidController, RelativeEncoder m_encoder, double sign, CANSparkMax m_motor){
-        double p = SmartDashboard.getNumber("P Gain", 0);
-        double i = SmartDashboard.getNumber("I Gain", 0);
-        double d = SmartDashboard.getNumber("D Gain", 0);
-        double iz = SmartDashboard.getNumber("I Zone", 0);
-        double ff = SmartDashboard.getNumber("Feed Forward", 0);
-        double max = SmartDashboard.getNumber("Max Output", 0);
-        double min = SmartDashboard.getNumber("Min Output", 0);
-        double maxV = SmartDashboard.getNumber("Max Velocity", 0);
-        double minV = SmartDashboard.getNumber("Min Velocity", 0);
-        double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
-        double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
-
-        if((p != kP)) { m_pidController.setP(p); kP = p; }
-        if((i != kI)) { m_pidController.setI(i); kI = i; }
-        if((d != kD)) { m_pidController.setD(d); kD = d; }
-        if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
-        if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
-        if((max != kMaxOutput) || (min != kMinOutput)) { 
-            m_pidController.setOutputRange(min, max); 
-            kMinOutput = min; kMaxOutput = max; 
+        if (usingSmartDashboard){
+            double p = SmartDashboard.getNumber("P Gain", 0);
+            double i = SmartDashboard.getNumber("I Gain", 0);
+            double d = SmartDashboard.getNumber("D Gain", 0);
+            double iz = SmartDashboard.getNumber("I Zone", 0);
+            double ff = SmartDashboard.getNumber("Feed Forward", 0);
+            double max = SmartDashboard.getNumber("Max Output", 0);
+            double min = SmartDashboard.getNumber("Min Output", 0);
+            double maxV = SmartDashboard.getNumber("Max Velocity", 0);
+            double minV = SmartDashboard.getNumber("Min Velocity", 0);
+            double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
+            double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
+            
+            if((p != kP)) { m_pidController.setP(p); kP = p; }
+            if((i != kI)) { m_pidController.setI(i); kI = i; }
+            if((d != kD)) { m_pidController.setD(d); kD = d; }
+            if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
+            if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
+            if((max != kMaxOutput) || (min != kMinOutput)) { 
+                m_pidController.setOutputRange(min, max); 
+                kMinOutput = min; kMaxOutput = max; 
+            }
+            if((maxV != maxVel)) { m_pidController.setSmartMotionMaxVelocity(maxV,0); maxVel = maxV; }
+            if((minV != minVel)) { m_pidController.setSmartMotionMinOutputVelocity(minV,0); minVel = minV; }
+            if((maxA != maxAcc)) { m_pidController.setSmartMotionMaxAccel(maxA,0); maxAcc = maxA; }
+            if((allE != allowedErr)) { m_pidController.setSmartMotionAllowedClosedLoopError(allE,0); allowedErr = allE; }
         }
-        if((maxV != maxVel)) { m_pidController.setSmartMotionMaxVelocity(maxV,0); maxVel = maxV; }
-        if((minV != minVel)) { m_pidController.setSmartMotionMinOutputVelocity(minV,0); minVel = minV; }
-        if((maxA != maxAcc)) { m_pidController.setSmartMotionMaxAccel(maxA,0); maxAcc = maxA; }
-        if((allE != allowedErr)) { m_pidController.setSmartMotionAllowedClosedLoopError(allE,0); allowedErr = allE; }
 
         if (holdPosition){
             if (newPositiontohold)
@@ -135,21 +146,18 @@ public class AutoDrivetrain {
             SmartDashboard.putNumber("Process Variable", m_encoder.getPosition());
 
         } else {
-            double setPoint, processVariable;
-            boolean mode = SmartDashboard.getBoolean("Mode", false);
+            double processVariable;
             newPositiontohold = true;
             if(mode) {
-                setPoint = sign * SmartDashboard.getNumber("Set Velocity", 0);
-                m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
+                m_pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
                 processVariable = m_encoder.getVelocity();
             } else {
-                setPoint = sign * SmartDashboard.getNumber("Set Position", 0);
                 /**
                  * As with other PID modes, Smart Motion is set by calling the
                  * setReference method on an existing pid object and setting
                  * the control type to kSmartMotion
                  */
-                m_pidController.setReference(setPoint, CANSparkMax.ControlType.kSmartMotion);
+                m_pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kSmartMotion);
                 processVariable = m_encoder.getPosition();
                 
             }

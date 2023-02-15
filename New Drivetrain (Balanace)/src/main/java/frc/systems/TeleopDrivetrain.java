@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-public class TeleopDrivetrain {
+public class TeleopDrivetrain extends BaseDrivetrain {
     private final int HI_SHIFTER = 4;
     private final int LO_SHIFTER = 3;
     private Gear currentGear = Gear.HI;
@@ -44,7 +44,11 @@ public class TeleopDrivetrain {
 
     private double deadband = 0.05;
 
-    public TeleopDrivetrain() {
+    public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport, int m_right_encoderPortA,
+        int m_right_encoderPortB, int m_left_encoderPortA, int m_left_encoderPortB) {
+
+        super(FLport, BLport, FRport, BRport, m_right_encoderPortA, m_right_encoderPortB, m_left_encoderPortA,
+        m_left_encoderPortB);
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode

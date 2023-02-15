@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.AutoDrivetrain;
 import frc.systems.Balance;
 import frc.systems.TeleopDrivetrain;
@@ -26,6 +25,7 @@ public class Robot extends TimedRobot {
   Notifier driveRateGroup;
   public static BaseDrivetrain mBaseDrivetrain;
   public static TeleopDrivetrain mTeleopDrivetrain;
+  public static AutoDrivetrain mAutoDrivetrain;
 
   public static Timer systemTimer;
   public static XboxController xboxController;
@@ -45,11 +45,13 @@ public class Robot extends TimedRobot {
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
 
-    mBaseDrivetrain = new BaseDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
-     RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
-     RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
+    mTeleopDrivetrain = new TeleopDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
+        RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
+        RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
 
-    mTeleopDrivetrain = new TeleopDrivetrain();
+    mAutoDrivetrain = new AutoDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
+        RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
+        RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
 
     AutoDrivetrain.PIDDrivetrainInit();
 
