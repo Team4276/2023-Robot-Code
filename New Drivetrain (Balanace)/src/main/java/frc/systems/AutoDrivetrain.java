@@ -127,8 +127,8 @@ public class AutoDrivetrain {
         if (holdPosition){
             if (newPositiontohold)
                 holdThisPosition = m_encoder.getPosition();
-                newPositiontohold = false;
                 SmartDashboard.putNumber("holdThisPosition", holdThisPosition);
+                newPositiontohold = false;
 
             m_pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
             SmartDashboard.putNumber("SetPoint", holdThisPosition);
