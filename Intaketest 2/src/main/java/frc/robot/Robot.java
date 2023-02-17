@@ -58,6 +58,8 @@ public class Robot extends TimedRobot {
     // Drive train motor control is done on its own timer driven thread regardless of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(mTeleopDrivetrain::operatorDrive);
     driveRateGroup.startPeriodic(0.05);
+
+    xboxController = new XboxController(2);
     
   }
 
@@ -91,11 +93,13 @@ public class Robot extends TimedRobot {
        
     if (Robot.xboxController.getRawButton(Xbox.A)) {
       // Intake
-      mIntake.setSpeed(1.0);
+      mIntake.setSpeed(0.3);
 
     } else if (Robot.xboxController.getRawButton(Xbox.Y)) {
       // Outtake
-      mIntake.setSpeed(-1.0);
+      mIntake.setSpeed(-0.3);
+    } else {
+      mIntake.setSpeed(0.0);    
     }
   }
 
