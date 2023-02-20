@@ -8,10 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-import frc.systems.AutoDrivetrain;
-import frc.systems.TeleopDrivetrain;
-import frc.systems.BaseDrivetrain;
-import frc.systems.Intake;
+
+import frc.systems.Drivetrain;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
 import edu.wpi.first.wpilibj.XboxController;
@@ -25,12 +23,9 @@ public class Robot extends TimedRobot {
   public static Joystick xboxJoystick;
 
   Notifier driveRateGroup;
-  public static BaseDrivetrain mBaseDrivetrain;
-  public static TeleopDrivetrain mTeleopDrivetrain;
+  public static Drivetrain mDrivetrain;
 
   public static Timer systemTimer;
-
-  public static Intake mIntake;
 
   public static XboxController xboxController;
 
@@ -49,21 +44,14 @@ public class Robot extends TimedRobot {
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
 
-    mBaseDrivetrain = new BaseDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
-        RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
+    mDrivetrain = new Drivetrain(true, RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2, RoboRioPorts.CAN_DRIVE_L3,
+        RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.CAN_DRIVE_R3,
+        RoboRioPorts.DRIVE_DOUBLE_SOLENOID_FWD, RoboRioPorts.DRIVE_DOUBLE_SOLENOID_REV, RoboRioPorts.DIO_DRIVE_RIGHT_A,
         RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
-
-    mTeleopDrivetrain = new TeleopDrivetrain();
-
-    myLocation = new Location4276();
-
-    AutoDrivetrain.PIDDrivetrainInit();
-
-    mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
-    driveRateGroup = new Notifier(mTeleopDrivetrain::operatorDrive);
+    driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
     driveRateGroup.startPeriodic(0.05);
 
     xboxController = new XboxController(2);
@@ -84,7 +72,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    AutoDrivetrain.PIDDrivetrainUpdate();
     Gyroscope.gyroscopeUpdate();
     myLocation.updatePosition();
   }
@@ -92,6 +79,20 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     initialPitch = Gyroscope.GetPitch();
+
+    // TMP TMP TMP for testing without the driver station
+    myLocation.setPos_X(0.0);
+    myLocation.setPos_Y(0.0);
+    myLocation.setPos_Z(0.0);
+    myLocation.setVel_X(0.0);
+    myLocation.setVel_Y(0.0);
+    myLocation.setVel_Z(0.0);
+
+    myLocation.setDesiredVel_X(0.3);  // Drive slow enough that it can stop on its own after 15sec auto
+    myLocation.setGyroOffset(-1*myLocation.getGyroRaw());
+
+    myLocation.setrequestControlOfRobotFromDriverStation(true);
+
   }
 
   /** This function is called periodically during autonomous. */
@@ -107,17 +108,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
-    if (Robot.xboxController.getRawButton(Xbox.A)) {
-      // Intake
-      mIntake.setSpeed(0.3);
-
-    } else if (Robot.xboxController.getRawButton(Xbox.Y)) {
-      // Outtake
-      mIntake.setSpeed(-0.3);
-    } else {
-      mIntake.setSpeed(0.0);
-    }
   }
 
   /** This function is called once when the robot is disabled. */

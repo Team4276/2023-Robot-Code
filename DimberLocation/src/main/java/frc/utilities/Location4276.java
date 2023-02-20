@@ -3,7 +3,7 @@ package frc.utilities;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.systems.BaseDrivetrain;
+import frc.systems.Drivetrain;
 
 public class Location4276 {
 
@@ -185,7 +185,11 @@ public class Location4276 {
     public double getEncoderSpeed() {
         // Find the lowest speed encoder (assume faster speed indicates slippage or
         // minor difference due to turning)
-        double speed = BaseDrivetrain.FR_encoder.getVelocity();
+
+        double speed = 0.0;
+
+        /*   2023 robot can sense velocity directly from the SparkMAX controller
+        speed = BaseDrivetrain.FR_encoder.getVelocity();
         if (speed > BaseDrivetrain.FL_encoder.getVelocity()) {
             speed = BaseDrivetrain.FL_encoder.getVelocity();
         } else if (speed > BaseDrivetrain.BR_encoder.getVelocity()) {
@@ -193,7 +197,15 @@ public class Location4276 {
         } else if (speed > BaseDrivetrain.BL_encoder.getVelocity()) {
             speed = BaseDrivetrain.BL_encoder.getVelocity();
         }
-        return getDesiredSpeed() - speed;
+        */
+
+        // TMP TMP TMP for testing on Dimber
+        speed = Drivetrain.getEncoderVelocity_R();
+        if (speed > Drivetrain.getEncoderVelocity_L()) {
+            speed = Drivetrain.getEncoderVelocity_L();
+        }
+
+        return speed;
     }
 
     public double getEncoderSpeedError() {

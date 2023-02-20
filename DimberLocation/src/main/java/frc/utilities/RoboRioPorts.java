@@ -10,10 +10,12 @@ public class RoboRioPorts {
 	// Example:
 	// static final int CAN_DRIVE_FR = 0;
 
-	public static final int CAN_DRIVE_R1 = 7;
+	public static final int CAN_DRIVE_R1 = 11;
 	public static final int CAN_DRIVE_R2 = 12;
-	public static final int CAN_DRIVE_L1 = 13;
-	public static final int CAN_DRIVE_L2 = 14;
+	public static final int CAN_DRIVE_R3 = 13;
+	public static final int CAN_DRIVE_L1 = 14;
+	public static final int CAN_DRIVE_L2 = 15;
+	public static final int CAN_DRIVE_L3 = 16;
 
 	// *** PNUEMATICS ***
 	public static final int DRIVE_DOUBLE_SOLENOID_FWD = 4;
@@ -25,6 +27,4 @@ public class RoboRioPorts {
 
 	public static final int DIO_DRIVE_RIGHT_A = 2;
 	public static final int DIO_DRIVE_RIGHT_B = 3;
-
-	public static final int CAN_INTAKE = 17;
 }
