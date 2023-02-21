@@ -21,7 +21,7 @@ public class Robot extends TimedRobot {
 
   public static Joystick leftJoystick;
   public static Joystick rightJoystick;
-  
+
   Notifier driveRateGroup;
   public static BaseDrivetrain mBaseDrivetrain;
   public static TeleopDrivetrain mTeleopDrivetrain;
@@ -30,6 +30,7 @@ public class Robot extends TimedRobot {
 
   public static Intake mIntake;
   public static Shoulder mShoulder;
+  public static Wrist mWrist;
 
   public static XboxController xboxController;
 
@@ -43,7 +44,7 @@ public class Robot extends TimedRobot {
 
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
-    
+
     mBaseDrivetrain = new BaseDrivetrain(RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2,
         RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.DIO_DRIVE_RIGHT_A,
         RoboRioPorts.DIO_DRIVE_RIGHT_B, RoboRioPorts.DIO_DRIVE_LEFT_A, RoboRioPorts.DIO_DRIVE_LEFT_B);
@@ -54,6 +55,7 @@ public class Robot extends TimedRobot {
 
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
     mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    mWrist = new Wrist(RoboRioPorts.CAN_WRIST);
 
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
@@ -99,7 +101,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-   mShoulder.updatePeriodic();
+    mShoulder.updatePeriodic();
 
     if (Robot.xboxController.getRawButton(Xbox.A)) {
       // Intake
