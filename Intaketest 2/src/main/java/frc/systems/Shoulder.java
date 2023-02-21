@@ -26,11 +26,11 @@ public class Shoulder {
     }
 
     public void updatePeriodic() {
-        if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
+        if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
             double rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
             Robot.mShoulder.setShoulderSpeed_R(rightY);
         }
-        if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
+        if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
             double leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
             Robot.mShoulder.setShoulderSpeed_L(leftY);
         }
