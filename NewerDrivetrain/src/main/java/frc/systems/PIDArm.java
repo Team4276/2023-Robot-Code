@@ -37,9 +37,8 @@ public class PIDArm {
 
     public static boolean modeIsSetPosition = false; // Otherwise set velocity
 
-    public static double setPoint_SR;
-    public static double setPoint_SL;
-    public static double setPoint_W;
+    public static double setPoint_S;
+     public static double setPoint_W;
 
     public static boolean usingSmartDashboard = true;
 
@@ -53,9 +52,8 @@ public class PIDArm {
 
     public void setShoulderPosition(double distance) {
         modeIsSetPosition = true;
-        setPoint_SR = distance;
-        setPoint_SL = distance;
-    }
+        setPoint_S = distance;
+      }
 
     public void setWristPosition(double distance) {
         modeIsSetPosition = true;
@@ -110,14 +108,14 @@ public class PIDArm {
             setModeVelocity();
         }
         if (modeIsSetPosition) {
-            driveShoulder_R.getPIDController().setReference(setPoint_SR, CANSparkMax.ControlType.kSmartMotion);
-            driveShoulder_L.getPIDController().setReference(setPoint_SL, CANSparkMax.ControlType.kSmartMotion);
+            driveShoulder_R.getPIDController().setReference(setPoint_S, CANSparkMax.ControlType.kSmartMotion);
+            driveShoulder_L.getPIDController().setReference(-1 * setPoint_S, CANSparkMax.ControlType.kSmartMotion);  // -1 because the left motor turns the opposite way when the arm moves
             driveWrist.getPIDController().setReference(setPoint_W, CANSparkMax.ControlType.kSmartMotion);
         } else {
             if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-                setPoint_SR = setPoint_SL = Robot.xboxController.getLeftY();
-                driveShoulder_R.getPIDController().setReference(setPoint_SR, CANSparkMax.ControlType.kVelocity);
-                driveShoulder_L.getPIDController().setReference(setPoint_SL, CANSparkMax.ControlType.kVelocity);
+                setPoint_S = Robot.xboxController.getLeftY();
+                driveShoulder_R.getPIDController().setReference(setPoint_S, CANSparkMax.ControlType.kVelocity);
+                driveShoulder_L.getPIDController().setReference(-1 * setPoint_S, CANSparkMax.ControlType.kVelocity);
             }
             if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
                 setPoint_W = Robot.xboxController.getRightY();
@@ -196,8 +194,8 @@ public class PIDArm {
         SmartDashboard.putNumber("Wrist Encoder", driveWrist.getEncoder().getPosition());
 
         if (modeIsSetPosition) {
-            SmartDashboard.putNumber("SetPoint_SR_Pos", setPoint_SR);
-            SmartDashboard.putNumber("SetPoint_SL_Pos", setPoint_SL);
+            SmartDashboard.putNumber("SetPoint_SR_Pos", setPoint_S);
+            SmartDashboard.putNumber("SetPoint_SL_Pos", setPoint_S);
             SmartDashboard.putNumber("SetPoint_W_Pos", setPoint_W);
 
             SmartDashboard.putNumber("Encoder_SR_Pos", driveShoulder_R.getEncoder().getPosition());
@@ -208,8 +206,8 @@ public class PIDArm {
             SmartDashboard.putNumber("MotorOutput_SL_Pos", driveShoulder_L.getAppliedOutput());
             SmartDashboard.putNumber("MotorOutput_W_Pos", driveWrist.getAppliedOutput());
         } else {
-            SmartDashboard.putNumber("SetPoint_SR_Vel", setPoint_SR);
-            SmartDashboard.putNumber("SetPoint_SL_Vel", setPoint_SL);
+            SmartDashboard.putNumber("SetPoint_SR_Vel", setPoint_S);
+            SmartDashboard.putNumber("SetPoint_SL_Vel", setPoint_S);
             SmartDashboard.putNumber("SetPoint_W_Vel", setPoint_W);
 
             SmartDashboard.putNumber("Encoder_SR_Vel", driveShoulder_R.getEncoder().getVelocity());
