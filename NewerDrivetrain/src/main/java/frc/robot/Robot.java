@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.systems.Balance;
+import frc.systems.PIDArm;
 import frc.systems.PIDDrivetrain;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
@@ -26,6 +27,8 @@ public class Robot extends TimedRobot {
   Notifier driveRateGroup;
   public static TeleopDrivetrain mTeleopDrivetrain;
   public static PIDDrivetrain mPIDDrivetrain;
+
+  public static PIDArm mArm;
 
   public static Timer systemTimer;
 
@@ -49,7 +52,10 @@ public class Robot extends TimedRobot {
       mTeleopDrivetrain.operatorDrive();
       TeleopDrivetrain.updateTelemetry();
     }
+
+    PIDArm.PIDArmUpdate();
   }
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -73,11 +79,13 @@ public class Robot extends TimedRobot {
 
     PIDDrivetrain.PIDDrivetrainInit();
 
+    mArm = new PIDArm(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L, RoboRioPorts.CAN_WRIST);
+    PIDArm.PIDArmInit();
+
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
-
   }
 
   /**

@@ -1,7 +1,7 @@
 package frc.systems;
 
-import frc.utilities.PID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.PID;
 
 public class Balance {
     private static double DEAD_ZONE = 1;
