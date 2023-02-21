@@ -13,13 +13,6 @@ public class PIDDrivetrain extends BaseDrivetrain {
         // TODO Auto-generated constructor stub
     }
 
-    private static SparkMaxPIDController FR_pidController, FL_pidController, BR_pidController, BL_pidController;
-
-    private static CANSparkMax FR_motor = BaseDrivetrain.frDriveX;
-    private static CANSparkMax FL_motor = BaseDrivetrain.flDriveX;
-    private static CANSparkMax BR_motor = BaseDrivetrain.brDriveX;
-    private static CANSparkMax BL_motor = BaseDrivetrain.blDriveX;
-
     // PID coefficients
     private static double kP = 5e-5;
     private static double kI = 1e-6;
@@ -50,7 +43,7 @@ public class PIDDrivetrain extends BaseDrivetrain {
     public static void PIDDrivetrainInit() {
         int smartMotionSlot = 0;
 
-        CANSparkMax[] motorArray = { FR_motor, FL_motor, BR_motor, BL_motor };
+        CANSparkMax[] motorArray = { frDriveX, flDriveX, brDriveX, blDriveX };
         for (CANSparkMax motor : motorArray) {
             SparkMaxPIDController pidController = motor.getPIDController();
 
@@ -65,11 +58,6 @@ public class PIDDrivetrain extends BaseDrivetrain {
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
-
-        FR_pidController = FR_motor.getPIDController();
-        FL_pidController = FL_motor.getPIDController();
-        BR_pidController = BR_motor.getPIDController();
-        BL_pidController = BL_motor.getPIDController();
 
         if (usingSmartDashboard) {
             // display PID coefficients on SmartDashboard
@@ -97,14 +85,16 @@ public class PIDDrivetrain extends BaseDrivetrain {
     public static void PIDDrivetrainUpdate() {
         SmartDashboard.putBoolean("holdPosition", holdPosition);
 
-        Update(FR_pidController, BaseDrivetrain.FR_encoder, 1, FR_motor);
-        Update(FL_pidController, BaseDrivetrain.FL_encoder, -1, FL_motor);
-        Update(BR_pidController, BaseDrivetrain.BR_encoder, 1, BR_motor);
-        Update(BL_pidController, BaseDrivetrain.BL_encoder, -1, BL_motor);
+        Update(1, frDriveX);
+        Update(-1, flDriveX);
+        Update(1, brDriveX);
+        Update(-1, blDriveX);
     }
 
-    public static void Update(SparkMaxPIDController pidController, RelativeEncoder encoder, double sign,
-            CANSparkMax motor) {
+    public static void Update(double sign, CANSparkMax motor) {
+        SparkMaxPIDController pidController = motor.getPIDController();
+        RelativeEncoder encoder = motor.getEncoder();
+        
         if (usingSmartDashboard) {
             double p = SmartDashboard.getNumber("P Gain", 0);
             double i = SmartDashboard.getNumber("I Gain", 0);
@@ -117,6 +107,7 @@ public class PIDDrivetrain extends BaseDrivetrain {
             double minV = SmartDashboard.getNumber("Min Velocity", 0);
             double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
             double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
+
 
             if ((p != kP)) {
                 pidController.setP(p);
