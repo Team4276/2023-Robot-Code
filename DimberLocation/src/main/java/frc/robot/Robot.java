@@ -4,17 +4,16 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-
-import frc.systems.Drivetrain;
-import frc.utilities.RoboRioPorts;
-import frc.utilities.Xbox;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.utilities.Location4276;
+import frc.systems.Drivetrain;
 import frc.utilities.Gyroscope;
+import frc.utilities.Location4276;
+import frc.utilities.RoboRioPorts;
 
 public class Robot extends TimedRobot {
 
@@ -31,6 +30,17 @@ public class Robot extends TimedRobot {
 
   public static double initialPitch = 0;
   public static Location4276 myLocation;
+  public static boolean isJoystickControl = true;
+
+  public static void timedDrive() {
+    if (myLocation.getrequestControlOfRobotFromDriverStation()) {
+      mDrivetrain.autoDrivePeriodic();
+    } else if (isJoystickControl) {
+      mDrivetrain.operatorDrive();
+    } else {
+      // mAutoDrivetrain.PIDDrivetrainUpdate();
+    }
+  }
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -40,9 +50,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    CameraServer.startAutomaticCapture();
+
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
     xboxJoystick = new Joystick(2);
+
+    myLocation = new Location4276();
 
     mDrivetrain = new Drivetrain(true, RoboRioPorts.CAN_DRIVE_L1, RoboRioPorts.CAN_DRIVE_L2, RoboRioPorts.CAN_DRIVE_L3,
         RoboRioPorts.CAN_DRIVE_R1, RoboRioPorts.CAN_DRIVE_R2, RoboRioPorts.CAN_DRIVE_R3,
@@ -51,12 +65,10 @@ public class Robot extends TimedRobot {
 
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
-    driveRateGroup = new Notifier(mDrivetrain::operatorDrive);
+    driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
     xboxController = new XboxController(2);
-
-    myLocation = new Location4276();
   }
 
   /**
@@ -88,16 +100,17 @@ public class Robot extends TimedRobot {
     myLocation.setVel_Y(0.0);
     myLocation.setVel_Z(0.0);
 
-    myLocation.setDesiredVel_X(0.3);  // Drive slow enough that it can stop on its own after 15sec auto
-    myLocation.setGyroOffset(-1*myLocation.getGyroRaw());
+    myLocation.setDesiredVel_X(0.3); // Drive slow enough that it can stop on its own after 15sec auto
+    myLocation.setDesiredVel_Y(0.3); // Drive slow enough that it can stop on its own after 15sec auto
+    myLocation.setGyroOffset(-1 * myLocation.getGyroRaw());
 
     myLocation.setrequestControlOfRobotFromDriverStation(true);
-
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    
   }
 
   /** This function is called once when teleop is enabled. */

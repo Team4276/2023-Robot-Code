@@ -3,6 +3,7 @@ package frc.utilities;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Drivetrain;
 
 public class Location4276 {
@@ -66,7 +67,7 @@ public class Location4276 {
     }
 
     public boolean getrequestControlOfRobotFromDriverStation() {
-        return vel_Z.getBoolean(false);
+        return requestControlOfRobotFromDriverStation.getBoolean(false);
     }
 
     public void setrequestControlOfRobotFromDriverStation(boolean val) {
@@ -177,9 +178,12 @@ public class Location4276 {
         return Math.sqrt((getDesiredVel_X() * getDesiredVel_X()) + (getDesiredVel_Y() * getDesiredVel_Y()));
     }
 
+    public double getGyroHeading() {
+        return Gyroscope.GetYaw() - getGyroOffset();
+    }
+
     public double getGyroHeadingError() {
-        double heading = Gyroscope.GetYaw() - getGyroOffset();
-        return heading - getDesiredHeading();
+        return getGyroHeading() - getDesiredHeading();
     }
 
     public double getEncoderSpeed() {
@@ -188,19 +192,20 @@ public class Location4276 {
 
         double speed = 0.0;
 
-        /*   2023 robot can sense velocity directly from the SparkMAX controller
-        speed = BaseDrivetrain.FR_encoder.getVelocity();
-        if (speed > BaseDrivetrain.FL_encoder.getVelocity()) {
-            speed = BaseDrivetrain.FL_encoder.getVelocity();
-        } else if (speed > BaseDrivetrain.BR_encoder.getVelocity()) {
-            speed = BaseDrivetrain.BR_encoder.getVelocity();
-        } else if (speed > BaseDrivetrain.BL_encoder.getVelocity()) {
-            speed = BaseDrivetrain.BL_encoder.getVelocity();
-        }
-        */
+        /*
+         * 2023 robot can sense velocity directly from the SparkMAX controller
+         * speed = BaseDrivetrain.FR_encoder.getVelocity();
+         * if (speed > BaseDrivetrain.FL_encoder.getVelocity()) {
+         * speed = BaseDrivetrain.FL_encoder.getVelocity();
+         * } else if (speed > BaseDrivetrain.BR_encoder.getVelocity()) {
+         * speed = BaseDrivetrain.BR_encoder.getVelocity();
+         * } else if (speed > BaseDrivetrain.BL_encoder.getVelocity()) {
+         * speed = BaseDrivetrain.BL_encoder.getVelocity();
+         * }
+         */
 
         // TMP TMP TMP for testing on Dimber
-        speed = Drivetrain.getEncoderVelocity_R();
+        speed = (-1*Drivetrain.getEncoderVelocity_R());
         if (speed > Drivetrain.getEncoderVelocity_L()) {
             speed = Drivetrain.getEncoderVelocity_L();
         }
@@ -237,5 +242,20 @@ public class Location4276 {
             setPos_Y(prev_Y + distance_Y);
         } // else if AprilTags found the driver station is continuously updating this
           // position via NetworkTables
+
+        SmartDashboard.putBoolean("isValidPositionFix ", isValidPositionFix.getBoolean(false));
+        SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",
+                requestControlOfRobotFromDriverStation.getBoolean(false));
+        SmartDashboard.putNumber("pos_X ", pos_X.getDouble(0.0));
+        SmartDashboard.putNumber("pos_Y ", pos_Y.getDouble(0.0));
+        SmartDashboard.putNumber("pos_Z ", pos_Z.getDouble(0.0));
+        SmartDashboard.putNumber("vel_X ", vel_X.getDouble(0.0));
+        SmartDashboard.putNumber("vel_Y ", vel_Y.getDouble(0.0));
+        SmartDashboard.putNumber("vel_Z ", vel_Z.getDouble(0.0));
+        SmartDashboard.putNumber("desiredVel_X ", desiredVel_X.getDouble(0.0));
+        SmartDashboard.putNumber("desiredVel_Y ", desiredVel_Y.getDouble(0.0));
+        SmartDashboard.putNumber("desiredVel_Z ", desiredVel_Z.getDouble(0.0));
+        SmartDashboard.putNumber("gyroRaw ", gyroRaw.getDouble(0.0));
+        SmartDashboard.putNumber("gyroOffset ", gyroOffset.getDouble(0.0));
     }
 }

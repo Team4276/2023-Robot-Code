@@ -33,6 +33,8 @@ public class Drivetrain {
     private static long currentTicks = 0;
     private static double encoderVelocity_R = 0.0;
     private static double encoderVelocity_L = 0.0;
+    private static double autoPower_R = 0.0;
+    private static double autoPower_L = 0.0;
 
     private final int HI_SHIFTER = 4;
     private final int LO_SHIFTER = 3;
@@ -175,6 +177,24 @@ public class Drivetrain {
         }
 
         updateTelemetry();
+    }
+
+    public void autoDrivePeriodic() {
+
+        double errHeading = Robot.myLocation.getGyroHeadingError();
+        double errSpeed = Robot.myLocation.getEncoderSpeedError();
+
+        autoPower_R -= (-1*errSpeed)/4.0;  // -1 because if errSpeed is negative ()
+        autoPower_L += (-1*errSpeed)/4.0;  // Note that forward is + for L and - for R
+        /* 
+        if(errHeading > 0.0) {
+            autoPower_R -= 0.05;
+            autoPower_L -= 0.05;
+        } else {
+            autoPower_R += 0.05;
+            autoPower_L += 0.05;         
+        }*/
+        assignMotorPower(autoPower_R, autoPower_L);
     }
 
     /**
