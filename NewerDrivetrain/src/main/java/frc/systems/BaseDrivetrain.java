@@ -6,13 +6,24 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BaseDrivetrain {
-    public static CANSparkMax flDriveX, blDriveX, frDriveX, brDriveX;
+    public static CANSparkMax flDriveX = null;
+    public static CANSparkMax blDriveX = null;
+    public static CANSparkMax frDriveX = null;
+    public static CANSparkMax brDriveX = null;
 
     public BaseDrivetrain(int FLport, int BLport, int FRport, int BRport) {
-        flDriveX = new CANSparkMax(FLport, MotorType.kBrushless);
-        blDriveX = new CANSparkMax(BLport, MotorType.kBrushless);
-        frDriveX = new CANSparkMax(FRport, MotorType.kBrushless);
-        brDriveX = new CANSparkMax(BRport, MotorType.kBrushless);
+        if (flDriveX==null){
+            flDriveX = new CANSparkMax(FLport, MotorType.kBrushless);
+        }
+        if (blDriveX==null){
+            blDriveX = new CANSparkMax(BLport, MotorType.kBrushless);
+        }
+        if (frDriveX==null){
+            frDriveX = new CANSparkMax(FRport, MotorType.kBrushless);
+        }
+        if (brDriveX==null){
+            brDriveX = new CANSparkMax(BRport, MotorType.kBrushless);
+        }
     }
 
     public static void updateBaseTelemetry() {

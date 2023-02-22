@@ -8,7 +8,6 @@
 
 package frc.systems;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,11 +20,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
 
     private static DriveMode currentMode = DriveMode.TANK;
     private static String currentMode_s = "Tank";
-
-    private static CANSparkMax flDriveX = BaseDrivetrain.flDriveX;
-    private static CANSparkMax blDriveX = BaseDrivetrain.blDriveX;
-    private static CANSparkMax frDriveX = BaseDrivetrain.frDriveX;
-    private static CANSparkMax brDriveX = BaseDrivetrain.brDriveX;
 
     private static double leftPower = 0;
     private static double rightPower = 0;

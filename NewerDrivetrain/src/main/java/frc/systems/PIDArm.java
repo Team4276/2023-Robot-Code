@@ -29,6 +29,8 @@ public class PIDArm {
     private static double allowedErr = 0;
     private static double deadband = 0.05;
 
+    private static double multiplier = 500;
+
     public PIDArm(int SRport, int SLport, int Wportt) {
         driveShoulder_R = new CANSparkMax(SRport, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(SLport, MotorType.kBrushless);
@@ -113,7 +115,8 @@ public class PIDArm {
             driveWrist.getPIDController().setReference(setPoint_W, CANSparkMax.ControlType.kSmartMotion);
         } else {
             if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-                setPoint_S = Robot.xboxController.getLeftY();
+                setPoint_S = multiplier * Robot.xboxController.getLeftY();
+                SmartDashboard.putNumber("Shoulder Setpoint", setPoint_S);
                 driveShoulder_R.getPIDController().setReference(setPoint_S, CANSparkMax.ControlType.kVelocity);
                 driveShoulder_L.getPIDController().setReference(-1 * setPoint_S, CANSparkMax.ControlType.kVelocity);
             }
