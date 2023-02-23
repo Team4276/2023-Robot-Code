@@ -3,10 +3,11 @@ package frc.systems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Shoulder {
-    
+    private static double leftY;
     private static CANSparkMax driveShoulder_R;
     private static CANSparkMax driveShoulder_L;
     private double deadband = 0.05;
@@ -27,13 +28,14 @@ public class Shoulder {
 
     public void updatePeriodic() {
         if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            double leftY = Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
-            Robot.mShoulder.setShoulderSpeed_R(leftY);
+            leftY = Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
+            Robot.mShoulder.setShoulderSpeed_R(-1*leftY);
             Robot.mShoulder.setShoulderSpeed_L(leftY);
+        } else {
+            Robot.mShoulder.setShoulderSpeed_R(0);
+            Robot.mShoulder.setShoulderSpeed_L(0);
         }
-        if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            double leftY = -Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
-            Robot.mShoulder.setShoulderSpeed_L(leftY);
-        }
+
+        SmartDashboard.putNumber("Shoulder Power", leftY);
     }
 }

@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
 import frc.systems.Elbow;
-import frc.systems.PIDArm;
 import frc.systems.PIDDrivetrain;
 import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
@@ -106,6 +106,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     Gyroscope.gyroscopeUpdate();
+    SmartDashboard.putBoolean("Using Joystick", TeleopDrivetrain.usingJoystick);
   }
 
   @Override
