@@ -17,7 +17,7 @@ public class RoboRioPorts {
 
 	public static final int CAN_SHOULDER_R = 16;
 	public static final int CAN_SHOULDER_L = 15;
-	public static final int CAN_WRIST = 18;
+	public static final int CAN_ELBOW = 18;
 
 
 	// *** PNUEMATICS ***

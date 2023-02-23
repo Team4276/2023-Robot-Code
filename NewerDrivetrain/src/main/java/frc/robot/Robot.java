@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.systems.Balance;
+import frc.systems.Elbow;
 import frc.systems.PIDArm;
 import frc.systems.PIDDrivetrain;
+import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
 import frc.utilities.RoboRioPorts;
@@ -28,7 +30,8 @@ public class Robot extends TimedRobot {
   public static TeleopDrivetrain mTeleopDrivetrain;
   public static PIDDrivetrain mPIDDrivetrain;
 
-  public static PIDArm mArm;
+  public static Shoulder mShoulder;
+  public static Elbow mElbow;
 
   public static Timer systemTimer;
 
@@ -53,7 +56,8 @@ public class Robot extends TimedRobot {
       TeleopDrivetrain.updateTelemetry();
     }
 
-    PIDArm.PIDArmUpdate();
+    mShoulder.updatePeriodic();
+    mElbow.updatePeriodic();
   }
 
 
@@ -79,9 +83,9 @@ public class Robot extends TimedRobot {
 
     PIDDrivetrain.PIDDrivetrainInit();
 
-    mArm = new PIDArm(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L, RoboRioPorts.CAN_WRIST);
-    PIDArm.PIDArmInit();
-
+        mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+        mElbow = new Elbow(RoboRioPorts.CAN_ELBOW);
+   
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(Robot::timedDrive);
