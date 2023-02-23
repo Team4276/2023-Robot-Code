@@ -8,25 +8,18 @@
 
 package frc.systems;
 
-import frc.utilities.LogJoystick;
-import frc.robot.Robot;
-import frc.utilities.Toggler;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-public class TeleopDrivetrain {
-    private boolean brakeModeisEngaged = true;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
+import frc.utilities.LogJoystick;
+import frc.utilities.Toggler;
 
-    private DriveMode currentMode = DriveMode.TANK;
-    private String currentMode_s = "Tank";
+public class TeleopDrivetrain extends BaseDrivetrain {
+    private static boolean brakeModeisEngaged = true;
 
-    private static CANSparkMax flDriveX = BaseDrivetrain.flDriveX;
-    private static CANSparkMax blDriveX = BaseDrivetrain.blDriveX;
-    private static CANSparkMax frDriveX = BaseDrivetrain.frDriveX;
-    private static CANSparkMax brDriveX = BaseDrivetrain.brDriveX;
+    private static DriveMode currentMode = DriveMode.TANK;
+    private static String currentMode_s = "Tank";
 
     private static double leftPower = 0;
     private static double rightPower = 0;
@@ -34,7 +27,11 @@ public class TeleopDrivetrain {
 
     private double deadband = 0.05;
 
-    public TeleopDrivetrain() {
+    public static boolean usingJoystick = false;
+
+    public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport) {
+
+        super(FLport, BLport, FRport, BRport);
 
         brakeModeToggler = new Toggler(LogJoystick.B1);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
@@ -90,9 +87,11 @@ public class TeleopDrivetrain {
 
             case TANK:
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
+                    usingJoystick = true;
                     rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
                 }
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
+                    usingJoystick = true;
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
                 }
                 assignMotorPower(rightY, leftY);
@@ -101,8 +100,6 @@ public class TeleopDrivetrain {
             default:
                 break;
         }
-
-        updateTelemetry();
     }
 
     public enum DriveMode {
@@ -128,8 +125,10 @@ public class TeleopDrivetrain {
     /**
      * updates smartdashboard
      */
-    public void updateTelemetry() {
-        // shifting status
+    public static void updateTelemetry() {
+        updateBaseTelemetry();
+        
+        // tank/arcade status
         SmartDashboard.putString("Drive Mode", currentMode_s);
         // power outputs
         SmartDashboard.putNumber("Right Power", rightPower);
