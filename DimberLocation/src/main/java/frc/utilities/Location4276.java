@@ -31,7 +31,8 @@ public class Location4276 {
     // entries, probably many times between updates from the driver station
 
     private static NetworkTable tablePosition;
-    private static NetworkTableEntry isValidPositionFix;
+
+    // These items go from RoboRio to driver station
     private static NetworkTableEntry requestControlOfRobotFromDriverStation;
     private static NetworkTableEntry pos_X;
     private static NetworkTableEntry pos_Y;
@@ -39,31 +40,78 @@ public class Location4276 {
     private static NetworkTableEntry vel_X;
     private static NetworkTableEntry vel_Y;
     private static NetworkTableEntry vel_Z;
-    private static NetworkTableEntry desiredVel_X;
-    private static NetworkTableEntry desiredVel_Y;
-    private static NetworkTableEntry desiredVel_Z;
     private static NetworkTableEntry gyroRaw;
-    private static NetworkTableEntry gyroOffset;
+
+    // These items go from driver station to RoboRio
+    private static NetworkTableEntry DS_posfix_x;
+    private static NetworkTableEntry DS_posfix_y;
+    private static NetworkTableEntry DS_posfix_z;
+    private static NetworkTableEntry DS_velfix_x;
+    private static NetworkTableEntry DS_velfix_y;
+    private static NetworkTableEntry DS_velfix_z;
+    private static NetworkTableEntry DS_desiredVel_x;
+    private static NetworkTableEntry DS_desiredVel_y;
+    private static NetworkTableEntry DS_desiredVel_z;
+    private static NetworkTableEntry DS_gyroOffset;
+
+    private static double prev_dsposfix_x = 0.0;
+    private static double prev_dsposfix_y = 0.0;
+    private static double prev_dsposfix_z = 0.0;
+    private static double prev_dsvelfix_x = 0.0;
+    private static double prev_dsvelfix_y = 0.0;
+    private static double prev_dsvelfix_z = 0.0;
 
     private long positionUpdateTimeNanosecs;
 
     public Location4276() {
         tablePosition = NetworkTableInstance.getDefault().getTable("pos4276");
-        isValidPositionFix = tablePosition.getEntry("isvalidpositionfix");
+
+        requestControlOfRobotFromDriverStation = tablePosition.getEntry("requestcontrol");
         pos_X = tablePosition.getEntry("posx");
         pos_Y = tablePosition.getEntry("posy");
         pos_Z = tablePosition.getEntry("posz");
         vel_X = tablePosition.getEntry("velx");
         vel_Y = tablePosition.getEntry("vely");
         vel_Z = tablePosition.getEntry("velz");
-        requestControlOfRobotFromDriverStation = tablePosition.getEntry("requestcontrol");
-        desiredVel_X = tablePosition.getEntry("desiredvelx");
-        desiredVel_Y = tablePosition.getEntry("desiredvely");
-        desiredVel_Z = tablePosition.getEntry("desiredvelz");
         gyroRaw = tablePosition.getEntry("gyroraw");
-        gyroOffset = tablePosition.getEntry("gyrooffset");
+
+        DS_posfix_x = tablePosition.getEntry("dsposfixx");
+        DS_posfix_y = tablePosition.getEntry("dsposfixy");
+        DS_posfix_z = tablePosition.getEntry("dsposfixz");
+        DS_velfix_x = tablePosition.getEntry("dsvelfixx");
+        DS_velfix_y = tablePosition.getEntry("dsvelfixy");
+        DS_velfix_z = tablePosition.getEntry("dsvelfixz");
+        DS_desiredVel_x = tablePosition.getEntry("dsdesiredvelx");
+        DS_desiredVel_y = tablePosition.getEntry("dsdesiredvely");
+        DS_desiredVel_z = tablePosition.getEntry("dsdesiredvelz");
+        DS_gyroOffset = tablePosition.getEntry("dsgyrooffset");
 
         positionUpdateTimeNanosecs = java.lang.System.nanoTime();
+    }
+
+    public boolean isNewPositionFix() {
+        return ((prev_dsposfix_x != DS_posfix_x.getDouble(0.0))
+                || (prev_dsposfix_y != DS_posfix_y.getDouble(0.0))
+                || (prev_dsposfix_z != DS_posfix_z.getDouble(0.0))
+                || (prev_dsvelfix_x != DS_velfix_x.getDouble(0.0))
+                || (prev_dsvelfix_y != DS_velfix_y.getDouble(0.0))
+                || (prev_dsvelfix_z != DS_velfix_z.getDouble(0.0)));
+    }
+
+    public void setPositionFix() {
+        prev_dsposfix_x = DS_posfix_x.getDouble(0.0);
+        prev_dsposfix_y = DS_posfix_y.getDouble(0.0);
+        prev_dsposfix_z = DS_posfix_z.getDouble(0.0);
+        prev_dsvelfix_x = DS_velfix_x.getDouble(0.0);
+        prev_dsvelfix_y = DS_velfix_y.getDouble(0.0);
+        prev_dsvelfix_z = DS_velfix_z.getDouble(0.0);
+
+        pos_X.setDouble(prev_dsposfix_x);
+        pos_Y.setDouble(prev_dsposfix_y);
+        pos_Z.setDouble(prev_dsposfix_z);
+        vel_X.setDouble(prev_dsvelfix_x);
+        vel_Y.setDouble(prev_dsvelfix_y);
+        vel_Z.setDouble(prev_dsvelfix_z);
     }
 
     public boolean getrequestControlOfRobotFromDriverStation() {
@@ -72,14 +120,6 @@ public class Location4276 {
 
     public void setrequestControlOfRobotFromDriverStation(boolean val) {
         requestControlOfRobotFromDriverStation.setBoolean(val);
-    }
-
-    public boolean getIsValidPositionFix() {
-        return isValidPositionFix.getBoolean(false);
-    }
-
-    public void setIsValidPositionFix(boolean val) {
-        isValidPositionFix.setBoolean(val);
     }
 
     public double getPos_X() {
@@ -130,30 +170,6 @@ public class Location4276 {
         vel_Z.setDouble(val);
     }
 
-    public double getDesiredVel_X() {
-        return desiredVel_X.getDouble(0.0);
-    }
-
-    public void setDesiredVel_X(double val) {
-        desiredVel_X.setDouble(val);
-    }
-
-    public double getDesiredVel_Y() {
-        return desiredVel_Y.getDouble(0.0);
-    }
-
-    public void setDesiredVel_Y(double val) {
-        desiredVel_Y.setDouble(val);
-    }
-
-    public double getDesiredVel_Z() {
-        return desiredVel_Z.getDouble(0.0);
-    }
-
-    public void setDesiredVel_Z(double val) {
-        desiredVel_Z.setDouble(val);
-    }
-
     public double getGyroRaw() {
         return gyroRaw.getDouble(0.0);
     }
@@ -162,28 +178,52 @@ public class Location4276 {
         gyroRaw.setDouble(val);
     }
 
-    public double getGyroOffset() {
-        return gyroOffset.getDouble(0.0);
+    public double getDsDesiredVel_x() {
+        return DS_desiredVel_x.getDouble(0.0);
     }
 
-    public void setGyroOffset(double val) {
-        gyroOffset.setDouble(val);
+    public void setDsDesiredVel_x(double val) {
+        DS_desiredVel_x.setDouble(val);
     }
 
-    public double getDesiredHeading() {
-        return Math.atan2(getDesiredVel_X(), getDesiredVel_Y());
+    public double getDsDesiredVel_y() {
+        return DS_desiredVel_y.getDouble(0.0);
     }
 
-    public double getDesiredSpeed() {
-        return Math.sqrt((getDesiredVel_X() * getDesiredVel_X()) + (getDesiredVel_Y() * getDesiredVel_Y()));
+    public void setDsDesiredVel_y(double val) {
+        DS_desiredVel_y.setDouble(val);
+    }
+
+    public double getDsDesiredVel_z() {
+        return DS_desiredVel_z.getDouble(0.0);
+    }
+
+    public void setDsDesiredVel_z(double val) {
+        DS_desiredVel_z.setDouble(val);
+    }
+
+    public double getDsGyroOffset() {
+        return DS_gyroOffset.getDouble(0.0);
+    }
+
+    public void setDsGyroOffset(double val) {
+        DS_gyroOffset.setDouble(val);
+    }
+
+    public double getDsDesiredHeading() {
+        return Math.atan2(getDsDesiredVel_x(), getDsDesiredVel_y());
+    }
+
+    public double getDsDesiredSpeed() {
+        return Math.sqrt((getDsDesiredVel_x() * getDsDesiredVel_x()) + (getDsDesiredVel_y() * getDsDesiredVel_y()));
     }
 
     public double getGyroHeading() {
-        return Gyroscope.GetYaw() - getGyroOffset();
+        return Gyroscope.GetYaw() - getDsGyroOffset();
     }
 
     public double getGyroHeadingError() {
-        return getGyroHeading() - getDesiredHeading();
+        return getGyroHeading() - getDsDesiredHeading();
     }
 
     public double getEncoderSpeed() {
@@ -205,7 +245,7 @@ public class Location4276 {
          */
 
         // TMP TMP TMP for testing on Dimber
-        speed = (-1*Drivetrain.getEncoderVelocity_R());
+        speed = (-1 * Drivetrain.getEncoderVelocity_R());
         if (speed > Drivetrain.getEncoderVelocity_L()) {
             speed = Drivetrain.getEncoderVelocity_L();
         }
@@ -214,19 +254,21 @@ public class Location4276 {
     }
 
     public double getEncoderSpeedError() {
-        return getDesiredSpeed() - getEncoderSpeed();
+        return getDsDesiredSpeed() - getEncoderSpeed();
     }
 
     public void updatePosition() {
 
-        if (!getIsValidPositionFix()) {
+        if (isNewPositionFix()) {
+            setPositionFix();
+        } else {
             // Limelight did not find any Apriltag
             // Estimate current heading and speed to extrapolate current position from
             // previous position
             double prev_X = getPos_X();
             double prev_Y = getPos_Y();
 
-            double heading = getGyroRaw() + getGyroOffset();
+            double heading = getGyroRaw() + getDsGyroOffset();
 
             long prevTicks = positionUpdateTimeNanosecs;
             positionUpdateTimeNanosecs = java.lang.System.nanoTime();
@@ -243,7 +285,6 @@ public class Location4276 {
         } // else if AprilTags found the driver station is continuously updating this
           // position via NetworkTables
 
-        SmartDashboard.putBoolean("isValidPositionFix ", isValidPositionFix.getBoolean(false));
         SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",
                 requestControlOfRobotFromDriverStation.getBoolean(false));
         SmartDashboard.putNumber("pos_X ", pos_X.getDouble(0.0));
@@ -252,10 +293,6 @@ public class Location4276 {
         SmartDashboard.putNumber("vel_X ", vel_X.getDouble(0.0));
         SmartDashboard.putNumber("vel_Y ", vel_Y.getDouble(0.0));
         SmartDashboard.putNumber("vel_Z ", vel_Z.getDouble(0.0));
-        SmartDashboard.putNumber("desiredVel_X ", desiredVel_X.getDouble(0.0));
-        SmartDashboard.putNumber("desiredVel_Y ", desiredVel_Y.getDouble(0.0));
-        SmartDashboard.putNumber("desiredVel_Z ", desiredVel_Z.getDouble(0.0));
         SmartDashboard.putNumber("gyroRaw ", gyroRaw.getDouble(0.0));
-        SmartDashboard.putNumber("gyroOffset ", gyroOffset.getDouble(0.0));
     }
 }

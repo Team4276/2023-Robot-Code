@@ -92,18 +92,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     initialPitch = Gyroscope.GetPitch();
 
-    // TMP TMP TMP for testing without the driver station
-    myLocation.setPos_X(0.0);
-    myLocation.setPos_Y(0.0);
-    myLocation.setPos_Z(0.0);
-    myLocation.setVel_X(0.0);
-    myLocation.setVel_Y(0.0);
-    myLocation.setVel_Z(0.0);
-
-    myLocation.setDesiredVel_X(0.3); // Drive slow enough that it can stop on its own after 15sec auto
-    myLocation.setDesiredVel_Y(0.3); // Drive slow enough that it can stop on its own after 15sec auto
-    myLocation.setGyroOffset(-1 * myLocation.getGyroRaw());
-
+    // TMP TMP TMP - use this only if trying to drive the robot from the driver station
     myLocation.setrequestControlOfRobotFromDriverStation(true);
   }
 
