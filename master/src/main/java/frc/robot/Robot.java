@@ -17,6 +17,7 @@ import frc.systems.PIDDrivetrain;
 import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
+import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
 
@@ -39,6 +40,8 @@ public class Robot extends TimedRobot {
 
   public static boolean isCAN = true;
   public static boolean usingPIDDrivetrain = false;
+
+  public static Location4276 myLocation;
 
   public static void timedDrive() {
     if (Robot.xboxController.getRawButton(Xbox.B)) {
@@ -90,6 +93,8 @@ public class Robot extends TimedRobot {
     // of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
+
+    myLocation = new Location4276();
   }
 
   /**
@@ -107,6 +112,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     Gyroscope.gyroscopeUpdate();
     SmartDashboard.putBoolean("Using Joystick", TeleopDrivetrain.usingJoystick);
+    myLocation.updatePosition();
   }
 
   @Override

@@ -31,8 +31,8 @@ public class Shoulder {
     public void updatePeriodic() {
         if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
             leftY = Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
-            setShoulderSpeed_R(-1 * leftY);
-            setShoulderSpeed_L(leftY);
+            setShoulderSpeed_R(-1 * leftY * 0.3);
+            setShoulderSpeed_L(leftY * 0.3);
         } else {
             setShoulderSpeed_R(0);
             setShoulderSpeed_L(0);
