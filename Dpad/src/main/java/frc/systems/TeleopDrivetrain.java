@@ -27,8 +27,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
 
     private double deadband = 0.05;
 
-    public static boolean usingJoystick = false;
-
     public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport) {
 
         super(FLport, BLport, FRport, BRport);
@@ -87,11 +85,9 @@ public class TeleopDrivetrain extends BaseDrivetrain {
 
             case TANK:
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
-                    usingJoystick = true;
                     rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
                 }
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
-                    usingJoystick = true;
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
                 }
                 assignMotorPower(rightY, leftY);

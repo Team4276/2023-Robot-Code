@@ -39,29 +39,34 @@ public class Robot extends TimedRobot {
   public static double initialPitch = 0;
 
   public static boolean isCAN = true;
-  public static boolean usingPIDDrivetrain = false;
 
   public static double pov;
 
-  public static double armSafeZone = 0;
+  private static double armSafeZone = 0;
+  private static double deadband = 0.05;
 
   public static void timedDrive() {
     if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
       TeleopDrivetrain.assignMotorPower(0, 0);
-    } else if (Robot.xboxController.getRawButton(Xbox.B)) {
-      Robot.usingPIDDrivetrain = true;
-      PIDDrivetrain.PIDDrivetrainUpdate();
-      Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-      PIDDrivetrain.updateTelemetry();
-    } else if (Robot.xboxController.getRawButton(Xbox.X)) {
-      PIDDrivetrain.holdPosition = true;
-      PIDDrivetrain.PIDDrivetrainUpdate();
     } else {
-      Robot.usingPIDDrivetrain = false;
-      Balance.stopBalance();
-      mTeleopDrivetrain.operatorDrive();
-      TeleopDrivetrain.updateTelemetry();
+      if ((Robot.rightJoystick.getY() > deadband) || (Robot.leftJoystick.getY() > deadband)) {
+        PIDDrivetrain.holdPosition = false;
+        mTeleopDrivetrain.operatorDrive();
+        TeleopDrivetrain.updateTelemetry();
+      } else {
+        if (Robot.xboxController.getRawButton(Xbox.X)) {
+          PIDDrivetrain.holdPosition = true;
+  
+        } else if (Robot.xboxController.getRawButton(Xbox.B)) {
+          Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+  
+        }
+        PIDDrivetrain.PIDDrivetrainUpdate();
+        PIDDrivetrain.updateTelemetry();
+      }
     }
+
+
 
     mShoulder.updatePeriodic();
     mElbow.updatePeriodic();
@@ -116,7 +121,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     Gyroscope.gyroscopeUpdate();
-    SmartDashboard.putBoolean("Using Joystick", TeleopDrivetrain.usingJoystick);
     pov = xboxController.getPOV();
     SmartDashboard.putNumber("POV", pov);
   }
