@@ -3,6 +3,7 @@ package frc.utilities;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableListener;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Drivetrain;
 
@@ -54,12 +55,14 @@ public class Location4276 {
     private static NetworkTableEntry DS_desiredVel_z;
     private static NetworkTableEntry DS_gyroOffset;
 
+
     private static double prev_dsposfix_x = 0.0;
     private static double prev_dsposfix_y = 0.0;
     private static double prev_dsposfix_z = 0.0;
     private static double prev_dsvelfix_x = 0.0;
     private static double prev_dsvelfix_y = 0.0;
     private static double prev_dsvelfix_z = 0.0;
+    
 
     private long positionUpdateTimeNanosecs;
 
@@ -284,12 +287,12 @@ public class Location4276 {
             setPos_Y(prev_Y + distance_Y);
         } // else if AprilTags found the driver station is continuously updating this
           // position via NetworkTables
-
-        SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",
+          double xyz[] = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(new double[6]);
+          SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",
                 requestControlOfRobotFromDriverStation.getBoolean(false));
-        SmartDashboard.putNumber("pos_X ", pos_X.getDouble(0.0));
-        SmartDashboard.putNumber("pos_Y ", pos_Y.getDouble(0.0));
-        SmartDashboard.putNumber("pos_Z ", pos_Z.getDouble(0.0));
+        SmartDashboard.putNumber("pos_X ",xyz[0]);
+        SmartDashboard.putNumber("pos_Y ", xyz[1]);
+        SmartDashboard.putNumber("pos_Z ", xyz[2]);
         SmartDashboard.putNumber("vel_X ", vel_X.getDouble(0.0));
         SmartDashboard.putNumber("vel_Y ", vel_Y.getDouble(0.0));
         SmartDashboard.putNumber("vel_Z ", vel_Z.getDouble(0.0));
