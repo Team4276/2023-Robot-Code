@@ -23,7 +23,7 @@ public class Elbow {
     public void updatePeriodic() {
         if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
             double rightY = Math.pow(Robot.xboxController.getRightY(), 3 / 2);
-            setElbowSpeed(rightY);
+            setElbowSpeed(rightY * 0.3);
         } else {
             setElbowSpeed(0);
         }
