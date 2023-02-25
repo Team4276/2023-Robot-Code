@@ -31,10 +31,9 @@ public class PIDDrivetrain extends BaseDrivetrain {
 
     private static double holdThisPosition = 0;
 
-    private static boolean newPositiontohold = true;
+    public static boolean newPositiontohold = true;
 
     public static boolean holdPosition;
-    public static boolean mode;
 
     public static double setPoint;
 
@@ -116,19 +115,9 @@ public class PIDDrivetrain extends BaseDrivetrain {
         } else {
             double processVariable;
             newPositiontohold = true;
-            if (mode) {
-                pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
-                processVariable = encoder.getVelocity();
-            } else {
-                /**
-                 * As with other PID modes, Smart Motion is set by calling the
-                 * setReference method on an existing pid object and setting
-                 * the control type to kSmartMotion
-                 */
-                pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kSmartMotion);
-                processVariable = encoder.getPosition();
-            }
-
+            pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
+            processVariable = encoder.getVelocity();
+            
             if (usingSmartDashboard) {
                 SmartDashboard.putNumber("SetPoint", setPoint);
                 SmartDashboard.putNumber("Process Variable", processVariable);

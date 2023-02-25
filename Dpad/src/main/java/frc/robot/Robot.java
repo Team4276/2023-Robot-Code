@@ -48,25 +48,24 @@ public class Robot extends TimedRobot {
   public static void timedDrive() {
     if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
       TeleopDrivetrain.assignMotorPower(0, 0);
-    } else {
-      if ((Robot.rightJoystick.getY() > deadband) || (Robot.leftJoystick.getY() > deadband)) {
-        PIDDrivetrain.holdPosition = false;
-        mTeleopDrivetrain.operatorDrive();
-        TeleopDrivetrain.updateTelemetry();
-      } else {
-        if (Robot.xboxController.getRawButton(Xbox.X)) {
-          PIDDrivetrain.holdPosition = true;
-  
-        } else if (Robot.xboxController.getRawButton(Xbox.B)) {
-          Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-  
-        }
-        PIDDrivetrain.PIDDrivetrainUpdate();
-        PIDDrivetrain.updateTelemetry();
-      }
+
+    } else if ((Robot.rightJoystick.getY() > deadband) || (Robot.leftJoystick.getY() > deadband)) {
+      PIDDrivetrain.newPositiontohold = true;
+      PIDDrivetrain.holdPosition = false;
+      mTeleopDrivetrain.operatorDrive();
+      TeleopDrivetrain.updateTelemetry();
+
+    } else if (Robot.xboxController.getRawButton(Xbox.X)) {
+      PIDDrivetrain.holdPosition = true;
+      PIDDrivetrain.PIDDrivetrainUpdate();
+      PIDDrivetrain.updateTelemetry();
+
+    } else if (Robot.xboxController.getRawButton(Xbox.B)) {
+      Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+      PIDDrivetrain.PIDDrivetrainUpdate();
+      PIDDrivetrain.updateTelemetry();
+
     }
-
-
 
     mShoulder.updatePeriodic();
     mElbow.updatePeriodic();
