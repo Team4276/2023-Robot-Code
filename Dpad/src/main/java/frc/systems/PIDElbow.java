@@ -29,8 +29,9 @@ public class PIDElbow extends Elbow {
     private static double minVel = 0;
 
     private static double allowedErr = 0;
-    private static double deadband = 0.05;
+    private static double deadband = 0.2;
 
+    private static boolean usingSmartDashboard = false;
     public static boolean modeIsSetPosition = false; // Otherwise set velocity
 
     public static double setPoint_W;
@@ -117,7 +118,9 @@ public class PIDElbow extends Elbow {
             }
         }
 
-        Update(driveElbow);
+        if (usingSmartDashboard){
+            Update(driveElbow);
+        }
     }
 
     public static void Update(CANSparkMax motor) {
@@ -179,8 +182,6 @@ public class PIDElbow extends Elbow {
     }
 
     public static void updateTelemetry(){
-        SmartDashboard.putNumber("Wrist Encoder", driveElbow.getEncoder().getPosition());
-        
         SmartDashboard.putNumber("SetPoint_W_Pos", setPoint_W);
 
         SmartDashboard.putNumber("Encoder_W_Pos", driveElbow.getEncoder().getPosition());

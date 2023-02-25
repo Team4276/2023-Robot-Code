@@ -8,7 +8,7 @@ import frc.robot.Robot;
 public class Elbow {
 
     public static CANSparkMax driveElbow;
-    private double deadband = 0.05;
+    private double deadband = 0.2;
 
     public Elbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);

@@ -43,8 +43,12 @@ public class Robot extends TimedRobot {
 
   public static double pov;
 
+  public static double armSafeZone = 0;
+
   public static void timedDrive() {
-    if (Robot.xboxController.getRawButton(Xbox.B)) {
+    if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
+      TeleopDrivetrain.assignMotorPower(0, 0);
+    } else if (Robot.xboxController.getRawButton(Xbox.B)) {
       Robot.usingPIDDrivetrain = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
@@ -61,7 +65,7 @@ public class Robot extends TimedRobot {
 
     mShoulder.updatePeriodic();
     mElbow.updatePeriodic();
-    
+
     PIDElbow.PIDElbowUpdate();
     PIDElbow.updateTelemetry();
   }
