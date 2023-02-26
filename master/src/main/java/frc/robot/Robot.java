@@ -42,6 +42,11 @@ public class Robot extends TimedRobot {
   public static boolean isCAN = true;
 
   public static Location4276 myLocation;
+  
+  public static double pov;
+
+  private static double armSafeZone = 0;
+  private static double deadband = 0.05;
 
   public static void timedDrive() {
     if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
