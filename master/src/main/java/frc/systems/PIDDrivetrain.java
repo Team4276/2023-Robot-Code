@@ -31,10 +31,9 @@ public class PIDDrivetrain extends BaseDrivetrain {
 
     private static double holdThisPosition = 0;
 
-    private static boolean newPositiontohold = true;
+    public static boolean newPositiontohold = true;
 
     public static boolean holdPosition;
-    public static boolean mode;
 
     public static double setPoint;
 
@@ -96,60 +95,7 @@ public class PIDDrivetrain extends BaseDrivetrain {
         RelativeEncoder encoder = motor.getEncoder();
         
         if (usingSmartDashboard) {
-            double p = SmartDashboard.getNumber("P Gain", 0);
-            double i = SmartDashboard.getNumber("I Gain", 0);
-            double d = SmartDashboard.getNumber("D Gain", 0);
-            double iz = SmartDashboard.getNumber("I Zone", 0);
-            double ff = SmartDashboard.getNumber("Feed Forward", 0);
-            double max = SmartDashboard.getNumber("Max Output", 0);
-            double min = SmartDashboard.getNumber("Min Output", 0);
-            double maxV = SmartDashboard.getNumber("Max Velocity", 0);
-            double minV = SmartDashboard.getNumber("Min Velocity", 0);
-            double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
-            double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
-
-
-            if ((p != kP)) {
-                pidController.setP(p);
-                kP = p;
-            }
-            if ((i != kI)) {
-                pidController.setI(i);
-                kI = i;
-            }
-            if ((d != kD)) {
-                pidController.setD(d);
-                kD = d;
-            }
-            if ((iz != kIz)) {
-                pidController.setIZone(iz);
-                kIz = iz;
-            }
-            if ((ff != kFF)) {
-                pidController.setFF(ff);
-                kFF = ff;
-            }
-            if ((max != kMaxOutput) || (min != kMinOutput)) {
-                pidController.setOutputRange(min, max);
-                kMinOutput = min;
-                kMaxOutput = max;
-            }
-            if ((maxV != maxVel)) {
-                pidController.setSmartMotionMaxVelocity(maxV, 0);
-                maxVel = maxV;
-            }
-            if ((minV != minVel)) {
-                pidController.setSmartMotionMinOutputVelocity(minV, 0);
-                minVel = minV;
-            }
-            if ((maxA != maxAcc)) {
-                pidController.setSmartMotionMaxAccel(maxA, 0);
-                maxAcc = maxA;
-            }
-            if ((allE != allowedErr)) {
-                pidController.setSmartMotionAllowedClosedLoopError(allE, 0);
-                allowedErr = allE;
-            }
+            updatePID(pidController);
         }
 
         if (holdPosition) {
@@ -169,19 +115,9 @@ public class PIDDrivetrain extends BaseDrivetrain {
         } else {
             double processVariable;
             newPositiontohold = true;
-            if (mode) {
-                pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
-                processVariable = encoder.getVelocity();
-            } else {
-                /**
-                 * As with other PID modes, Smart Motion is set by calling the
-                 * setReference method on an existing pid object and setting
-                 * the control type to kSmartMotion
-                 */
-                pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kSmartMotion);
-                processVariable = encoder.getPosition();
-            }
-
+            pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
+            processVariable = encoder.getVelocity();
+            
             if (usingSmartDashboard) {
                 SmartDashboard.putNumber("SetPoint", setPoint);
                 SmartDashboard.putNumber("Process Variable", processVariable);
@@ -190,6 +126,63 @@ public class PIDDrivetrain extends BaseDrivetrain {
         }
         if (usingSmartDashboard) {
             SmartDashboard.putNumber("Output", motor.getAppliedOutput());
+        }
+    }
+
+    public static void updatePID(SparkMaxPIDController pidController){
+        double p = SmartDashboard.getNumber("P Gain", 0);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", 0);
+        double max = SmartDashboard.getNumber("Max Output", 0);
+        double min = SmartDashboard.getNumber("Min Output", 0);
+        double maxV = SmartDashboard.getNumber("Max Velocity", 0);
+        double minV = SmartDashboard.getNumber("Min Velocity", 0);
+        double maxA = SmartDashboard.getNumber("Max Acceleration", 0);
+        double allE = SmartDashboard.getNumber("Allowed Closed Loop Error", 0);
+
+
+        if ((p != kP)) {
+            pidController.setP(p);
+            kP = p;
+        }
+        if ((i != kI)) {
+            pidController.setI(i);
+            kI = i;
+        }
+        if ((d != kD)) {
+            pidController.setD(d);
+            kD = d;
+        }
+        if ((iz != kIz)) {
+            pidController.setIZone(iz);
+            kIz = iz;
+        }
+        if ((ff != kFF)) {
+            pidController.setFF(ff);
+            kFF = ff;
+        }
+        if ((max != kMaxOutput) || (min != kMinOutput)) {
+            pidController.setOutputRange(min, max);
+            kMinOutput = min;
+            kMaxOutput = max;
+        }
+        if ((maxV != maxVel)) {
+            pidController.setSmartMotionMaxVelocity(maxV, 0);
+            maxVel = maxV;
+        }
+        if ((minV != minVel)) {
+            pidController.setSmartMotionMinOutputVelocity(minV, 0);
+            minVel = minV;
+        }
+        if ((maxA != maxAcc)) {
+            pidController.setSmartMotionMaxAccel(maxA, 0);
+            maxAcc = maxA;
+        }
+        if ((allE != allowedErr)) {
+            pidController.setSmartMotionAllowedClosedLoopError(allE, 0);
+            allowedErr = allE;
         }
     }
 

@@ -7,8 +7,8 @@ import frc.robot.Robot;
 
 public class Elbow {
 
-    private static CANSparkMax driveElbow;
-    private double deadband = 0.05;
+    public static CANSparkMax driveElbow;
+    private double deadband = 0.2;
 
     public Elbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
@@ -20,12 +20,14 @@ public class Elbow {
         driveElbow.set(speed);
     }
 
-    public void updatePeriodic() {
+    public boolean updatePeriodic() {
         if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
             double rightY = Math.pow(Robot.xboxController.getRightY(), 3 / 2);
-            setElbowSpeed(rightY * 0.3);
+            setElbowSpeed(rightY);
+            return true;
         } else {
             setElbowSpeed(0);
+            return false;
         }
     }
 }
