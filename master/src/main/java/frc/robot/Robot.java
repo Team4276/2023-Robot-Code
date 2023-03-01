@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
 import frc.systems.Elbow;
+import frc.systems.Intake;
 import frc.systems.PIDElbow;
 import frc.systems.PIDDrivetrain;
 import frc.systems.Shoulder;
@@ -34,6 +35,7 @@ public class Robot extends TimedRobot {
 
   public static Shoulder mShoulder;
   public static Elbow mElbow;
+  public static Intake mIntake;
 
   public static Timer systemTimer;
 
@@ -72,6 +74,7 @@ public class Robot extends TimedRobot {
 
     mShoulder.updatePeriodic();
     mElbow.updatePeriodic();
+    mIntake.updatePeriodic();
 
     PIDElbow.PIDElbowUpdate();
     PIDElbow.updateTelemetry();
@@ -102,6 +105,7 @@ public class Robot extends TimedRobot {
 
         mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
         mElbow = new Elbow(RoboRioPorts.CAN_ELBOW);
+        mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
    
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
