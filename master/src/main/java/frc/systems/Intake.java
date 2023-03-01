@@ -22,11 +22,11 @@ public class Intake {
     public void updatePeriodic() {
         if (Robot.xboxController.getRawButton(Xbox.A)) {
             // Intake
-            setSpeed(0.3);
+            setSpeed(0.9);
 
         } else if (Robot.xboxController.getRawButton(Xbox.Y)) {
             // Outtake
-            setSpeed(-0.3);
+            setSpeed(-0.9);
         } else {
             setSpeed(0.0);
         }

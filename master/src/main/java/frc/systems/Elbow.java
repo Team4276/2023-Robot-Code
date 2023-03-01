@@ -17,7 +17,7 @@ public class Elbow {
 
     // Speed inrange -1.0 to +1.0
     public void setElbowSpeed(double speed) {
-        driveElbow.set(speed);
+        driveElbow.set(speed/4);
     }
 
     public boolean updatePeriodic() {

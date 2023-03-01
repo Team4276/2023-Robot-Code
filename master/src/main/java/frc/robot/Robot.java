@@ -51,10 +51,12 @@ public class Robot extends TimedRobot {
   private static double deadband = 0.05;
 
   public static void timedDrive() {
-    if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
-      TeleopDrivetrain.assignMotorPower(0, 0);
+    //if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
+      //TeleopDrivetrain.assignMotorPower(0, 0);
 
-    } else if ((Robot.rightJoystick.getY() > deadband) || (Robot.leftJoystick.getY() > deadband)) {
+   // } else 
+  if ((Math.abs(Robot.rightJoystick.getY()) > deadband) || Math.abs(Robot.leftJoystick.getY()) > deadband) {
+      SmartDashboard.putNumber("Right Joystick output check", Robot.rightJoystick.getY());
       PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
       mTeleopDrivetrain.operatorDrive();
@@ -70,6 +72,8 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.PIDDrivetrainUpdate();
       PIDDrivetrain.updateTelemetry();
 
+    } else {
+      TeleopDrivetrain.assignMotorPower(0, 0);
     }
 
     mShoulder.updatePeriodic();
