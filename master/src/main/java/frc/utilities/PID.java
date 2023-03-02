@@ -3,7 +3,7 @@ package frc.utilities;
 public class PID {
     private static double P=50;
 	private static double I=0;
-	private static double D=100;
+	private static double D=200;
 	private static double F=0.000156;
 
 	private static double maxIOutput=0;

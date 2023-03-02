@@ -14,7 +14,7 @@ public class Balance {
         } else {
             if (Math.abs(pitch) > DEAD_ZONE) {
                 PIDDrivetrain.holdPosition = false;
-                PIDDrivetrain.setPoint = PID.getOutput(pitch, 0);
+                PIDDrivetrain.setPoint = (PID.getOutput(pitch, 0))/4;
             } else {
                 pause = true;
             }

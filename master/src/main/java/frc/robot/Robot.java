@@ -62,7 +62,8 @@ public class Robot extends TimedRobot {
       mTeleopDrivetrain.operatorDrive();
       TeleopDrivetrain.updateTelemetry();
 
-    } else if (Robot.xboxController.getRawButton(Xbox.X)) {
+    } else if (Robot.xboxController.getRawButton(Xbox.X)
+    || Robot.rightJoystick.getRawButton(3)) {
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
       PIDDrivetrain.updateTelemetry();
@@ -74,6 +75,7 @@ public class Robot extends TimedRobot {
 
     } else {
       TeleopDrivetrain.assignMotorPower(0, 0);
+
     }
 
     mShoulder.updatePeriodic();
