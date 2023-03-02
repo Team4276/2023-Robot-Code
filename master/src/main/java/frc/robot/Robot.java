@@ -12,10 +12,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
-//import frc.systems.Elbow;
 import frc.systems.Intake;
-import frc.systems.PIDElbow;
 import frc.systems.PIDDrivetrain;
+import frc.systems.PIDElbow;
 import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
@@ -44,18 +43,14 @@ public class Robot extends TimedRobot {
   public static boolean isCAN = true;
 
   public static Location4276 myLocation;
-  
+
   public static double pov;
 
-  private static double armSafeZone = 0;
   private static double deadband = 0.05;
 
   public static void timedDrive() {
-    //if (SmartDashboard.getNumber("Encoder_W_Pos", 0) > armSafeZone){
-      //TeleopDrivetrain.assignMotorPower(0, 0);
-
-   // } else 
-  if ((Math.abs(Robot.rightJoystick.getY()) > deadband) || Math.abs(Robot.leftJoystick.getY()) > deadband) {
+    if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
+        || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
       SmartDashboard.putNumber("Right Joystick output check", Robot.rightJoystick.getY());
       PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
@@ -63,7 +58,7 @@ public class Robot extends TimedRobot {
       TeleopDrivetrain.updateTelemetry();
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
-    || Robot.rightJoystick.getRawButton(3)) {
+        || Robot.rightJoystick.getRawButton(3)) {
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
       PIDDrivetrain.updateTelemetry();
@@ -75,17 +70,14 @@ public class Robot extends TimedRobot {
 
     } else {
       TeleopDrivetrain.assignMotorPower(0, 0);
-
     }
 
     mShoulder.updatePeriodic();
-    //mElbow.updatePeriodic();
     mIntake.updatePeriodic();
 
     PIDElbow.PIDElbowUpdate();
     PIDElbow.updateTelemetry();
   }
-
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -109,10 +101,10 @@ public class Robot extends TimedRobot {
 
     PIDDrivetrain.PIDDrivetrainInit();
 
-        mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
-        mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
-        mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-   
+    mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
+    mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
+
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(Robot::timedDrive);
