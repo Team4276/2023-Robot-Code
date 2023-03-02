@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
-import frc.systems.Elbow;
+//import frc.systems.Elbow;
 import frc.systems.Intake;
 import frc.systems.PIDElbow;
 import frc.systems.PIDDrivetrain;
@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   public static PIDDrivetrain mPIDDrivetrain;
 
   public static Shoulder mShoulder;
-  public static Elbow mElbow;
+  public static PIDElbow mElbow;
   public static Intake mIntake;
 
   public static Timer systemTimer;
@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
     }
 
     mShoulder.updatePeriodic();
-    mElbow.updatePeriodic();
+    //mElbow.updatePeriodic();
     mIntake.updatePeriodic();
 
     PIDElbow.PIDElbowUpdate();
@@ -108,7 +108,7 @@ public class Robot extends TimedRobot {
     PIDDrivetrain.PIDDrivetrainInit();
 
         mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
-        mElbow = new Elbow(RoboRioPorts.CAN_ELBOW);
+        mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
         mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
    
     // Drive train motor control is done on its own timer driven thread regardless
@@ -117,6 +117,8 @@ public class Robot extends TimedRobot {
     driveRateGroup.startPeriodic(0.05);
 
     myLocation = new Location4276();
+
+    PIDElbow.PIDElbowInit();
   }
 
   /**
@@ -135,6 +137,8 @@ public class Robot extends TimedRobot {
     Gyroscope.gyroscopeUpdate();
     pov = xboxController.getPOV();
     SmartDashboard.putNumber("POV", pov);
+
+    SmartDashboard.putNumber("rightYPos", Math.abs(Robot.xboxController.getRightY()));
   }
 
   @Override
@@ -150,7 +154,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     initialPitch = Gyroscope.GetPitch();
-    PIDElbow.PIDElbowInit();
   }
 
   /** This function is called periodically during operator control. */

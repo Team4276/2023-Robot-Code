@@ -2,16 +2,19 @@ package frc.systems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.Xbox;
 
-public class PIDElbow extends Elbow {
+public class PIDElbow {
+
+    private static CANSparkMax driveElbow;
+    private static double deadband = 0.2;
 
     public PIDElbow(int port) {
-        super(port);
-        //TODO Auto-generated constructor stub
+        driveElbow = new CANSparkMax(port, MotorType.kBrushless);
     }
 
     // PID coefficients
@@ -29,7 +32,6 @@ public class PIDElbow extends Elbow {
     private static double minVel = 0;
 
     private static double allowedErr = 0;
-    private static double deadband = 0.2;
 
     private static boolean usingSmartDashboard = false;
     public static boolean modeIsSetPosition = false; // Otherwise set velocity
@@ -44,7 +46,7 @@ public class PIDElbow extends Elbow {
         modeIsSetPosition = false;
     }
 
-    private static void setPIDReference(double setPoint_W){
+    private static void setPIDReference(double setPoint_W) {
         SmartDashboard.putNumber("Set Position", setPoint_W);
         driveElbow.getPIDController().setReference(setPoint_W, CANSparkMax.ControlType.kSmartMotion);
     }
@@ -88,44 +90,50 @@ public class PIDElbow extends Elbow {
         // button to toggle between velocity and smart motion modes
         SmartDashboard.putBoolean("Mode", true);
 
-        // display POV coefficient 
+        // display POV coefficient
         SmartDashboard.putNumber("POV", Robot.xboxController.getPOV());
     }
 
     public static void PIDElbowUpdate() {
         if ((Math.abs(Robot.xboxController.getRightY()) > deadband)) {
             setModeVelocity();
-        } else {
+        } else if (Robot.pov != -1) {
             setModePosition();
         }
 
         if (modeIsSetPosition) {
-            if (Robot.pov != -1){
+            if (Robot.pov != -1) {
 
-                if (Xbox.POVup == Robot.pov){
+                if (Xbox.POVup == Robot.pov) {
+                    setPoint_W = 10;
+                    setPIDReference(setPoint_W);
+                } else if (Xbox.POVdown == Robot.pov) {
                     setPoint_W = 7;
                     setPIDReference(setPoint_W);
-                } else if (Xbox.POVdown == Robot.pov){
-                    setPoint_W = -7;
+                } else if (Xbox.POVright == Robot.pov) {
+                    setPoint_W = 14;
                     setPIDReference(setPoint_W);
-                } else if (Xbox.POVright == Robot.pov){
-                    setPoint_W = 2;
-                    setPIDReference(setPoint_W);
-                } else if (Xbox.POVleft == Robot.pov){
-                    setPoint_W = -2;
+                } else if (Xbox.POVleft == Robot.pov) {
+                    setPoint_W = 13;
                     setPIDReference(setPoint_W);
                 }
             }
+        } else if (Math.abs(Robot.xboxController.getRightY()) < deadband) {
+            driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
+        } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
+            setPoint_W = Robot.xboxController.getRightY() * 500;
+            driveElbow.getPIDController().setReference(setPoint_W, CANSparkMax.ControlType.kVelocity);
+            SmartDashboard.putNumber("Set Velocity", setPoint_W);
         }
 
-        if (usingSmartDashboard){
+        if (usingSmartDashboard) {
             Update(driveElbow);
         }
     }
 
     public static void Update(CANSparkMax motor) {
         SparkMaxPIDController pidController = motor.getPIDController();
-        
+
         double p = SmartDashboard.getNumber("P Gain", 0);
         double i = SmartDashboard.getNumber("I Gain", 0);
         double d = SmartDashboard.getNumber("D Gain", 0);
@@ -181,11 +189,16 @@ public class PIDElbow extends Elbow {
         }
     }
 
-    public static void updateTelemetry(){
-        SmartDashboard.putNumber("SetPoint_W_Pos", setPoint_W);
+    public static void updateTelemetry() {
+        if (modeIsSetPosition) {
+            SmartDashboard.putNumber("SetPoint_W_Pos", setPoint_W);
 
-        SmartDashboard.putNumber("Encoder_W_Pos", driveElbow.getEncoder().getPosition());
+            SmartDashboard.putNumber("Encoder_W_Pos", driveElbow.getEncoder().getPosition());
 
-        SmartDashboard.putNumber("MotorOutput_W_Pos", driveElbow.getAppliedOutput());
+            SmartDashboard.putNumber("MotorOutput_W_Pos", driveElbow.getAppliedOutput());
+        } else {
+            SmartDashboard.putNumber("Encoder_W_Vel", driveElbow.getEncoder().getVelocity());
+        }
+
     }
 }
