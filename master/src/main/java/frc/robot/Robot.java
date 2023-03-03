@@ -70,6 +70,7 @@ public class Robot extends TimedRobot {
 
     } else {
       TeleopDrivetrain.assignMotorPower(0, 0);
+      TeleopDrivetrain.updateTelemetry();
     }
 
     mShoulder.updatePeriodic();
@@ -133,6 +134,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("POV", pov);
 
     SmartDashboard.putNumber("rightYPos", Math.abs(Robot.xboxController.getRightY()));
+
+    myLocation.updatePosition();
+
   }
 
   @Override

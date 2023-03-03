@@ -231,17 +231,23 @@ public class Location4276 {
         // minor difference due to turning)
 
         double speed = 0.0;
+        double BRencoder = BaseDrivetrain.brDriveX.getEncoder().getVelocity();
+        double BLencoder = BaseDrivetrain.blDriveX.getEncoder().getVelocity();
+        double FRencoder = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
+        double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        speed = BaseDrivetrain.blDriveX.getEncoder().getVelocity();
-        if (speed > BaseDrivetrain.brDriveX.getEncoder().getVelocity()) {
-            speed = BaseDrivetrain.brDriveX.getEncoder().getVelocity();
+        if (speed > BRencoder) {
+            speed = BRencoder;
         }
-        if (speed > BaseDrivetrain.flDriveX.getEncoder().getVelocity()) {
-            speed = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
+        if (speed > (-1 * BLencoder)) {
+            speed = (-1 * BLencoder);
         }
-        if (speed > BaseDrivetrain.frDriveX.getEncoder().getVelocity()) {
-            speed = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
+        if (speed > FRencoder) {
+            speed = FRencoder;
+        }
+        if (speed > (-1 * FLencoder)) {
+            speed = (-1 * FLencoder);
         }
 
         return speed;
@@ -288,5 +294,6 @@ public class Location4276 {
         SmartDashboard.putNumber("vel_Y ", vel_Y.getDouble(0.0));
         SmartDashboard.putNumber("vel_Z ", vel_Z.getDouble(0.0));
         SmartDashboard.putNumber("gyroRaw ", gyroRaw.getDouble(0.0));
+        SmartDashboard.putNumber("speed", getEncoderSpeed());
     }
 }
