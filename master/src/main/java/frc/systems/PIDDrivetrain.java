@@ -75,9 +75,6 @@ public class PIDDrivetrain extends BaseDrivetrain {
             SmartDashboard.putNumber("Allowed Closed Loop Error", allowedErr);
             SmartDashboard.putNumber("Set Position", 0);
             SmartDashboard.putNumber("Set Velocity", 0);
-
-            // button to toggle between velocity and smart motion modes
-            SmartDashboard.putBoolean("Mode", true);
         }
     }
 
