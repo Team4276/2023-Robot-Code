@@ -1,9 +1,8 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
-    - MoveObject
-    - MoveTo
-    - scrip
+    - NavMeshagentCornors
+    - jsonreciveandmove
     Unity.Rider.Editor.dll:
     - Packages.Rider.Editor.UnitTesting.CallbackData
     Unity.TextMeshPro.dll:
@@ -74,27 +73,25 @@ ScriptsOnlyBuild:
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 2204}
+      Script: {instanceID: 2178}
     - Class: 114
-      Script: {instanceID: 2638}
+      Script: {instanceID: 2596}
     - Class: 114
-      Script: {instanceID: 2864}
+      Script: {instanceID: 2810}
     - Class: 114
-      Script: {instanceID: 3766}
+      Script: {instanceID: 4114}
     - Class: 114
-      Script: {instanceID: 4224}
+      Script: {instanceID: 4296}
     - Class: 114
-      Script: {instanceID: 4500}
+      Script: {instanceID: 4384}
     - Class: 114
-      Script: {instanceID: 5258}
+      Script: {instanceID: 5108}
     - Class: 114
-      Script: {instanceID: 5868}
+      Script: {instanceID: 5694}
     - Class: 114
-      Script: {instanceID: 6366}
+      Script: {instanceID: 6170}
     - Class: 114
-      Script: {instanceID: 62244}
-    - Class: 114
-      Script: {instanceID: 166924}
+      Script: {instanceID: 6500}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 120
@@ -414,12 +411,6 @@ ScriptsOnlyBuild:
     className: UnityOnCollisionExit2DMessageListener
   - hash:
       serializedVersion: 2
-      Hash: f0832c9e3ea86e243bc8604d23314a95
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: MoveObject
-  - hash:
-      serializedVersion: 2
       Hash: 2574ac7d50617d23cdefe4ad22f5e1ad
     assemblyName: Unity.VisualScripting.Flow.dll
     namespaceName: Unity.VisualScripting
@@ -508,6 +499,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_SubMeshUI
+  - hash:
+      serializedVersion: 2
+      Hash: a48f00513f5cee4facccb7f4e2e72e9e
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: NavMeshagentCornors
   - hash:
       serializedVersion: 2
       Hash: 75de60bccbd35c2e82026d4a60733734
@@ -678,12 +675,6 @@ ScriptsOnlyBuild:
     className: UnityOnMouseUpAsButtonMessageListener
   - hash:
       serializedVersion: 2
-      Hash: 0d85f4fda1e0e70cd92c084d12f05cdc
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: Pathfinding
-  - hash:
-      serializedVersion: 2
       Hash: e09e8bebc0fcd32bb8af1287a6b44816
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
@@ -718,6 +709,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TextContainer
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: jsonreciveandmove
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -904,19 +901,7 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core.dll
     namespaceName: Unity.VisualScripting
     className: UnityOnSliderValueChangedMessageListener
-  - hash:
-      serializedVersion: 2
-      Hash: 644d3d6cd0c169b92ee5d3b5f35d5f1e
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: MoveTo
-  - hash:
-      serializedVersion: 2
-      Hash: 1b3658e05b55075309e98428e79bbb3e
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: scrip
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/boden/OneDrive/Documents/simtest/My project.exe
+  playerPath: C:/Users/boden/OneDrive/Desktop/build/My project.exe
