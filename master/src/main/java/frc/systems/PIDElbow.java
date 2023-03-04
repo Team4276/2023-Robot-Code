@@ -97,7 +97,7 @@ public class PIDElbow {
     }
 
     public static void PIDElbowUpdate() {
-        if ((Math.abs(Robot.xboxController.getRightY()) > deadband)) {
+        if ((Math.abs(Robot.xboxController.getLeftY()) > deadband)) {
             setModeVelocity();
         } else if (Robot.pov != -1) {
             setModePosition();
@@ -120,10 +120,10 @@ public class PIDElbow {
                     setPIDReference(setPoint_Elbow);
                 }
             }
-        } else if (Math.abs(Robot.xboxController.getRightY()) < deadband) {
+        } else if (Math.abs(Robot.xboxController.getLeftY()) < deadband) {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
-        } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
-            setPoint_Elbow = Robot.xboxController.getRightY() * 500;
+        } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
+            setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
         }
 

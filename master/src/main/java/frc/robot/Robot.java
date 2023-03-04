@@ -15,7 +15,8 @@ import frc.systems.Balance;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
-import frc.systems.Shoulder;
+import frc.systems.PIDShoulder;
+//import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
 import frc.utilities.Location4276;
@@ -32,7 +33,7 @@ public class Robot extends TimedRobot {
   public static TeleopDrivetrain mTeleopDrivetrain;
   public static PIDDrivetrain mPIDDrivetrain;
 
-  public static Shoulder mShoulder;
+  public static PIDShoulder mShoulder;
   public static PIDElbow mElbow;
   public static Intake mIntake;
 
@@ -73,11 +74,13 @@ public class Robot extends TimedRobot {
       TeleopDrivetrain.updateTelemetry();
     }
 
-    mShoulder.updatePeriodic();
     mIntake.updatePeriodic();
 
     PIDElbow.PIDElbowUpdate();
     PIDElbow.updateTelemetry();
+
+    PIDShoulder.PIDShoulderUpdate();
+    PIDShoulder.updateTelemetry();
   }
 
   /**
@@ -102,7 +105,7 @@ public class Robot extends TimedRobot {
 
     PIDDrivetrain.PIDDrivetrainInit();
 
-    mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
@@ -114,6 +117,7 @@ public class Robot extends TimedRobot {
     myLocation = new Location4276();
 
     PIDElbow.PIDElbowInit();
+    PIDShoulder.PIDShoulderInit();
   }
 
   /**
@@ -133,7 +137,7 @@ public class Robot extends TimedRobot {
     pov = xboxController.getPOV();
     SmartDashboard.putNumber("POV", pov);
 
-    SmartDashboard.putNumber("rightYPos", Math.abs(Robot.xboxController.getRightY()));
+    SmartDashboard.putNumber("LJoystickPos", Math.abs(Robot.xboxController.getLeftY()));
 
     myLocation.updatePosition();
 

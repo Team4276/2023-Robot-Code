@@ -4,11 +4,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.Robot;
-import frc.utilities.Xbox;
+//import frc.utilities.Xbox;
 
 public class Intake {
 
     private static CANSparkMax intakeDrive;
+
+    private static double deadband = 0.2;
 
     public Intake(int port) {
         intakeDrive = new CANSparkMax(port, MotorType.kBrushless);
@@ -20,7 +22,7 @@ public class Intake {
     }
 
     public void updatePeriodic() {
-        if (Robot.xboxController.getRawButton(Xbox.A)) {
+        /* if (Robot.xboxController.getRawButton(Xbox.A)) {
             // Intake
             setSpeed(0.9);
 
@@ -29,7 +31,18 @@ public class Intake {
             setSpeed(-0.9);
         } else {
             setSpeed(0.0);
+        } */
+
+        if (Robot.xboxController.getRightY() > deadband) {
+            // Intake
+            setSpeed(0.9);
+        } else if (Robot.xboxController.getRightY() < deadband * -1) { // -1 for deadband in opposite direction
+            // Outtake
+            setSpeed(-0.9);
+        } else {
+            setSpeed(0.0);
         }
+
     }
 
 }
