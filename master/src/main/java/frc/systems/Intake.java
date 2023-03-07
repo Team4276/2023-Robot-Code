@@ -3,6 +3,7 @@ package frc.systems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 //import frc.utilities.Xbox;
 
@@ -22,26 +23,19 @@ public class Intake {
     }
 
     public void updatePeriodic() {
-        /* if (Robot.xboxController.getRawButton(Xbox.A)) {
+ 
+        double rightY = Robot.xboxController.getRightY();
+        if (rightY > deadband) {
             // Intake
             setSpeed(0.9);
-
-        } else if (Robot.xboxController.getRawButton(Xbox.Y)) {
-            // Outtake
-            setSpeed(-0.9);
-        } else {
-            setSpeed(0.0);
-        } */
-
-        if (Robot.xboxController.getRightY() > deadband) {
-            // Intake
-            setSpeed(0.9);
-        } else if (Robot.xboxController.getRightY() < deadband * -1) { // -1 for deadband in opposite direction
+        } else if (rightY < (deadband * -1)) { // -1 for deadband in opposite direction
             // Outtake
             setSpeed(-0.9);
         } else {
             setSpeed(0.0);
         }
+
+        SmartDashboard.putNumber("intake encoder_Vel: ", intakeDrive.getEncoder().getVelocity() );
 
     }
 

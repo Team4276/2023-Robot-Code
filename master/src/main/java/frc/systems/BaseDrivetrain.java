@@ -24,6 +24,11 @@ public class BaseDrivetrain {
         if (brDriveX==null){
             brDriveX = new CANSparkMax(BRport, MotorType.kBrushless);
         }
+
+        flDriveX.getEncoder().setPosition(0.0);
+        frDriveX.getEncoder().setPosition(0.0);
+        blDriveX.getEncoder().setPosition(0.0);
+        brDriveX.getEncoder().setPosition(0.0);
     }
 
     public static void updateBaseTelemetry() {

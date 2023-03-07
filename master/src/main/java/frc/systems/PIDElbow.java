@@ -11,10 +11,10 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD
-    public static final int DPAD_UP_ELBOW_REACH_NEAR_CONE = 10;
-    public static final int DPAD_DOWN_ELBOW_STOW = 7;
-    public static final int DPAD_RIGHT_ELBOW_EJECT_CUBE = 14;
-    public static final int DPAD_LEFT_ELBOW_COLLECT = 13;
+    public static final int DPAD_UP_ELBOW_REACH_NEAR_CONE = 1;
+    public static final int DPAD_DOWN_ELBOW_STOW = 1;
+    public static final int DPAD_RIGHT_ELBOW_EJECT_CUBE = 1;
+    public static final int DPAD_LEFT_ELBOW_COLLECT = 1;
 
     private static CANSparkMax driveElbow;
     private static double deadband = 0.2;
@@ -29,7 +29,7 @@ public class PIDElbow {
     private static double kMinOutput = -1;
 
     // Smart Motion Coefficients
-    private static double maxVel = 1000; // rpm
+    private static double maxVel = 2000; // rpm
     private static double maxAcc = 100;
     private static double minVel = 0;
 
@@ -73,8 +73,12 @@ public class PIDElbow {
             pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-            pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
+            pidController
+                    .setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
+
+        setPoint_Elbow = DPAD_DOWN_ELBOW_STOW;
+        setPIDReference(setPoint_Elbow);
 
         if (usingSmartDashboard) {
             // display PID coefficients on SmartDashboard
@@ -120,11 +124,14 @@ public class PIDElbow {
                     setPIDReference(setPoint_Elbow);
                 }
             }
-        } else if (Math.abs(Robot.xboxController.getLeftY()) < deadband) {
-            driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
-        } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
-            driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
+        } else {
+            // velocity mode
+            if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
+                setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
+                driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
+            } else {
+                driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
+            }
         }
 
         if (usingSmartDashboard) {
@@ -132,17 +139,34 @@ public class PIDElbow {
         }
     }
 
-    public static void updateTelemetry() {
-        if (modeIsSetPosition) {
-            SmartDashboard.putString("Elbow Mode", " Position");
-            SmartDashboard.putNumber("Elbow setPoint_Elbow_Pos", setPoint_Elbow);
-            SmartDashboard.putNumber("Elbow Encoder_Pos", driveElbow.getEncoder().getPosition());
-            SmartDashboard.putNumber("Elbow MotorOutput_Pos", driveElbow.getAppliedOutput());
-        } else {
-            SmartDashboard.putString("Elbow Mode", " Velocity");
-            SmartDashboard.putNumber("Elbow Encoder_Vel", driveElbow.getEncoder().getVelocity());
+    // Speed inrange -1.0 to +1.0
+    public static void setTestElbowSpeed(double speed) {
+        if (Robot.isTestMode) {
+            driveElbow.set(speed);
         }
+    }
 
+    public static void updateTelemetry() {
+        if (Robot.isTestMode) {
+            if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
+                double rightY = Math.pow(Robot.xboxController.getRightY(), 3 / 2);
+                setTestElbowSpeed(rightY);
+            } else {
+                setTestElbowSpeed(0);
+            }
+        } else {
+
+            SmartDashboard.putNumber("Elbow Encoder_Pos", driveElbow.getEncoder().getPosition());
+            SmartDashboard.putNumber("Elbow Encoder_Vel", driveElbow.getEncoder().getVelocity());
+            if (modeIsSetPosition) {
+                SmartDashboard.putString("Elbow Mode", " Position");
+                SmartDashboard.putNumber("Elbow setPoint_Elbow_Pos", setPoint_Elbow);
+                SmartDashboard.putNumber("Elbow MotorOutput_Pos", driveElbow.getAppliedOutput());
+            } else {
+                SmartDashboard.putString("Elbow Mode", " Velocity");
+            }
+
+        }
     }
 
     private static void Update(CANSparkMax motor) {

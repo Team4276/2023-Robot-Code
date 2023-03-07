@@ -9,12 +9,12 @@ import frc.robot.Robot;
 import frc.utilities.Xbox;
 
 public class PIDShoulder {
-    
+
     // Set points for DPAD
-    public static final int DPAD_UP_SHOULDER_REACH_NEAR_CONE = 10;
-    public static final int DPAD_DOWN_SHOULDER_STOW = 7;
-    public static final int DPAD_RIGHT_SHOULDER_EJECT_CUBE = 14;
-    public static final int DPAD_LEFT_SHOULDER_COLLECT = 13;
+    public static final int DPAD_UP_SHOULDER_REACH_NEAR_CONE = 15;
+    public static final int DPAD_DOWN_SHOULDER_STOW = 1;
+    public static final int DPAD_RIGHT_SHOULDER_EJECT_CUBE = 13;
+    public static final int DPAD_LEFT_SHOULDER_COLLECT = 5;
 
     private static CANSparkMax driveShoulder_R;
     private static CANSparkMax driveShoulder_L;
@@ -29,7 +29,7 @@ public class PIDShoulder {
     private static double kMinOutput = -1;
 
     // Smart Motion Coefficients
-    private static double maxVel = 1000; // rpm
+    private static double maxVel = 2000; // rpm
     private static double maxAcc = 100;
     private static double minVel = 0;
 
@@ -47,7 +47,7 @@ public class PIDShoulder {
     private static void setPIDReference(double setPoint_Shoulder) {
         SmartDashboard.putNumber("Shoulder Set Position", setPoint_Shoulder);
         driveShoulder_R.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion);
-        driveShoulder_L.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion); // -1 because the left motor turns the opposite way when the arm moves
+        driveShoulder_L.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion); // -1
     }
 
     public static void PIDShoulderInit() {
@@ -69,6 +69,9 @@ public class PIDShoulder {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
 
+        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+        setPIDReference(setPoint_Shoulder);
+
         if (usingSmartDashboard) {
             // display PID coefficients on SmartDashboard
             SmartDashboard.putNumber("Shoulder P Gain", kP);
@@ -89,40 +92,62 @@ public class PIDShoulder {
         }
     }
 
+    // Speed inrange -1.0 to +1.0
+    public static void setTestShoulderSpeed_R(double speed) {
+        driveShoulder_R.set(speed);
+    }
+
+    public static void setTestShoulderSpeed_L(double speed) {
+        driveShoulder_L.set(speed);
+    }
+
     public static void PIDShoulderUpdate() {
-        if (Robot.pov != -1) {
-
-            if (Xbox.POVup == Robot.pov) {
-                setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
-                setPIDReference(setPoint_Shoulder);
-            } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
-                setPIDReference(setPoint_Shoulder);
-            } else if (Xbox.POVright == Robot.pov) {
-                setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
-                setPIDReference(setPoint_Shoulder);
-            } else if (Xbox.POVleft == Robot.pov) {
-                setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
-                setPIDReference(setPoint_Shoulder);
+        double leftY = 0.0;
+        if (Robot.isTestMode) {
+            if (Math.abs(Robot.xboxController.getLeftY()) > Robot.deadband) {
+                leftY = Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
+                setTestShoulderSpeed_R(-1 * leftY);
+                setTestShoulderSpeed_L(leftY);
+            } else {
+                setTestShoulderSpeed_R(0);
+                setTestShoulderSpeed_L(0);
             }
-        }
+            SmartDashboard.putNumber("Shoulder Power", leftY);
+        } else {
+            if (Robot.pov != -1) {
 
-        if (usingSmartDashboard) {
-            Update(driveShoulder_R);
-            Update(driveShoulder_L);
+                if (Xbox.POVup == Robot.pov) {
+                    setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
+                    setPIDReference(setPoint_Shoulder);
+                } else if (Xbox.POVdown == Robot.pov) {
+                    setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+                    setPIDReference(setPoint_Shoulder);
+                } else if (Xbox.POVright == Robot.pov) {
+                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
+                    setPIDReference(setPoint_Shoulder);
+                } else if (Xbox.POVleft == Robot.pov) {
+                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
+                    setPIDReference(setPoint_Shoulder);
+                }
+            }
+
+            if (usingSmartDashboard) {
+                Update(driveShoulder_R);
+                Update(driveShoulder_L);
+            }
         }
     }
 
     public static void updateTelemetry() {
-        //Shoulder Setpoints
+        // Shoulder Setpoints
         SmartDashboard.putNumber("SetPoint_SR_Pos", setPoint_Shoulder);
         SmartDashboard.putNumber("SetPoint_SL_Pos", setPoint_Shoulder);
 
-        //Encoder Positions
+        // Encoder Positions
         SmartDashboard.putNumber("Encoder_SR_Pos", driveShoulder_R.getEncoder().getPosition());
         SmartDashboard.putNumber("Encoder_SL_Pos", driveShoulder_L.getEncoder().getPosition());
 
-        //Shoulder Motor Outputs
+        // Shoulder Motor Outputs
         SmartDashboard.putNumber("MotorOutput_SR_Pos", driveShoulder_R.getAppliedOutput());
         SmartDashboard.putNumber("MotorOutput_SL_Pos", driveShoulder_L.getAppliedOutput());
     }
