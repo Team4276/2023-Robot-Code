@@ -24,4 +24,7 @@ public class RoboRioPorts {
 	public static final int DIO_LEDSTRIP_0 = 0;
 	public static final int DIO_LEDSTRIP_1 = 1;
 	public static final int DIO_LEDSTRIP_2 = 2;
+	
+	public static final int DIO_LIMIT_SHOULDER = 3;
+	public static final int DIO_LIMIT_ELBOW = 4;
 }

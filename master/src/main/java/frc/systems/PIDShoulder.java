@@ -4,8 +4,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
 
 public class PIDShoulder {
@@ -39,15 +42,28 @@ public class PIDShoulder {
 
     private static double setPoint_Shoulder;
 
+    private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
+    private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
+    private static double encoderDistanceLimitSwitch = 0.0;
+
+    private static DigitalInput limitSwitchShoulder;
+
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
+
+        limitSwitchShoulder = new DigitalInput(RoboRioPorts.DIO_LIMIT_SHOULDER);
     }
 
     private static void setPIDReference(double setPoint_Shoulder) {
         SmartDashboard.putNumber("Shoulder Set Position", setPoint_Shoulder);
         driveShoulder_R.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion);
         driveShoulder_L.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion); // -1
+    }
+
+    private static void setShoulderSpeed(double speed) {
+        driveShoulder_R.set(speed);
+        driveShoulder_L.set(-1 * speed);
     }
 
     public static void PIDShoulderInit() {
@@ -69,9 +85,6 @@ public class PIDShoulder {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
 
-        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
-        setPIDReference(setPoint_Shoulder);
-
         if (usingSmartDashboard) {
             // display PID coefficients on SmartDashboard
             SmartDashboard.putNumber("Shoulder P Gain", kP);
@@ -90,51 +103,60 @@ public class PIDShoulder {
             SmartDashboard.putNumber("Shoulder Set Position", 0);
             SmartDashboard.putNumber("Shoulder Set Velocity", 0);
         }
+
+        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
     }
 
-    // Speed inrange -1.0 to +1.0
-    public static void setTestShoulderSpeed_R(double speed) {
-        driveShoulder_R.set(speed);
-    }
+    public static void calibrateShoulderPosition() {
+        setShoulderSpeed(0.2);
+        Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
+                          // limit switch closes
 
-    public static void setTestShoulderSpeed_L(double speed) {
-        driveShoulder_L.set(speed);
+        while (limitSwitchShoulder.get()) {
+            setShoulderSpeed(-1 * 0.2);
+        }
+        setShoulderSpeed(0.0);
+        encoderDistanceLimitSwitch = driveShoulder_R.getEncoder().getPosition();
     }
 
     public static void PIDShoulderUpdate() {
-        double leftY = 0.0;
-        if (Robot.isTestMode) {
-            if (Math.abs(Robot.xboxController.getLeftY()) > Robot.deadband) {
-                leftY = Math.pow(Robot.xboxController.getLeftY(), 3 / 2);
-                setTestShoulderSpeed_R(-1 * leftY);
-                setTestShoulderSpeed_L(leftY);
-            } else {
-                setTestShoulderSpeed_R(0);
-                setTestShoulderSpeed_L(0);
+        if (Robot.pov != -1) {
+            if (Xbox.POVup == Robot.pov) {
+                setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
+            } else if (Xbox.POVdown == Robot.pov) {
+                setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+            } else if (Xbox.POVright == Robot.pov) {
+                setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
+            } else if (Xbox.POVleft == Robot.pov) {
+                setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
             }
-            SmartDashboard.putNumber("Shoulder Power", leftY);
-        } else {
-            if (Robot.pov != -1) {
+        }
 
-                if (Xbox.POVup == Robot.pov) {
-                    setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
-                    setPIDReference(setPoint_Shoulder);
-                } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
-                    setPIDReference(setPoint_Shoulder);
-                } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
-                    setPIDReference(setPoint_Shoulder);
-                } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
-                    setPIDReference(setPoint_Shoulder);
+        if (Robot.xboxController.getRawButton(Xbox.Y)) {
+            calibrateShoulderPosition();
+        }
+
+        if (setPoint_Shoulder != DPAD_DOWN_SHOULDER_STOW) {
+            setPIDReference(setPoint_Shoulder);
+        } else {
+            if (!limitSwitchShoulder.get()) {
+                setShoulderSpeed(0.0);
+            } else {
+                if ((driveShoulder_R.getEncoder().getPosition()
+                        - encoderDistanceLimitSwitch) < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                    setShoulderSpeed(0.0);
+                } else if ((driveShoulder_R.getEncoder().getPosition()
+                        - encoderDistanceLimitSwitch) < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                    setShoulderSpeed(-1 * 0.2);
+                } else {
+                    setShoulderSpeed(-1 * 1.0);
                 }
             }
+        }
 
-            if (usingSmartDashboard) {
-                Update(driveShoulder_R);
-                Update(driveShoulder_L);
-            }
+        if (usingSmartDashboard) {
+            Update(driveShoulder_R);
+            Update(driveShoulder_L);
         }
     }
 
