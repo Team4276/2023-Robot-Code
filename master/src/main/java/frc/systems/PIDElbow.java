@@ -19,8 +19,6 @@ public class PIDElbow {
     public static final int DPAD_RIGHT_ELBOW_EJECT_CUBE = 1;
     public static final int DPAD_LEFT_ELBOW_COLLECT = 1;
 
-    public static boolean isElbowEncoderCalibrated = false;
-
     private static CANSparkMax driveElbow;
     private static double deadband = 0.2;
 
@@ -47,10 +45,8 @@ public class PIDElbow {
 
     private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
     private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
-    private static double encoderDistanceLimitSwitch = 0.0;
 
     private static DigitalInput limitSwitchElbow;
-    private static double timeStart;
 
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
@@ -68,7 +64,7 @@ public class PIDElbow {
 
     private static void setPIDReference(double setPoint_Elbow) {
         SmartDashboard.putNumber("Elbow Set Position", setPoint_Elbow);
-        driveElbow.getPIDController().setReference(setPoint_Elbow - encoderDistanceLimitSwitch,
+        driveElbow.getPIDController().setReference(setPoint_Elbow,
                 CANSparkMax.ControlType.kSmartMotion);
     }
 
@@ -117,24 +113,21 @@ public class PIDElbow {
     }
 
     public static void calibrateElbowPosition() {
+        double timeStart = 0.0;
+
         driveElbow.set(-1 * 0.2);
         Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
                           // limit switch closes
 
         timeStart = Timer.getFPGATimestamp();
-        isElbowEncoderCalibrated = true;
         while (limitSwitchElbow.get()) {
             driveElbow.set(-0.2);
             if( (Timer.getFPGATimestamp() - timeStart) > 1.0) {
-                isElbowEncoderCalibrated = false;
+                break;
             }
         }
         driveElbow.set(0.0);
-        if(isElbowEncoderCalibrated) {
-            encoderDistanceLimitSwitch = driveElbow.getEncoder().getPosition();
-        } else {
-            encoderDistanceLimitSwitch = 0.0;
-        }
+        driveElbow.getEncoder().setPosition(0.0);
     }
 
     public static void PIDElbowUpdate() {
@@ -163,11 +156,9 @@ public class PIDElbow {
             } else {
                 if (!limitSwitchElbow.get()) {
                     driveElbow.set(0.0);
-                } else  if ((driveElbow.getEncoder().getPosition()
-                            - encoderDistanceLimitSwitch) < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                } else  if (driveElbow.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
                         driveElbow.set(0.0);
-                } else if ((driveElbow.getEncoder().getPosition()
-                    - encoderDistanceLimitSwitch) < NEAR_LIMIT_SWITCH_DISTANCE) {
+                } else if (driveElbow.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
                     driveElbow.set(-1 * 0.2);
                 } else {
                     driveElbow.set(-1 * 1.0);

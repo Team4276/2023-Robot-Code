@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
   public static TeleopDrivetrain mTeleopDrivetrain;
   public static PIDDrivetrain mPIDDrivetrain;
 
+  Notifier armRateGroup;
   public static PIDShoulder mShoulder;
   public static PIDElbow mElbow;
   public static Intake mIntake;
@@ -79,6 +80,10 @@ public class Robot extends TimedRobot {
 
     }
 
+  }
+
+  public static void timedArm() {
+
     mIntake.updatePeriodic();
 
     PIDElbow.PIDElbowUpdate();
@@ -88,6 +93,7 @@ public class Robot extends TimedRobot {
     PIDShoulder.updateTelemetry();
 
   }
+
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -113,22 +119,27 @@ public class Robot extends TimedRobot {
 
     PIDDrivetrain.PIDDrivetrainInit();
 
-    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
-    mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
-    mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-
     // Drive train motor control is done on its own timer driven thread regardless
     // of disabled/teleop/auto mode selection
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-    myLocation = new Location4276();
 
-    myLedStrip = new LedStripControl();
-    myLedStrip.setMode(LedStripControl.LED_MODE.LED_OFF);
+    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
+    mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
     PIDElbow.PIDElbowInit();
     PIDShoulder.PIDShoulderInit();
+
+    armRateGroup = new Notifier(Robot::timedArm);
+    armRateGroup.startPeriodic(0.05);
+
+    myLocation = new Location4276();
+
+    myLedStrip = new LedStripControl();
+    // TMP TMP TMP myLedStrip.setMode(frc.utilities.LED_MODE.LED_OFF);
+
   }
 
   /**

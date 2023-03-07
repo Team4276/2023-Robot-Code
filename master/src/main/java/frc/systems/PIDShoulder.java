@@ -44,7 +44,6 @@ public class PIDShoulder {
 
     private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
     private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
-    private static double encoderDistanceLimitSwitch = 0.0;
 
     private static DigitalInput limitSwitchShoulder;
 
@@ -108,15 +107,22 @@ public class PIDShoulder {
     }
 
     public static void calibrateShoulderPosition() {
+        double timeStart = 0.0;
+
         setShoulderSpeed(0.2);
         Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
                           // limit switch closes
 
+        timeStart = Timer.getFPGATimestamp();
         while (limitSwitchShoulder.get()) {
             setShoulderSpeed(-1 * 0.2);
+            if ((Timer.getFPGATimestamp() - timeStart) > 1.0) {
+                break;
+            }
         }
         setShoulderSpeed(0.0);
-        encoderDistanceLimitSwitch = driveShoulder_R.getEncoder().getPosition();
+        driveShoulder_R.getEncoder().setPosition(0.0);
+        driveShoulder_L.getEncoder().setPosition(0.0);
     }
 
     public static void PIDShoulderUpdate() {
@@ -142,11 +148,9 @@ public class PIDShoulder {
             if (!limitSwitchShoulder.get()) {
                 setShoulderSpeed(0.0);
             } else {
-                if ((driveShoulder_R.getEncoder().getPosition()
-                        - encoderDistanceLimitSwitch) < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                if (driveShoulder_R.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
                     setShoulderSpeed(0.0);
-                } else if ((driveShoulder_R.getEncoder().getPosition()
-                        - encoderDistanceLimitSwitch) < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                } else if (driveShoulder_R.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
                     setShoulderSpeed(-1 * 0.2);
                 } else {
                     setShoulderSpeed(-1 * 1.0);
