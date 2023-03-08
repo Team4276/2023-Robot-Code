@@ -14,10 +14,10 @@ import frc.utilities.Xbox;
 public class PIDShoulder {
 
     // Set points for DPAD
-    public static final int DPAD_UP_SHOULDER_REACH_NEAR_CONE = 15;
-    public static final int DPAD_DOWN_SHOULDER_STOW = 1;
-    public static final int DPAD_RIGHT_SHOULDER_EJECT_CUBE = 13;
-    public static final int DPAD_LEFT_SHOULDER_COLLECT = 5;
+    public static final int DPAD_UP_SHOULDER_REACH_NEAR_CONE = 13;
+    public static final int DPAD_DOWN_SHOULDER_STOW = 2;
+    public static final int DPAD_RIGHT_SHOULDER_EJECT_CUBE = 9;
+    public static final int DPAD_LEFT_SHOULDER_COLLECT = 4;
 
     private static CANSparkMax driveShoulder_R;
     private static CANSparkMax driveShoulder_L;
@@ -42,10 +42,12 @@ public class PIDShoulder {
 
     private static double setPoint_Shoulder;
 
+    private static final double NOT_INITIALIZED = -999.0;
     private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
     private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
 
     private static DigitalInput limitSwitchShoulder;
+    private static double timeLastCalibration = 0.0;
 
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
@@ -103,64 +105,73 @@ public class PIDShoulder {
             SmartDashboard.putNumber("Shoulder Set Velocity", 0);
         }
 
-        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+        setPoint_Shoulder = NOT_INITIALIZED;
     }
 
     public static void calibrateShoulderPosition() {
         double timeStart = 0.0;
 
-        setShoulderSpeed(0.2);
+        setShoulderSpeed(-1 * 0.2);
         Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
                           // limit switch closes
 
         timeStart = Timer.getFPGATimestamp();
         while (limitSwitchShoulder.get()) {
-            setShoulderSpeed(-1 * 0.2);
-            if ((Timer.getFPGATimestamp() - timeStart) > 1.0) {
+            setShoulderSpeed(0.2);
+            if ((Timer.getFPGATimestamp() - timeStart) > 4.0) {
                 break;
             }
         }
         setShoulderSpeed(0.0);
         driveShoulder_R.getEncoder().setPosition(0.0);
         driveShoulder_L.getEncoder().setPosition(0.0);
+        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+        timeLastCalibration = Timer.getFPGATimestamp();
     }
 
     public static void PIDShoulderUpdate() {
-        if (Robot.pov != -1) {
-            if (Xbox.POVup == Robot.pov) {
-                setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
-            } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
-            } else if (Xbox.POVright == Robot.pov) {
-                setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
-            } else if (Xbox.POVleft == Robot.pov) {
-                setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
+
+        if (Robot.xboxController.getRawButton(Xbox.A)) {
+            if ((Timer.getFPGATimestamp() - timeLastCalibration) > 5.0) {
+                calibrateShoulderPosition();
             }
         }
 
-        if (Robot.xboxController.getRawButton(Xbox.Y)) {
-            calibrateShoulderPosition();
-        }
-
-        if (setPoint_Shoulder != DPAD_DOWN_SHOULDER_STOW) {
-            setPIDReference(setPoint_Shoulder);
-        } else {
-            if (!limitSwitchShoulder.get()) {
-                setShoulderSpeed(0.0);
-            } else {
-                if (driveShoulder_R.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
-                    setShoulderSpeed(0.0);
-                } else if (driveShoulder_R.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
-                    setShoulderSpeed(-1 * 0.2);
-                } else {
-                    setShoulderSpeed(-1 * 1.0);
+        if (setPoint_Shoulder != NOT_INITIALIZED) {
+            if (Robot.pov != -1) {
+                if (Xbox.POVup == Robot.pov) {
+                    setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
+                } else if (Xbox.POVdown == Robot.pov) {
+                    setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+                } else if (Xbox.POVright == Robot.pov) {
+                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
+                } else if (Xbox.POVleft == Robot.pov) {
+                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
                 }
             }
-        }
 
-        if (usingSmartDashboard) {
-            Update(driveShoulder_R);
-            Update(driveShoulder_L);
+            //if (setPoint_Shoulder != DPAD_DOWN_SHOULDER_STOW) {
+                setPIDReference(setPoint_Shoulder);
+            /* } else {
+                if (!limitSwitchShoulder.get()) {
+                    setShoulderSpeed(0.0);
+                } else {
+                    if (driveShoulder_R.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
+                        setShoulderSpeed(0.0);
+                    } else if (driveShoulder_R.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
+                        setShoulderSpeed(-1 * 0.2);
+                    } else {
+                        setShoulderSpeed(-1 * 1.0);
+                    }
+                }
+            }*/
+
+            if (usingSmartDashboard) {
+                Update(driveShoulder_R);
+                Update(driveShoulder_L);
+            }
+            SmartDashboard.putNumber("_EncodeDriverL_Pos: ", driveShoulder_L.getEncoder().getPosition());
+            SmartDashboard.putNumber("_EncodeDriverR_Pos: ", driveShoulder_R.getEncoder().getPosition());
         }
     }
 
