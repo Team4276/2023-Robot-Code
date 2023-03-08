@@ -6,6 +6,7 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -136,19 +137,7 @@ public class PIDElbow {
             }
 
             if (modeIsSetPosition) {
-                //if (setPoint_Elbow != DPAD_DOWN_ELBOW_STOW) {
-                    setPIDReference(setPoint_Elbow);
-                /* } else {
-                    if (!limitSwitchElbow.get()) {
-                        driveElbow.set(0.0);
-                    } else if (driveElbow.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
-                        driveElbow.set(0.0);
-                    } else if (driveElbow.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
-                        driveElbow.set(-1 * 0.2);
-                    } else {
-                        driveElbow.set(-1 * 1.0);
-                    }
-                }*/
+                setPIDReference(setPoint_Elbow);
 
             } else if (Math.abs(Robot.xboxController.getLeftY()) < deadband) {
                 driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
@@ -157,7 +146,14 @@ public class PIDElbow {
                 setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
                 driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
             }
+
+            if(!limitSwitchElbow.get()) {
+                // The elbow hit the limit switch in normal operation - re-calibration is needed
+                setPoint_Elbow = NOT_INITIALIZED;
+            }    
         }
+        
+        SmartDashboard.putBoolean("  Elbow (Y) Calibration: ", (setPoint_Elbow != NOT_INITIALIZED));
     }
 
     // Speed inrange -1.0 to +1.0

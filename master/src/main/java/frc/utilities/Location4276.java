@@ -290,9 +290,7 @@ public class Location4276 {
         SmartDashboard.putNumber("pos_X ", pos_X.getDouble(0.0));
         SmartDashboard.putNumber("pos_Y ", pos_Y.getDouble(0.0));
         SmartDashboard.putNumber("pos_Z ", pos_Z.getDouble(0.0));
-        SmartDashboard.putNumber("vel_X ", vel_X.getDouble(0.0));
-        SmartDashboard.putNumber("vel_Y ", vel_Y.getDouble(0.0));
-        SmartDashboard.putNumber("vel_Z ", vel_Z.getDouble(0.0));
+
         SmartDashboard.putNumber("gyroRaw ", gyroRaw.getDouble(0.0));
         SmartDashboard.putNumber("speed", getEncoderSpeed());
     }

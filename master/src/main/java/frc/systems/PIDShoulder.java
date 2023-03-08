@@ -6,6 +6,7 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -37,13 +38,9 @@ public class PIDShoulder {
 
     private static double allowedErr = 0;
 
-    private static boolean usingSmartDashboard = false;
-
     private static double setPoint_Shoulder;
 
     private static final double NOT_INITIALIZED = -999.0;
-    private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
-    private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
 
     private static DigitalInput limitSwitchShoulder;
     private static double timeLastCalibration = 0.0;
@@ -128,8 +125,18 @@ public class PIDShoulder {
                     setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
                 }
             }
-
+               
             setPIDReference(setPoint_Shoulder);
+
+            if(!limitSwitchShoulder.get()) {
+                // The arm hit the limit switch in normal operation - re-calibration is needed
+                setPoint_Shoulder = NOT_INITIALIZED;
+            } else if( 1.0 < (driveShoulder_R.getEncoder().getPosition() - driveShoulder_L.getEncoder().getPosition()) ) {
+                // Looks like the belt slipped -  re-calibration is needed
+                setPoint_Shoulder = NOT_INITIALIZED;
+            }
         }
+        
+        SmartDashboard.putBoolean("  Shoulder (A) Calibration: ", (setPoint_Shoulder != NOT_INITIALIZED));
     }
 }
