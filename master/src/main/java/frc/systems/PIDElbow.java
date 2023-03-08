@@ -38,13 +38,9 @@ public class PIDElbow {
 
     private static double allowedErr = 0;
 
-    private static boolean usingSmartDashboard = false;
     private static boolean modeIsSetPosition = false; // Otherwise set velocity
 
     private static final double NOT_INITIALIZED = -999.0;
-    private static final double NEAR_LIMIT_SWITCH_DISTANCE = 1.0;
-    private static final double DEADZONE_LIMIT_SWITCH_DISTANCE = 0.05;
-
     private static double setPoint_Elbow = NOT_INITIALIZED;
 
     private static DigitalInput limitSwitchElbow;

@@ -20,8 +20,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
     private static DriveMode currentMode = DriveMode.TANK;
     private static String currentMode_s = "Tank";
 
-    private static double leftPower = 0;
-    private static double rightPower = 0;
     private Toggler brakeModeToggler;
 
     private double deadband = 0.05;
@@ -46,9 +44,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
         blDriveX.set(leftPow);
         frDriveX.set(rightPow);
         brDriveX.set(rightPow);
-
-        rightPower = rightPow;
-        leftPower = leftPow;
     }
 
     public void operatorDrive() {
