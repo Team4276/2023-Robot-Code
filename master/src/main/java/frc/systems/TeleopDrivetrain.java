@@ -10,7 +10,6 @@ package frc.systems;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.LogJoystick;
 import frc.utilities.Toggler;
@@ -42,7 +41,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
      */
 
     public static void assignMotorPower(double rightPow, double leftPow) {
-        SmartDashboard.putBoolean("Drive check", true);
 
         flDriveX.set(leftPow);
         blDriveX.set(leftPow);
@@ -120,21 +118,6 @@ public class TeleopDrivetrain extends BaseDrivetrain {
             frDriveX.setIdleMode(IdleMode.kCoast);
             brDriveX.setIdleMode(IdleMode.kCoast);
         }
-    }
-
-    /**
-     * updates smartdashboard
-     */
-    public static void updateTelemetry() {
-        updateBaseTelemetry();
-        
-        // tank/arcade status
-        SmartDashboard.putString("Drive Mode", currentMode_s);
-        // power outputs
-        SmartDashboard.putNumber("Right Power", rightPower);
-        SmartDashboard.putNumber("Left Power", leftPower);
-        // Check Coast/Brake
-        SmartDashboard.putBoolean("Brake Mode", brakeModeisEngaged);
     }
 
 }

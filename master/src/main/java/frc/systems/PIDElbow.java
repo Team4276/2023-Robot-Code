@@ -6,7 +6,6 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -65,7 +64,6 @@ public class PIDElbow {
     }
 
     private static void setPIDReference(double setPoint_Elbow) {
-        SmartDashboard.putNumber("Elbow Set Position", setPoint_Elbow);
         driveElbow.getPIDController().setReference(setPoint_Elbow,
                 CANSparkMax.ControlType.kSmartMotion);
     }
@@ -87,25 +85,6 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-        }
-
-        if (usingSmartDashboard) {
-            // display PID coefficients on SmartDashboard
-            SmartDashboard.putNumber("Elbow P Gain", kP);
-            SmartDashboard.putNumber("Elbow I Gain", kI);
-            SmartDashboard.putNumber("Elbow D Gain", kD);
-            SmartDashboard.putNumber("Elbow I Zone", kIz);
-            SmartDashboard.putNumber("Elbow Feed Forward", kFF);
-            SmartDashboard.putNumber("Elbow Max Output", kMaxOutput);
-            SmartDashboard.putNumber("Elbow Min Output", kMinOutput);
-
-            // display Smart Motion coefficients
-            SmartDashboard.putNumber("Elbow Max Velocity", maxVel);
-            SmartDashboard.putNumber("Elbow Min Velocity", minVel);
-            SmartDashboard.putNumber("Elbow Max Acceleration", maxAcc);
-            SmartDashboard.putNumber("Elbow Allowed Closed Loop Error", allowedErr);
-            SmartDashboard.putNumber("Elbow Set Position", 0);
-            SmartDashboard.putNumber("Elbow Set Velocity", 0);
         }
 
         setModePosition();
@@ -178,11 +157,6 @@ public class PIDElbow {
                 setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
                 driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
             }
-
-            if (usingSmartDashboard) {
-                Update(driveElbow);
-            }
-            SmartDashboard.putNumber("Elbow_Encoder_Pos: ", driveElbow.getEncoder().getPosition());
         }
     }
 
@@ -190,87 +164,6 @@ public class PIDElbow {
     public static void setTestElbowSpeed(double speed) {
         if (Robot.isTestMode) {
             driveElbow.set(speed);
-        }
-    }
-
-    public static void updateTelemetry() {
-        if (Robot.isTestMode) {
-            if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
-                double rightY = Math.pow(Robot.xboxController.getRightY(), 3 / 2);
-                setTestElbowSpeed(rightY);
-            } else {
-                setTestElbowSpeed(0);
-            }
-        } else {
-
-            SmartDashboard.putNumber("Elbow Encoder_Pos", driveElbow.getEncoder().getPosition());
-            SmartDashboard.putNumber("Elbow Encoder_Vel", driveElbow.getEncoder().getVelocity());
-            if (modeIsSetPosition) {
-                SmartDashboard.putString("Elbow Mode", " Position");
-                SmartDashboard.putNumber("Elbow setPoint_Elbow_Pos", setPoint_Elbow);
-                SmartDashboard.putNumber("Elbow MotorOutput_Pos", driveElbow.getAppliedOutput());
-            } else {
-                SmartDashboard.putString("Elbow Mode", " Velocity");
-            }
-
-        }
-    }
-
-    private static void Update(CANSparkMax motor) {
-        SparkMaxPIDController pidController = motor.getPIDController();
-
-        double p = SmartDashboard.getNumber("Elbow P Gain", 0);
-        double i = SmartDashboard.getNumber("Elbow I Gain", 0);
-        double d = SmartDashboard.getNumber("Elbow D Gain", 0);
-        double iz = SmartDashboard.getNumber("Elbow I Zone", 0);
-        double ff = SmartDashboard.getNumber("Elbow Feed Forward", 0);
-        double max = SmartDashboard.getNumber("Elbow Max Output", 0);
-        double min = SmartDashboard.getNumber("Elbow Min Output", 0);
-        double maxV = SmartDashboard.getNumber("Elbow Max Velocity", 0);
-        double minV = SmartDashboard.getNumber("Elbow Min Velocity", 0);
-        double maxA = SmartDashboard.getNumber("Elbow Max Acceleration", 0);
-        double allE = SmartDashboard.getNumber("Elbow Allowed Closed Loop Error", 0);
-
-        if ((p != kP)) {
-            pidController.setP(p);
-            kP = p;
-        }
-        if ((i != kI)) {
-            pidController.setI(i);
-            kI = i;
-        }
-        if ((d != kD)) {
-            pidController.setD(d);
-            kD = d;
-        }
-        if ((iz != kIz)) {
-            pidController.setIZone(iz);
-            kIz = iz;
-        }
-        if ((ff != kFF)) {
-            pidController.setFF(ff);
-            kFF = ff;
-        }
-        if ((max != kMaxOutput) || (min != kMinOutput)) {
-            pidController.setOutputRange(min, max);
-            kMinOutput = min;
-            kMaxOutput = max;
-        }
-        if ((maxV != maxVel)) {
-            pidController.setSmartMotionMaxVelocity(maxV, 0);
-            maxVel = maxV;
-        }
-        if ((minV != minVel)) {
-            pidController.setSmartMotionMinOutputVelocity(minV, 0);
-            minVel = minV;
-        }
-        if ((maxA != maxAcc)) {
-            pidController.setSmartMotionMaxAccel(maxA, 0);
-            maxAcc = maxA;
-        }
-        if ((allE != allowedErr)) {
-            pidController.setSmartMotionAllowedClosedLoopError(allE, 0);
-            allowedErr = allE;
         }
     }
 }

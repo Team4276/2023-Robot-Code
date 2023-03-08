@@ -6,7 +6,6 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -57,7 +56,6 @@ public class PIDShoulder {
     }
 
     private static void setPIDReference(double setPoint_Shoulder) {
-        SmartDashboard.putNumber("Shoulder Set Position", setPoint_Shoulder);
         driveShoulder_R.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion);
         driveShoulder_L.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion); // -1
     }
@@ -84,25 +82,6 @@ public class PIDShoulder {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-        }
-
-        if (usingSmartDashboard) {
-            // display PID coefficients on SmartDashboard
-            SmartDashboard.putNumber("Shoulder P Gain", kP);
-            SmartDashboard.putNumber("Shoulder I Gain", kI);
-            SmartDashboard.putNumber("Shoulder D Gain", kD);
-            SmartDashboard.putNumber("Shoulder I Zone", kIz);
-            SmartDashboard.putNumber("Shoulder Feed Forward", kFF);
-            SmartDashboard.putNumber("Shoulder Max Output", kMaxOutput);
-            SmartDashboard.putNumber("Shoulder Min Output", kMinOutput);
-
-            // display Smart Motion coefficients
-            SmartDashboard.putNumber("Shoulder Max Velocity", maxVel);
-            SmartDashboard.putNumber("Shoulder Min Velocity", minVel);
-            SmartDashboard.putNumber("Shoulder Max Acceleration", maxAcc);
-            SmartDashboard.putNumber("Shoulder Allowed Closed Loop Error", allowedErr);
-            SmartDashboard.putNumber("Shoulder Set Position", 0);
-            SmartDashboard.putNumber("Shoulder Set Velocity", 0);
         }
 
         setPoint_Shoulder = NOT_INITIALIZED;
@@ -150,100 +129,7 @@ public class PIDShoulder {
                 }
             }
 
-            //if (setPoint_Shoulder != DPAD_DOWN_SHOULDER_STOW) {
-                setPIDReference(setPoint_Shoulder);
-            /* } else {
-                if (!limitSwitchShoulder.get()) {
-                    setShoulderSpeed(0.0);
-                } else {
-                    if (driveShoulder_R.getEncoder().getPosition() < DEADZONE_LIMIT_SWITCH_DISTANCE) {
-                        setShoulderSpeed(0.0);
-                    } else if (driveShoulder_R.getEncoder().getPosition() < NEAR_LIMIT_SWITCH_DISTANCE) {
-                        setShoulderSpeed(-1 * 0.2);
-                    } else {
-                        setShoulderSpeed(-1 * 1.0);
-                    }
-                }
-            }*/
-
-            if (usingSmartDashboard) {
-                Update(driveShoulder_R);
-                Update(driveShoulder_L);
-            }
-            SmartDashboard.putNumber("_EncodeDriverL_Pos: ", driveShoulder_L.getEncoder().getPosition());
-            SmartDashboard.putNumber("_EncodeDriverR_Pos: ", driveShoulder_R.getEncoder().getPosition());
-        }
-    }
-
-    public static void updateTelemetry() {
-        // Shoulder Setpoints
-        SmartDashboard.putNumber("SetPoint_SR_Pos", setPoint_Shoulder);
-        SmartDashboard.putNumber("SetPoint_SL_Pos", setPoint_Shoulder);
-
-        // Encoder Positions
-        SmartDashboard.putNumber("Encoder_SR_Pos", driveShoulder_R.getEncoder().getPosition());
-        SmartDashboard.putNumber("Encoder_SL_Pos", driveShoulder_L.getEncoder().getPosition());
-
-        // Shoulder Motor Outputs
-        SmartDashboard.putNumber("MotorOutput_SR_Pos", driveShoulder_R.getAppliedOutput());
-        SmartDashboard.putNumber("MotorOutput_SL_Pos", driveShoulder_L.getAppliedOutput());
-    }
-
-    private static void Update(CANSparkMax motor) {
-        SparkMaxPIDController pidController = motor.getPIDController();
-
-        double p = SmartDashboard.getNumber("Shoulder P Gain", 0);
-        double i = SmartDashboard.getNumber("Shoulder I Gain", 0);
-        double d = SmartDashboard.getNumber("Shoulder D Gain", 0);
-        double iz = SmartDashboard.getNumber("Shoulder I Zone", 0);
-        double ff = SmartDashboard.getNumber("Shoulder Feed Forward", 0);
-        double max = SmartDashboard.getNumber("Shoulder Max Output", 0);
-        double min = SmartDashboard.getNumber("Shoulder Min Output", 0);
-        double maxV = SmartDashboard.getNumber("Shoulder Max Velocity", 0);
-        double minV = SmartDashboard.getNumber("Shoulder Min Velocity", 0);
-        double maxA = SmartDashboard.getNumber("Shoulder Max Acceleration", 0);
-        double allE = SmartDashboard.getNumber("Shoulder Allowed Closed Loop Error", 0);
-
-        if ((p != kP)) {
-            pidController.setP(p);
-            kP = p;
-        }
-        if ((i != kI)) {
-            pidController.setI(i);
-            kI = i;
-        }
-        if ((d != kD)) {
-            pidController.setD(d);
-            kD = d;
-        }
-        if ((iz != kIz)) {
-            pidController.setIZone(iz);
-            kIz = iz;
-        }
-        if ((ff != kFF)) {
-            pidController.setFF(ff);
-            kFF = ff;
-        }
-        if ((max != kMaxOutput) || (min != kMinOutput)) {
-            pidController.setOutputRange(min, max);
-            kMinOutput = min;
-            kMaxOutput = max;
-        }
-        if ((maxV != maxVel)) {
-            pidController.setSmartMotionMaxVelocity(maxV, 0);
-            maxVel = maxV;
-        }
-        if ((minV != minVel)) {
-            pidController.setSmartMotionMinOutputVelocity(minV, 0);
-            minVel = minV;
-        }
-        if ((maxA != maxAcc)) {
-            pidController.setSmartMotionMaxAccel(maxA, 0);
-            maxAcc = maxA;
-        }
-        if ((allE != allowedErr)) {
-            pidController.setSmartMotionAllowedClosedLoopError(allE, 0);
-            allowedErr = allE;
+            setPIDReference(setPoint_Shoulder);
         }
     }
 }

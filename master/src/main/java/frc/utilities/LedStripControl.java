@@ -1,7 +1,7 @@
 package frc.utilities;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Robot;
 
 public class LedStripControl {
@@ -65,7 +65,6 @@ public class LedStripControl {
 
         }
         setMode(mode);
-        SmartDashboard.putNumber("LED mode: " , mode.ordinal());
     }
 
 }

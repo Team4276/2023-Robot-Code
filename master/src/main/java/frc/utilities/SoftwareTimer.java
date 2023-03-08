@@ -1,7 +1,6 @@
 package frc.utilities;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SoftwareTimer {
 
@@ -9,7 +8,6 @@ public class SoftwareTimer {
 
 	public void setTimer(double timerValue) {
 		expirationTime = Timer.getFPGATimestamp() + timerValue;
-		SmartDashboard.putNumber("TIME", Timer.getFPGATimestamp());
 	}
 
 	public boolean isExpired() {

@@ -3,8 +3,6 @@ package frc.systems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class BaseDrivetrain {
     public static CANSparkMax flDriveX = null;
     public static CANSparkMax blDriveX = null;
@@ -31,10 +29,4 @@ public class BaseDrivetrain {
         brDriveX.getEncoder().setPosition(0.0);
     }
 
-    public static void updateBaseTelemetry() {
-        SmartDashboard.putNumber("Front Right Encoder", frDriveX.getEncoder().getPosition());
-        SmartDashboard.putNumber("Front Left Encoder", flDriveX.getEncoder().getPosition());
-        SmartDashboard.putNumber("Back Right Encoder", brDriveX.getEncoder().getPosition());
-        SmartDashboard.putNumber("Back Left Encoder", blDriveX.getEncoder().getPosition());
-    }
 }

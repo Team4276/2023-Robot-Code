@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
@@ -57,26 +56,21 @@ public class Robot extends TimedRobot {
   public static void timedDrive() {
     if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
         || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
-      SmartDashboard.putNumber("Right Joystick output check", Robot.rightJoystick.getY());
       PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
       mTeleopDrivetrain.operatorDrive();
-      TeleopDrivetrain.updateTelemetry();
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
         || Robot.rightJoystick.getRawButton(3)) {
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
-      PIDDrivetrain.updateTelemetry();
 
     } else if (Robot.xboxController.getRawButton(Xbox.B)) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       PIDDrivetrain.PIDDrivetrainUpdate();
-      PIDDrivetrain.updateTelemetry();
 
     } else {
       TeleopDrivetrain.assignMotorPower(0, 0);
-      TeleopDrivetrain.updateTelemetry();
 
     }
 
@@ -85,13 +79,8 @@ public class Robot extends TimedRobot {
   public static void timedArm() {
 
     mIntake.updatePeriodic();
-
     PIDElbow.PIDElbowUpdate();
-    PIDElbow.updateTelemetry();
-
     PIDShoulder.PIDShoulderUpdate();
-    PIDShoulder.updateTelemetry();
-
   }
 
 
@@ -155,14 +144,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    Gyroscope.gyroscopeUpdate();
     pov = xboxController.getPOV();
-    SmartDashboard.putNumber("POV", pov);
-
-    SmartDashboard.putNumber("LJoystickPos", Math.abs(Robot.xboxController.getLeftY()));
-
     myLocation.updatePosition();
-
   }
 
   @Override

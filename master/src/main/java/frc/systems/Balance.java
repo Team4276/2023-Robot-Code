@@ -1,6 +1,5 @@
 package frc.systems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utilities.PID;
 
 public class Balance {
@@ -8,7 +7,6 @@ public class Balance {
 
     public static void balance(double pitch) {
         boolean pause = false;
-        SmartDashboard.putBoolean("Stop", pause);
         if (pause) {
             PIDDrivetrain.holdPosition = true;
         } else {

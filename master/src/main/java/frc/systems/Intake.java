@@ -3,7 +3,6 @@ package frc.systems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 //import frc.utilities.Xbox;
 
@@ -34,9 +33,6 @@ public class Intake {
         } else {
             setSpeed(0.0);
         }
-
-        SmartDashboard.putNumber("intake encoder_Vel: ", intakeDrive.getEncoder().getVelocity() );
-
     }
 
 }

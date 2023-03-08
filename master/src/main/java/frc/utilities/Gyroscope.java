@@ -1,7 +1,6 @@
 package frc.utilities;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Robot;
 
@@ -18,7 +17,6 @@ public class Gyroscope {
         return imu.getXComplementaryAngle();
     }
 
-    
     static public double GetPitch() {
         return imu.getYComplementaryAngle();
     }
@@ -31,8 +29,4 @@ public class Gyroscope {
         return Pitch;
     }
 
-    static public void gyroscopeUpdate(){
-        SmartDashboard.putNumber("pitch", Gyroscope.GetPitch());
-        SmartDashboard.putNumber("corrected pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-    }
 }
