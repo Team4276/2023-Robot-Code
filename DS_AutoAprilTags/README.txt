@@ -19,3 +19,7 @@
 --How to setup Project to be pushed to git 
 1. Recompress the .meta and .obj files from step 2 of "How to import and build" into 1 zip 
 2. delete the whole libary folder 
+
+--Good to know 
+- remember to recompress the built file in the build folder if ran
+- if the project appears to not be there in unity editor make sure you opened the scene i belive its sampleScene
