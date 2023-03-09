@@ -14,10 +14,10 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD
-    public static final double DPAD_UP_ELBOW_REACH_NEAR_CONE = -7.5;
-    public static final int DPAD_DOWN_ELBOW_STOW = -1;
-    public static final double DPAD_RIGHT_ELBOW_EJECT_CUBE = -6;
-    public static final double DPAD_LEFT_ELBOW_COLLECT = -14.5;
+    public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -7.5;
+    public static final double DPAD_UP_ELBOW_STOW = -1.5;
+    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -6;
+    public static final double DPAD_DOWN_ELBOW_COLLECT = -14.5;
 
     private static CANSparkMax driveElbow;
     private static double deadband = 0.2;
@@ -104,7 +104,7 @@ public class PIDElbow {
         }
         driveElbow.set(0.0);
         driveElbow.getEncoder().setPosition(0.0);
-        setPoint_Elbow = DPAD_DOWN_ELBOW_STOW;
+        setPoint_Elbow = DPAD_UP_ELBOW_STOW;
         timeLastCalibration = Timer.getFPGATimestamp();
         setModePosition();
     }
@@ -122,13 +122,13 @@ public class PIDElbow {
             } else if (Robot.pov != -1) {
                 setModePosition();
                 if (Xbox.POVup == Robot.pov) {
-                    setPoint_Elbow = DPAD_UP_ELBOW_REACH_NEAR_CONE;
+                    setPoint_Elbow = DPAD_UP_ELBOW_STOW;
                 } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Elbow = DPAD_DOWN_ELBOW_STOW;
+                    setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT;
                 } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Elbow = DPAD_RIGHT_ELBOW_EJECT_CUBE;
+                    setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE;
                 } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Elbow = DPAD_LEFT_ELBOW_COLLECT;
+                    setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE;
                 }
             }
 

@@ -14,10 +14,10 @@ import frc.utilities.Xbox;
 public class PIDShoulder {
 
     // Set points for DPAD
-    public static final int DPAD_UP_SHOULDER_REACH_NEAR_CONE = 13;
-    public static final int DPAD_DOWN_SHOULDER_STOW = 2;
-    public static final int DPAD_RIGHT_SHOULDER_EJECT_CUBE = 9;
-    public static final int DPAD_LEFT_SHOULDER_COLLECT = 4;
+    public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 13;
+    public static final int DPAD_UP_SHOULDER_STOW = 2;
+    public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 9;
+    public static final int DPAD_DOWN_ULDER_COLLECT = 4;
 
     private static CANSparkMax driveShoulder_R;
     private static CANSparkMax driveShoulder_L;
@@ -101,7 +101,7 @@ public class PIDShoulder {
         setShoulderSpeed(0.0);
         driveShoulder_R.getEncoder().setPosition(0.0);
         driveShoulder_L.getEncoder().setPosition(0.0);
-        setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+        setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
         timeLastCalibration = Timer.getFPGATimestamp();
     }
 
@@ -116,13 +116,13 @@ public class PIDShoulder {
         if (setPoint_Shoulder != NOT_INITIALIZED) {
             if (Robot.pov != -1) {
                 if (Xbox.POVup == Robot.pov) {
-                    setPoint_Shoulder = DPAD_UP_SHOULDER_REACH_NEAR_CONE;
+                    setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
                 } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Shoulder = DPAD_DOWN_SHOULDER_STOW;
+                    setPoint_Shoulder = DPAD_DOWN_ULDER_COLLECT;
                 } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_EJECT_CUBE;
+                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE;
                 } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_COLLECT;
+                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_EJECT_CUBE;
                 }
             }
                
