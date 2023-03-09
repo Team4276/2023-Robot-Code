@@ -6,7 +6,7 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -15,7 +15,7 @@ public class PIDShoulder {
 
     // Set points for DPAD
     public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 13;
-    public static final int DPAD_UP_SHOULDER_STOW = 2;
+    public static final int DPAD_UP_SHOULDER_STOW = 1;
     public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 9;
     public static final int DPAD_DOWN_ULDER_COLLECT = 4;
 
@@ -38,9 +38,7 @@ public class PIDShoulder {
 
     private static double allowedErr = 0;
 
-    private static double setPoint_Shoulder;
-
-    private static final double NOT_INITIALIZED = -999.0;
+    private static double setPoint_Shoulder = 0.0;
 
     private static DigitalInput limitSwitchShoulder;
     private static double timeLastCalibration = 0.0;
@@ -79,9 +77,13 @@ public class PIDShoulder {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-        }
 
-        setPoint_Shoulder = NOT_INITIALIZED;
+            calibrateShoulderPosition();
+             
+            // Allow faster motion after calibration completes
+            // TBD maxVel = 4000;
+            // TBD maxAcc = 4000;            
+        }
     }
 
     public static void calibrateShoulderPosition() {
@@ -113,30 +115,26 @@ public class PIDShoulder {
             }
         }
 
-        if (setPoint_Shoulder != NOT_INITIALIZED) {
-            if (Robot.pov != -1) {
-                if (Xbox.POVup == Robot.pov) {
-                    setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
-                } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Shoulder = DPAD_DOWN_ULDER_COLLECT;
-                } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Shoulder = DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE;
-                } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Shoulder = DPAD_LEFT_SHOULDER_EJECT_CUBE;
-                }
-            }
-               
-            setPIDReference(setPoint_Shoulder);
-
-            if(!limitSwitchShoulder.get()) {
-                // The arm hit the limit switch in normal operation - re-calibration is needed
-                setPoint_Shoulder = NOT_INITIALIZED;
-            } else if( 1.0 < (driveShoulder_R.getEncoder().getPosition() - driveShoulder_L.getEncoder().getPosition()) ) {
-                // Looks like the belt slipped -  re-calibration is needed
-                setPoint_Shoulder = NOT_INITIALIZED;
+        if (Robot.pov != -1) {
+            if (Xbox.POVup == Robot.pov) {
+                setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
+            } else if (Xbox.POVdown == Robot.pov) {
+                setPoint_Shoulder = DPAD_DOWN_ULDER_COLLECT;
+            } else if (Xbox.POVright == Robot.pov) {
+                setPoint_Shoulder = DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE;
+            } else if (Xbox.POVleft == Robot.pov) {
+                setPoint_Shoulder = DPAD_LEFT_SHOULDER_EJECT_CUBE;
             }
         }
-        
-        SmartDashboard.putBoolean("  Shoulder (A) Calibration: ", (setPoint_Shoulder != NOT_INITIALIZED));
+
+        setPIDReference(setPoint_Shoulder);
+
+        if (!limitSwitchShoulder.get()) {
+            // Reset encoders all the time when the limit switch is in contact
+            setShoulderSpeed(0.0);
+            driveShoulder_R.getEncoder().setPosition(0.0);
+            driveShoulder_L.getEncoder().setPosition(0.0);
+            setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
+        }
     }
 }
