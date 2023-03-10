@@ -21,6 +21,8 @@ import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
+import frc.auto.AutoScoringFunctions;
+import frc.auto.BabyAuto;
 
 public class Robot extends TimedRobot {
 
@@ -72,6 +74,14 @@ public class Robot extends TimedRobot {
     } else {
       TeleopDrivetrain.assignMotorPower(0, 0);
 
+    }
+
+    if (BabyAuto.usingDrivetrainMotorsNOPOWER){
+      TeleopDrivetrain.assignMotorPower(0, 0);
+    } else if (BabyAuto.usingDrivetrainMotorsForward){
+      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1*BabyAuto.MOTORPOWER);
+    } else if (BabyAuto.usingDrivetrainMotorsBackward) {
+      TeleopDrivetrain.assignMotorPower(-1*BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
     }
 
   }
@@ -151,11 +161,24 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     isTestMode = false;
+    AutoScoringFunctions.AutoScoringFunctionsInit();
+    BabyAuto.BabyAutoInit();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    /*if (!AutoScoringFunctions.taskIsFinished) {
+      AutoScoringFunctions.safeScoreNearCone();
+    } else*/ if (!BabyAuto.taskIsFinished) {
+      BabyAuto.middleBalance();
+    } else {
+      //idk somtin im probably missing
+    }
+
+    mIntake.updatePeriodic();
+    PIDElbow.PIDElbowUpdate();
+    PIDShoulder.PIDShoulderUpdate();
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);
   }
 

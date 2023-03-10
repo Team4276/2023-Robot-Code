@@ -21,6 +21,8 @@ import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
+import frc.auto.AutoScoringFunctions;
+import frc.auto.BabyAuto;
 
 public class Robot extends TimedRobot {
 
@@ -156,6 +158,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    if (!AutoScoringFunctions.taskIsFinished) {
+      //score
+    } else if (!BabyAuto.taskIsFinished) {
+      //move back
+    } else {
+      //idk somtin im probably missing
+    }
+
+
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);
     
   }

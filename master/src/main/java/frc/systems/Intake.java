@@ -4,6 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.Robot;
+
+import frc.auto.AutoScoringFunctions;
 //import frc.utilities.Xbox;
 
 public class Intake {
@@ -17,7 +19,7 @@ public class Intake {
     }
 
     // Speed inrange -1.0 to +1.0
-    public void setSpeed(double speed) {
+    public static void setSpeed(double speed) {
         intakeDrive.set(speed);
     }
 
@@ -27,7 +29,7 @@ public class Intake {
         if (rightY > deadband) {
             // Intake
             setSpeed(0.9);
-        } else if (rightY < (deadband * -1)) { // -1 for deadband in opposite direction
+        } else if ((rightY < (deadband * -1)) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite direction
             // Outtake
             setSpeed(-0.9);
         } else {

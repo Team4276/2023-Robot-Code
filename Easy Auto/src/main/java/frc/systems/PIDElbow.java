@@ -14,17 +14,17 @@ import frc.robot.Autonomous;
 
 public class PIDElbow {
 
-    // Set points for DPAD
-    public static final double DPAD_UP_ELBOW_REACH_NEAR_CONE = -7.5;
-    public static final int DPAD_DOWN_ELBOW_STOW = -1;
-    public static final double DPAD_RIGHT_ELBOW_EJECT_CUBE = -6;
-    public static final double DPAD_LEFT_ELBOW_COLLECT = -14.5;
+    // Set points for DPAD  -1.0 is in directopn of more extension
+    public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -7.5;
+    public static final double DPAD_UP_ELBOW_STOW = -0.0;
+    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
+    public static final double DPAD_DOWN_ELBOW_COLLECT = -8.25;
 
     public static CANSparkMax driveElbow;
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 5e-5;
+    private static double kP = 80e-5;
     private static double kI = 1e-6;
     private static double kD = 0;
     private static double kIz = 0;
@@ -41,9 +41,7 @@ public class PIDElbow {
 
     private static boolean modeIsSetPosition = false; // Otherwise set velocity
 
-    private static final double NOT_INITIALIZED = -999.0;
-    public static double setPoint_Elbow = NOT_INITIALIZED;
-
+    public static double setPoint_Elbow = 0.0;
     private static DigitalInput limitSwitchElbow;
     private static double timeLastCalibration = 0.0;
 
@@ -83,10 +81,13 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
+            
+            // Allow faster motion after calibration completes
+            maxVel = 8000;
+            maxAcc = 4000;            
         }
 
         setModePosition();
-        setPoint_Elbow = NOT_INITIALIZED;
     }
 
     public static void calibrateElbowPosition() {
@@ -105,7 +106,7 @@ public class PIDElbow {
         }
         driveElbow.set(0.0);
         driveElbow.getEncoder().setPosition(0.0);
-        setPoint_Elbow = DPAD_DOWN_ELBOW_STOW;
+        setPoint_Elbow = DPAD_UP_ELBOW_STOW;
         timeLastCalibration = Timer.getFPGATimestamp();
         setModePosition();
     }
@@ -117,23 +118,20 @@ public class PIDElbow {
             }
         }
 
-        if (setPoint_Elbow != NOT_INITIALIZED) {
-            if ((Math.abs(Robot.xboxController.getLeftY()) > deadband)) {
-                setModeVelocity();
-            } else if (Robot.pov != -1) {
-                setModePosition();
-                if (Xbox.POVup == Robot.pov) {
-                    setPoint_Elbow = DPAD_UP_ELBOW_REACH_NEAR_CONE;
-                } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Elbow = DPAD_DOWN_ELBOW_STOW;
-                } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Elbow = DPAD_RIGHT_ELBOW_EJECT_CUBE;
-                } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Elbow = DPAD_LEFT_ELBOW_COLLECT;
-                }
-            } else if (Autonomous.autoRunning) {
-                setModePosition();
+        if ((Math.abs(Robot.xboxController.getLeftY()) > deadband)) {
+            setModeVelocity();
+        } else if (Robot.pov != -1) {
+            setModePosition();
+            if (Xbox.POVup == Robot.pov) {
+                setPoint_Elbow = DPAD_UP_ELBOW_STOW;
+            } else if (Xbox.POVdown == Robot.pov) {
+                setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT;
+            } else if (Xbox.POVright == Robot.pov) {
+                setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE;
+            } else if (Xbox.POVleft == Robot.pov) {
+                setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE;
             }
+        }
 
             if (modeIsSetPosition) {
                 setPIDReference(setPoint_Elbow);
