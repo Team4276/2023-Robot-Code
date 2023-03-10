@@ -6,7 +6,7 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -15,9 +15,9 @@ public class PIDShoulder {
 
     // Set points for DPAD
     public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 13;
-    public static final int DPAD_UP_SHOULDER_STOW = 1;
-    public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 9;
-    public static final int DPAD_DOWN_ULDER_COLLECT = 4;
+    public static final int DPAD_UP_SHOULDER_STOW = 0;
+    public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 3;
+    public static final int DPAD_DOWN_ULDER_COLLECT = 0;
 
     private static CANSparkMax driveShoulder_R;
     private static CANSparkMax driveShoulder_L;
@@ -81,8 +81,8 @@ public class PIDShoulder {
             calibrateShoulderPosition();
              
             // Allow faster motion after calibration completes
-            // TBD maxVel = 4000;
-            // TBD maxAcc = 4000;            
+            maxVel = 3000;
+            maxAcc = 4000;            
         }
     }
 
@@ -130,11 +130,17 @@ public class PIDShoulder {
         setPIDReference(setPoint_Shoulder);
 
         if (!limitSwitchShoulder.get()) {
-            // Reset encoders all the time when the limit switch is in contact
-            setShoulderSpeed(0.0);
-            driveShoulder_R.getEncoder().setPosition(0.0);
-            driveShoulder_L.getEncoder().setPosition(0.0);
-            setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
+            if(Math.abs(driveShoulder_R.getEncoder().getPosition()) > 0.05) {
+                // Reset encoders all the time when the limit switch is in contact
+                 driveShoulder_R.getEncoder().setPosition(0.0);
+            }
+            if(Math.abs(driveShoulder_L.getEncoder().getPosition()) > 0.05) {
+                // Reset encoders all the time when the limit switch is in contact
+                 driveShoulder_L.getEncoder().setPosition(0.0);
+            }
         }
+                
+        SmartDashboard.putNumber("ShoulderEncoder_R:  ", driveShoulder_R.getEncoder().getPosition());
+        SmartDashboard.putNumber("ShoulderEncoder_L:  ", driveShoulder_L.getEncoder().getPosition());
     }
 }

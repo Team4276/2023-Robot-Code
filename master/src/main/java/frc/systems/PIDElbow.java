@@ -6,23 +6,24 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
 
 public class PIDElbow {
 
-    // Set points for DPAD
+    // Set points for DPAD  -1.0 is in directopn of more extension
     public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -7.5;
-    public static final double DPAD_UP_ELBOW_STOW = -1.0;
-    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -6;
-    public static final double DPAD_DOWN_ELBOW_COLLECT = -14.5;
+    public static final double DPAD_UP_ELBOW_STOW = -0.0;
+    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
+    public static final double DPAD_DOWN_ELBOW_COLLECT = -8.25;
 
     private static CANSparkMax driveElbow;
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 5e-5;
+    private static double kP = 80e-5;
     private static double kI = 1e-6;
     private static double kD = 0;
     private static double kIz = 0;
@@ -79,12 +80,10 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-
-            calibrateElbowPosition();
             
             // Allow faster motion after calibration completes
-            // TBD maxVel = 4000;
-            // TBD maxAcc = 4000;            
+            maxVel = 8000;
+            maxAcc = 4000;            
         }
 
         setModePosition();
@@ -145,12 +144,13 @@ public class PIDElbow {
         }
 
         if (!limitSwitchElbow.get()) {
-            // Reset encoders all the time when the limit switch is in contact
-            driveElbow.set(0.0);
-            driveElbow.getEncoder().setPosition(0.0);
-            setPoint_Elbow = DPAD_UP_ELBOW_STOW;
-            setModePosition();
+            if(Math.abs(driveElbow.getEncoder().getPosition()) > 0.05) {
+                // Reset encoders all the time when the limit switch is in contact
+                driveElbow.getEncoder().setPosition(0.0);
+            }
         }
+        
+        SmartDashboard.putNumber("ElbowEncoder:  ", driveElbow.getEncoder().getPosition());
     }
 
     // Speed inrange -1.0 to +1.0
