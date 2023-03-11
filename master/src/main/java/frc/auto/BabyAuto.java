@@ -1,5 +1,6 @@
 package frc.auto;
 
+import frc.robot.Robot;
 import frc.systems.Balance;
 import frc.systems.PIDDrivetrain;
 import frc.systems.TeleopDrivetrain;
@@ -7,15 +8,18 @@ import frc.systems.PIDElbow;
 import frc.systems.PIDShoulder;
 import frc.utilities.Gyroscope;
 import frc.utilities.SoftwareTimer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BabyAuto {
-    private static final double LEFTMOBILITYTIME = 1; // time in seconds
+    private static final double LEFTMOBILITYTIME = 3; // time in seconds
     private static final double RIGHTMOBILITYTIME = 2.5; // time in seconds
     private static final double MIDDLEBALANCTIME1 = 0.5; // initial back away
-    private static final double MIDDLEBALANCTIME2 = 1.5; // drive up onto platform
+    private static final double MIDDLEBALANCTIME2 = 2; // drive up onto platform
     private static final double MIDDLEBALANCTIME3 = 0; // delay until arm goes down
     public static final double MOTORPOWER = 0.25;
     private static final double DEADZONEANGLE = 5; // deg
+
+    public static boolean balance = false;
 
     private static SoftwareTimer timer;
     private static SoftwareTimer middleTimer;
@@ -67,8 +71,10 @@ public class BabyAuto {
         }*/
 
         if (timer.isExpired()){
-            Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-            PIDDrivetrain.PIDDrivetrainUpdate();
+            usingDrivetrainMotorsNOPOWER = true;
+            Robot.isTeleop = true;
+            balance = true;
+            SmartDashboard.putBoolean("isTeleop", Robot.isTeleop);
 
         } else {
             usingDrivetrainMotorsForward = true;

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.systems.Balance;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
@@ -53,7 +54,60 @@ public class Robot extends TimedRobot {
 
   public static double deadband = 0.05;
 
+  private static boolean firstRun = true;
+
+  public enum ROBOT_MODE {
+    NOT_INITIALIZED,
+    AUTO_1_MOBILITY,
+    AUTO_2_BALANCE,
+    TELEOP_NORMAL,
+    TELEOP_BALANCE,
+    TELEOP_HOLD_POSITION;
+
+    private int numMode = 0;
+
+    ROBOT_MODE() {
+    }
+
+    ROBOT_MODE(int val) {
+      numMode = val;
+    }
+
+    public int getInt() {
+      return numMode;
+    }
+
+    public void setInt(int val) {
+      numMode = val;
+    }
+
+    public String getString() {
+      switch (numMode) {
+        case 0:
+          return "NOT_INITIALIZED";
+        case 1:
+          return "AUTO_1_MOBILITY";
+        case 2:
+          return "AUTO_2_BALANCE";
+        case 3:
+          return "TELEOP_NORMAL";
+        case 4:
+          return "TELEOP_BALANCE";
+        case 5:
+          return "TELEOP_HOLD_POSITION";
+
+        default:
+          break;
+      }
+      return "*****";
+    }
+  };
+
+  public static final ROBOT_MODE mRobotMode = ROBOT_MODE.NOT_INITIALIZED;
+
   public static boolean isTestMode = false;
+
+  public static boolean isTeleop = true;
 
   public static void timedDrive() {
     if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
@@ -67,7 +121,7 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
 
-    } else if (Robot.xboxController.getRawButton(Xbox.B)) {
+    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       PIDDrivetrain.PIDDrivetrainUpdate();
 
@@ -75,13 +129,17 @@ public class Robot extends TimedRobot {
       TeleopDrivetrain.assignMotorPower(0, 0);
 
     }
-
-    if (BabyAuto.usingDrivetrainMotorsNOPOWER){
+    if (!isTeleop) {
+      if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
       TeleopDrivetrain.assignMotorPower(0, 0);
-    } else if (BabyAuto.usingDrivetrainMotorsForward){
-      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1*BabyAuto.MOTORPOWER);
+      } else if (BabyAuto.usingDrivetrainMotorsForward) {
+        TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
     } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-      TeleopDrivetrain.assignMotorPower(-1*BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
+        TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+      }
+    } else if (firstRun){
+      TeleopDrivetrain.assignMotorPower(0, 0);
+      firstRun = false;
     }
 
   }
@@ -92,7 +150,6 @@ public class Robot extends TimedRobot {
     PIDElbow.PIDElbowUpdate();
     PIDShoulder.PIDShoulderUpdate();
   }
-
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -123,7 +180,6 @@ public class Robot extends TimedRobot {
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-
     mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
@@ -139,6 +195,7 @@ public class Robot extends TimedRobot {
     myLedStrip = new LedStripControl();
     // TMP TMP TMP myLedStrip.setMode(frc.utilities.LED_MODE.LED_OFF);
 
+    SmartDashboard.putString("Set Robot Mode: " , "***");
   }
 
   /**
@@ -156,6 +213,12 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     pov = xboxController.getPOV();
     myLocation.updatePosition();
+    String myMode = "***";
+    SmartDashboard.getString("Set Robot Mode: ", myMode);
+    //mRobotMode.setInt((int) myMode);
+    SmartDashboard.putString("Robot Mode: ", myMode);
+
+    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
   }
 
   @Override
@@ -163,22 +226,17 @@ public class Robot extends TimedRobot {
     isTestMode = false;
     AutoScoringFunctions.AutoScoringFunctionsInit();
     BabyAuto.BabyAutoInit();
+    isTeleop = false;
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    /*if (!AutoScoringFunctions.taskIsFinished) {
-      AutoScoringFunctions.safeScoreNearCone();
-    } else*/ if (!BabyAuto.taskIsFinished) {
+    if (!BabyAuto.taskIsFinished) {
       BabyAuto.middleBalance();
     } else {
-      //idk somtin im probably missing
+      // idk somtin im probably missing
     }
-
-    mIntake.updatePeriodic();
-    PIDElbow.PIDElbowUpdate();
-    PIDShoulder.PIDShoulderUpdate();
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);
   }
 
@@ -187,6 +245,8 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     isTestMode = false;
     initialPitch = Gyroscope.GetPitch();
+    isTeleop = true;
+    BabyAuto.balance = false;
   }
 
   /** This function is called periodically during operator control. */

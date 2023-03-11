@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
-import frc.auto.AutoScoringFunctions;
 
 public class PIDElbow {
 
@@ -26,7 +25,7 @@ public class PIDElbow {
     // PID coefficients
     private static double kP = 80e-5;
     private static double kI = 1e-6;
-    private static double kD = 0;
+    private static double kD = 5e-5;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
@@ -131,8 +130,6 @@ public class PIDElbow {
             } else if (Xbox.POVleft == Robot.pov) {
                 setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE;
             }
-        } else if (AutoScoringFunctions.usingArm) {
-            setModePosition();
         }
 
         if (modeIsSetPosition) {

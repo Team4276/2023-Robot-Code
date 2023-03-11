@@ -10,12 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
-import frc.auto.AutoScoringFunctions;
 
 public class PIDShoulder {
 
     // Set points for DPAD
-    public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 13;
+    public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 12;
     public static final int DPAD_UP_SHOULDER_STOW = 0;
     public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 3;
     public static final int DPAD_DOWN_ULDER_COLLECT = 0;
@@ -127,8 +126,10 @@ public class PIDShoulder {
                 setPoint_Shoulder = DPAD_LEFT_SHOULDER_EJECT_CUBE;
             }
         }
-
+        
         setPIDReference(setPoint_Shoulder);
+
+        
 
         if (!limitSwitchShoulder.get()) {
             if(Math.abs(driveShoulder_R.getEncoder().getPosition()) > 0.05) {
