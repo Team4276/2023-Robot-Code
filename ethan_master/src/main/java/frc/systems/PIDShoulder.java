@@ -1,9 +1,7 @@
 package frc.systems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxRelativeEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -25,8 +23,8 @@ public class PIDShoulder {
     public static CANSparkMax driveShoulder_L;
 
     // PID coefficients
-    private static double kP = 1e-4;
-    private static double kI = 0;
+    private static double kP = 5e-5;
+    private static double kI = 1e-6;
     private static double kD = 0;
     private static double kIz = 0;
     private static double kFF = 0.000156;
@@ -37,6 +35,7 @@ public class PIDShoulder {
     private static double maxVel = 2000; // rpm
     private static double maxAcc = 100;
     private static double minVel = 0;
+    private static double deadband = 0.2;
 
     private static double allowedErr = 0;
 
@@ -45,30 +44,16 @@ public class PIDShoulder {
     private static DigitalInput limitSwitchShoulder;
     private static double timeLastCalibration = 0.0;
 
-    private static RelativeEncoder Shoulder_Encoder_R;
-    private static RelativeEncoder Shoulder_Encoder_L;
-
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
-        driveShoulder_L.follow(driveShoulder_R);
-        driveShoulder_L.setInverted(true);
-
-        Shoulder_Encoder_R = driveShoulder_R.getEncoder(Type.kHallSensor, 42);
-        Shoulder_Encoder_L = driveShoulder_L.getEncoder(Type.kHallSensor, 42);
-
-        // Shoulder_Encoder_R = driveShoulder_R.getEncoder();
-        // Shoulder_Encoder_L = driveShoulder_L.getEncoder();
-        
 
         limitSwitchShoulder = new DigitalInput(RoboRioPorts.DIO_LIMIT_SHOULDER);
-        driveShoulder_L.burnFlash();
-        driveShoulder_R.burnFlash();
     }
 
     private static void setPIDReference(double setPoint_Shoulder) {
         driveShoulder_R.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion);
-
+        driveShoulder_L.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kSmartMotion); // -1
     }
 
     private static void setShoulderSpeed(double speed) {
@@ -117,8 +102,8 @@ public class PIDShoulder {
             }
         }
         setShoulderSpeed(0.0);
-        Shoulder_Encoder_R.setPosition(0);
-        Shoulder_Encoder_L.setPosition(0);
+        driveShoulder_R.getEncoder().setPosition(0.0);
+        driveShoulder_L.getEncoder().setPosition(0.0);
         setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
         timeLastCalibration = Timer.getFPGATimestamp();
     }
@@ -143,23 +128,32 @@ public class PIDShoulder {
             }
         }
         
-        setPIDReference(setPoint_Shoulder);
+        //setPIDReference(setPoint_Shoulder);
+
+        if (Math.abs(Robot.xboxController.getRightY()) < deadband) {
+            driveShoulder_R.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
+            driveShoulder_L.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
+
+        } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
+            setPoint_Shoulder = Robot.xboxController.getRightY() * 500;
+            driveShoulder_R.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
+            driveShoulder_L.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
+        }
 
         
 
         if (!limitSwitchShoulder.get()) {
-            if(Math.abs(Shoulder_Encoder_R.getPosition()) < 0.05) {
+            if(Math.abs(driveShoulder_R.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                Shoulder_Encoder_R.setPosition(0);
+                 driveShoulder_R.getEncoder().setPosition(0.0);
             }
-            if(Math.abs(Shoulder_Encoder_L.getPosition()) < 0.05) {
+            if(Math.abs(driveShoulder_L.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                Shoulder_Encoder_L.setPosition(0);
+                 driveShoulder_L.getEncoder().setPosition(0.0);
             }
         }
                 
-        SmartDashboard.putNumber("ShoulderEncoder_R:  ", Shoulder_Encoder_R.getPosition());
-        SmartDashboard.putNumber("ShoulderEncoder_L:  ", Shoulder_Encoder_L.getPosition());
-        SmartDashboard.putNumber("L motor output", driveShoulder_L.getAppliedOutput());
+        SmartDashboard.putNumber("ShoulderEncoder_R:  ", driveShoulder_R.getEncoder().getPosition());
+        SmartDashboard.putNumber("ShoulderEncoder_L:  ", driveShoulder_L.getEncoder().getPosition());
     }
 }

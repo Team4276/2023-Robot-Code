@@ -155,7 +155,7 @@ public class Robot extends TimedRobot {
 
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
-    NewPIDShoulder.PIDShoulderUpdate();
+    PIDShoulder.PIDShoulderUpdate();
   }
 
   /**
