@@ -57,18 +57,8 @@ public class BabyAuto {
     public static void middleBalance(){
         if (firstRun){
             timer.setTimer(MIDDLEBALANCTIME2);
-            //middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
             firstRun = false;
         }
-
-        /*if (middleArmDelayTimer.isExpired()){
-            if (firstRunTimer){
-                middleTimer.setTimer(MIDDLEBALANCTIME4);
-            }
-
-            PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-            PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
-        }*/
 
         if (timer.isExpired()){
             usingDrivetrainMotorsNOPOWER = true;

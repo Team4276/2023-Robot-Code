@@ -123,11 +123,13 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.holdPosition = true;
       if (FirstXButtonPress){
         PIDDrivetrain.newPositiontohold = true;
-        FirstXButtonPress = true;
+        FirstXButtonPress = false;
       }
       PIDDrivetrain.PIDDrivetrainUpdate();
 
-    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)) {
+    } else if (Robot.xboxController.getRawButton(Xbox.B) 
+    || (BabyAuto.balance) 
+    || (Robot.leftJoystick.getRawButton(3))) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       PIDDrivetrain.PIDDrivetrainUpdate();
 
