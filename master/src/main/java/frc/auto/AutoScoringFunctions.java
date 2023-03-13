@@ -12,7 +12,7 @@ public class AutoScoringFunctions {
     private static boolean firstRun = true;
     
     private static final double DEADZONE = 0.5;
-    private static final double INTAKERUNTIME = 2;
+    private static final double INTAKERUNTIME = 1;
     private static final double ARMRUNTIME = 4;
 
     private static SoftwareTimer intakeTimer;
@@ -24,6 +24,18 @@ public class AutoScoringFunctions {
     }
 
     public static void scoreLow(){
+        if (firstRun) {
+            intakeTimer.setTimer(INTAKERUNTIME);
+            firstRun = false;
+        }
+
+        if (intakeTimer.isExpired()){
+            usingIntake = false;
+            taskIsFinished = true;
+
+        } else {
+            usingIntake = true;
+        }
 
     }
 

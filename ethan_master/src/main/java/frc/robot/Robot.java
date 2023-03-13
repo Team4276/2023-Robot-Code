@@ -134,7 +134,10 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.PIDDrivetrainUpdate();
 
     } else {
-      TeleopDrivetrain.assignMotorPower(0, 0);
+      if (isTeleop){
+        TeleopDrivetrain.assignMotorPower(0, 0);
+      }
+
       FirstXButtonPress = true;
 
     }

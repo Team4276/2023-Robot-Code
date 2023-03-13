@@ -49,6 +49,8 @@ public class PIDShoulder {
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
 
         limitSwitchShoulder = new DigitalInput(RoboRioPorts.DIO_LIMIT_SHOULDER);
+
+
     }
 
     private static void setPIDReference(double setPoint_Shoulder) {
@@ -136,8 +138,10 @@ public class PIDShoulder {
 
         } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
             setPoint_Shoulder = Robot.xboxController.getRightY() * 500;
-            driveShoulder_R.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
-            driveShoulder_L.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
+            setShoulderSpeed(setPoint_Shoulder);
+
+            //driveShoulder_R.getPIDController().setReference(-1 * setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
+            //driveShoulder_L.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
         }
 
         

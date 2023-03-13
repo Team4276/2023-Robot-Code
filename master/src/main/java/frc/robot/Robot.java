@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.databind.node.ShortNode;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
@@ -21,9 +23,13 @@ import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
+import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
 import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
+import frc.auto.MainAutoFunctions;
+import frc.utilities.poslog;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
 
@@ -43,6 +49,7 @@ public class Robot extends TimedRobot {
   public static LedStripControl myLedStrip;
 
   public static Timer systemTimer;
+  public static SoftwareTimer testTimer;
 
   public static double initialPitch = 0;
 
@@ -55,6 +62,21 @@ public class Robot extends TimedRobot {
   public static double deadband = 0.05;
 
   private static boolean firstRun = true;
+  private static boolean firstXPress = true;
+
+  private static DigitalInput Switch1;
+  private static DigitalInput Switch2;
+  private static DigitalInput Switch3;
+
+  private static boolean auto0 = false;
+  private static boolean auto1 = false;
+  private static boolean auto2 = false;
+  private static boolean auto3 = false;
+  private static boolean auto4 = false;
+
+  public static int autoselector = 0;
+
+  private static boolean firstRunTimer4 = true;
 
   public enum ROBOT_MODE {
     NOT_INITIALIZED,
@@ -117,18 +139,36 @@ public class Robot extends TimedRobot {
       mTeleopDrivetrain.operatorDrive();
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(3)) {
+        || Robot.rightJoystick.getRawButton(1)) {
+      if (firstXPress){
+        PIDDrivetrain.newPositiontohold = true;
+        firstXPress = false;
+      }
+
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
 
-    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)) {
+    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance) || (Robot.leftJoystick.getRawButton(1))) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-      PIDDrivetrain.PIDDrivetrainUpdate();
+      if (!Balance.pause){
+        PIDDrivetrain.PIDDrivetrainUpdate();
+      }
+
 
     } else {
-      TeleopDrivetrain.assignMotorPower(0, 0);
+      if (isTeleop){
+        TeleopDrivetrain.assignMotorPower(0, 0);
+        Balance.pause = false;
+      }
 
     }
+
+    if (!((Robot.xboxController.getRawButton(Xbox.X)
+    || Robot.rightJoystick.getRawButton(1)))){
+      firstXPress = true;
+      PIDDrivetrain.holdPosition = false;
+    }
+
     if (!isTeleop) {
       if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
       TeleopDrivetrain.assignMotorPower(0, 0);
@@ -163,6 +203,12 @@ public class Robot extends TimedRobot {
 
     CameraServer.startAutomaticCapture();
 
+    testTimer = new SoftwareTimer();
+
+    Switch1 = new DigitalInput(5);
+    Switch2 = new DigitalInput(6);
+    Switch3 = new DigitalInput(7);
+
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
     xboxController = new XboxController(2);
@@ -193,6 +239,8 @@ public class Robot extends TimedRobot {
     myLocation = new Location4276();
 
     myLedStrip = new LedStripControl();
+
+    Balance.balanceinit();
     // TMP TMP TMP myLedStrip.setMode(frc.utilities.LED_MODE.LED_OFF);
 
     SmartDashboard.putString("Set Robot Mode: " , "***");
@@ -219,10 +267,43 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("Robot Mode: ", myMode);
 
     SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+
+    autoselector = 0;
+
+    if (!Switch1.get()) autoselector += 1;
+    if (!Switch2.get()) autoselector += 2;
+    if (!Switch3.get()) autoselector += 4;
+    SmartDashboard.putNumber("Auto Mode", autoselector);
+    poslog.logpos();
+
+    if (firstRunTimer4){
+      testTimer.setTimer(1);
+      firstRunTimer4 = false;
+    }
+
+    if (testTimer.isExpired()){
+      System.out.println(PIDElbow.driveElbow.getAppliedOutput());
+      firstRunTimer4 = true;
+    }
+    
   }
 
   @Override
   public void autonomousInit() {
+
+    autoselector = 0;
+
+    if (!Switch1.get()) autoselector += 1;
+    if (!Switch2.get()) autoselector += 2;
+    if (!Switch3.get()) autoselector += 4;
+
+    if (autoselector == 0) auto0 = true;
+    if (autoselector == 1) auto1 = true;
+    if (autoselector == 2) auto2 = true;
+    if (autoselector == 4) auto3 = true;
+    if (autoselector == 7) auto4 = true;
+
+
     isTestMode = false;
     AutoScoringFunctions.AutoScoringFunctionsInit();
     BabyAuto.BabyAutoInit();
@@ -232,11 +313,18 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (!BabyAuto.taskIsFinished) {
-      BabyAuto.middleBalance();
-    } else {
-      // idk somtin im probably missing
+    if (auto0){
+      //do nothing
+    } else if (auto1) {
+      MainAutoFunctions.auto_shoot_backup();
+    } else if (auto2) {
+      MainAutoFunctions.auto_shoot();
+    } else if (auto3) {
+      MainAutoFunctions.auto_balance();
+    } else if (auto4){
+      MainAutoFunctions.auto_shoot_balance();
     }
+
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);
   }
 
@@ -247,6 +335,7 @@ public class Robot extends TimedRobot {
     initialPitch = Gyroscope.GetPitch();
     isTeleop = true;
     BabyAuto.balance = false;
+    Balance.pause = false;
   }
 
   /** This function is called periodically during operator control. */

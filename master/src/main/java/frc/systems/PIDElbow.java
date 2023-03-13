@@ -25,14 +25,14 @@ public class PIDElbow {
     // PID coefficients
     private static double kP = 80e-5;
     private static double kI = 1e-6;
-    private static double kD = 5e-5;
+    private static double kD = 5e-3;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
     private static double kMinOutput = -1;
 
     // Smart Motion Coefficients
-    private static double maxVel = 2000; // rpm
+    private static double maxVel = 250; // rpm
     private static double maxAcc = 100;
     private static double minVel = 0;
 
@@ -139,8 +139,9 @@ public class PIDElbow {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
 
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = Robot.xboxController.getLeftY() * 500;
+            setPoint_Elbow = Robot.xboxController.getLeftY() * 1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
+            
         }
 
         if (!limitSwitchElbow.get()) {

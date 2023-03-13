@@ -28,7 +28,7 @@ public class TeleopDrivetrain extends BaseDrivetrain {
 
         super(FLport, BLport, FRport, BRport);
 
-        brakeModeToggler = new Toggler(LogJoystick.B1);
+        brakeModeToggler = new Toggler(LogJoystick.B5);
         brakeModeToggler.setMechanismState(true); // sets to brake mode
     }
 

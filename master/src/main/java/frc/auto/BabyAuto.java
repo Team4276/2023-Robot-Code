@@ -11,12 +11,12 @@ import frc.utilities.SoftwareTimer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BabyAuto {
-    private static final double LEFTMOBILITYTIME = 3; // time in seconds
+    private static final double LEFTMOBILITYTIME = 4.5; // time in seconds
     private static final double RIGHTMOBILITYTIME = 2.5; // time in seconds
     private static final double MIDDLEBALANCTIME1 = 0.5; // initial back away
-    private static final double MIDDLEBALANCTIME2 = 2; // drive up onto platform
+    private static final double MIDDLEBALANCTIME2 = 2.5; // drive up onto platform
     private static final double MIDDLEBALANCTIME3 = 0; // delay until arm goes down
-    public static final double MOTORPOWER = 0.25;
+    public static final double MOTORPOWER = 0.20;
     private static final double DEADZONEANGLE = 5; // deg
 
     public static boolean balance = false;
@@ -24,9 +24,11 @@ public class BabyAuto {
     private static SoftwareTimer timer;
     private static SoftwareTimer middleTimer;
     private static SoftwareTimer middleArmDelayTimer;
+    private static SoftwareTimer timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS;
 
     private static boolean firstRun = true;
     private static boolean firstRunTimer = true;
+    private static boolean firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix = true;
 
     public static boolean taskIsFinished = false;
 
@@ -38,6 +40,7 @@ public class BabyAuto {
         timer = new SoftwareTimer();
         middleTimer = new SoftwareTimer();
         middleArmDelayTimer = new SoftwareTimer();
+        timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS = new SoftwareTimer();
     }
 
     public static void leftScoreMobility(){
@@ -54,7 +57,7 @@ public class BabyAuto {
         }
     }
 
-    public static void middleBalance(){
+    public static void middleBalance(boolean forward){
         if (firstRun){
             timer.setTimer(MIDDLEBALANCTIME2);
             //middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
@@ -71,13 +74,30 @@ public class BabyAuto {
         }*/
 
         if (timer.isExpired()){
-            usingDrivetrainMotorsNOPOWER = true;
-            Robot.isTeleop = true;
-            balance = true;
+            if (firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix){
+                timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.setTimer(0.5);
+                firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix = false;
+
+            }
+
+            if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
+
+                balance = true;
+            } else {
+                usingDrivetrainMotorsNOPOWER = true;
+                Robot.isTeleop = true;
+            }
+
+            
             SmartDashboard.putBoolean("isTeleop", Robot.isTeleop);
 
         } else {
-            usingDrivetrainMotorsForward = true;
+            if (forward) {
+                usingDrivetrainMotorsForward = true;
+            } else if(!forward){
+                usingDrivetrainMotorsBackward = true;
+            }
+
         }
     }
 

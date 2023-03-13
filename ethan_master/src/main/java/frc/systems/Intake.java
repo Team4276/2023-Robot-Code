@@ -30,7 +30,7 @@ public class Intake {
         if (rightY > deadband) {
             // Intake
             setSpeed(0.9);
-        } else if ((leftY < (deadband * -1)) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite direction
+        } else if ((leftY > deadband) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite direction
             // Outtake
             setSpeed(-0.9);
         } else {
