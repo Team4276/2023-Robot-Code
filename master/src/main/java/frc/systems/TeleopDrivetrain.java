@@ -10,6 +10,7 @@ package frc.systems;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.LogJoystick;
 import frc.utilities.Toggler;
@@ -17,12 +18,12 @@ import frc.utilities.Toggler;
 public class TeleopDrivetrain extends BaseDrivetrain {
     private static boolean brakeModeisEngaged = true;
 
-    private static DriveMode currentMode = DriveMode.TANK;
-    private static String currentMode_s = "Tank";
+    public static DriveMode currentMode = DriveMode.ARCADE;
+    private static String currentMode_s = "Arcade";
 
     private Toggler brakeModeToggler;
 
-    private double deadband = 0.05;
+    private double deadband = 0.0;  // 0.05;
 
     public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport) {
 
@@ -67,12 +68,14 @@ public class TeleopDrivetrain extends BaseDrivetrain {
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
                     linear = -Robot.rightJoystick.getY();
                 }
-                if (Math.abs(Robot.leftJoystick.getX()) > deadband) {
-                    turn = Math.pow(Robot.leftJoystick.getX(), 3);
+                if (Math.abs(Robot.rightJoystick.getZ()) > deadband) {
+                    turn = Math.pow(Robot.rightJoystick.getZ(), 3/2);
                 }
+                leftY = linear + turn;
+                rightY = -linear + turn;
 
-                leftY = -linear - turn;
-                rightY = linear - turn;
+                SmartDashboard.putNumber("R motor power: ", rightY);
+                SmartDashboard.putNumber("L motor power: ", leftY);
                 assignMotorPower(rightY, leftY);
                 break;
 
