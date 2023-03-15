@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.databind.node.ShortNode;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
@@ -139,8 +137,8 @@ public class Robot extends TimedRobot {
         goDrive = true;
       }
     } else { // TANK drive}
-      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-          || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
+    if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
+        || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
         goDrive = true;
       }
     }
@@ -185,12 +183,12 @@ public class Robot extends TimedRobot {
 
     if (!isTeleop) {
       if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
-        TeleopDrivetrain.assignMotorPower(0, 0);
+      TeleopDrivetrain.assignMotorPower(0, 0);
       } else if (BabyAuto.usingDrivetrainMotorsForward) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
       }
     } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+        TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
     } else if (firstRun) {
       TeleopDrivetrain.assignMotorPower(0, 0);
       firstRun = false;
@@ -301,7 +299,7 @@ public class Robot extends TimedRobot {
       System.out.println(PIDElbow.driveElbow.getAppliedOutput());
       firstRunTimer4 = true;
     }
-
+    
   }
 
   @Override

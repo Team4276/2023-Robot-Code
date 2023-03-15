@@ -24,7 +24,7 @@ public class PIDShoulder {
 
     // PID coefficients
     private static double kP = 5e-5;
-    private static double kI = 1e-6;
+    private static double kI = 0;
     private static double kD = 0;
     private static double kIz = 0;
     private static double kFF = 0.000156;
