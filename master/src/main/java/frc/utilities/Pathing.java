@@ -114,6 +114,33 @@ catch(Exception e){
     return (exception);
 }
 }
+
+
+
+public static List<Double> getMagnitude(List<Vector3> corners) {
+   
+   
+   
+    //please note that this returns a vaule in meters
+
+
+
+    try{List<Double> Magnitudes = new ArrayList<>();
+    for (int i = 0; i < corners.size() - 1; i++) {
+        Vector3 currentCorner = corners.get(i);
+        Vector3 nextCorner = corners.get(i + 1);
+        Vector3 direction = nextCorner.subtract(currentCorner);
+        double distance = direction.magnitude();
+        Magnitudes.add(distance);
+    }
+    return Magnitudes;
+}
+catch(Exception e){
+    System.out.print("exception caught at pathing.getMagnitude");
+    List<Double> exception = new ArrayList<>(1);      
+    return (exception);
+}
+}
 }
 
 
