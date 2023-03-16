@@ -23,17 +23,17 @@ public class PIDElbow {
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 1e-4;
-    private static double kI = 0;
-    private static double kD = 1e-6;
+    private static double kP = 80e-5;
+    private static double kI = 1e-6;
+    private static double kD = 5e-3;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
     private static double kMinOutput = -1;
 
     // Smart Motion Coefficients
-    private static double maxVel = 40; // rpm
-    private static double maxAcc = 10;
+    private static double maxVel = 250; // rpm
+    private static double maxAcc = 100;
     private static double minVel = 0;
 
     private static double allowedErr = 0;
@@ -80,7 +80,10 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-                 
+            
+            // Allow faster motion after calibration completes
+            maxVel = 8000;
+            maxAcc = 4000;            
         }
 
         setModePosition();

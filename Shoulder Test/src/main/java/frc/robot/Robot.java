@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import java.nio.file.Path;
-
-import com.fasterxml.jackson.databind.node.ShortNode;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
@@ -15,29 +11,23 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DigitalInput;
-
-
 import frc.systems.Balance;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
-import frc.systems.PIDShoulder;
+import frc.systems.Shoulder;
 import frc.systems.TeleopDrivetrain;
-
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
-import frc.utilities.Pathing;
-
 import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
 import frc.auto.MainAutoFunctions;
-
-
+import frc.utilities.poslog;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
 
@@ -50,7 +40,7 @@ public class Robot extends TimedRobot {
   public static PIDDrivetrain mPIDDrivetrain;
 
   Notifier armRateGroup;
-  public static PIDShoulder mShoulder;
+  public static Shoulder mShoulder;
   public static PIDElbow mElbow;
   public static Intake mIntake;
 
@@ -147,8 +137,8 @@ public class Robot extends TimedRobot {
         goDrive = true;
       }
     } else { // TANK drive}
-      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-          || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
+    if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
+        || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
         goDrive = true;
       }
     }
@@ -193,12 +183,12 @@ public class Robot extends TimedRobot {
 
     if (!isTeleop) {
       if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
-       TeleopDrivetrain.assignMotorPower(0, 0);
+      TeleopDrivetrain.assignMotorPower(0, 0);
       } else if (BabyAuto.usingDrivetrainMotorsForward) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
       }
     } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-       TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+        TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
     } else if (firstRun) {
       TeleopDrivetrain.assignMotorPower(0, 0);
       firstRun = false;
@@ -209,7 +199,7 @@ public class Robot extends TimedRobot {
 
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
-    PIDShoulder.PIDShoulderUpdate();
+    Shoulder.ShoulderUpdate();
   }
 
   /**
@@ -220,9 +210,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    Pathing.IntiateServer();
-    SmartDashboard.putBoolean("Get path", false);
-    
     isTestMode = false;
 
     CameraServer.startAutomaticCapture();
@@ -250,12 +237,11 @@ public class Robot extends TimedRobot {
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
     PIDElbow.PIDElbowInit();
-    PIDShoulder.PIDShoulderInit();
 
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
@@ -283,7 +269,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    
     pov = xboxController.getPOV();
     myLocation.updatePosition();
     String myMode = "***";
@@ -302,16 +287,7 @@ public class Robot extends TimedRobot {
     if (!Switch3.get())
       autoselector += 4;
     SmartDashboard.putNumber("Auto Mode", autoselector);
-    
-    
-    if(SmartDashboard.getBoolean("Get path", false) == true){
-      
-    }
-
-    Pathing.receivePath();
-    Pathing.SetSimOrinitation();
-
- 
+    poslog.logpos();
 
     if (firstRunTimer4) {
       testTimer.setTimer(1);
