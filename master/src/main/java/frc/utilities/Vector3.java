@@ -1,5 +1,6 @@
 package frc.utilities;
 
+//vector3 class for easier storage of 3d points
 public class Vector3 {
     public double x;
     public double y;

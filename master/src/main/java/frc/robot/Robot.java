@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.nio.file.Path;
+
 import com.fasterxml.jackson.databind.node.ShortNode;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -13,23 +15,29 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
+
+
 import frc.systems.Balance;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
 import frc.systems.PIDShoulder;
 import frc.systems.TeleopDrivetrain;
+
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
+import frc.utilities.Pathing;
+
 import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
 import frc.auto.MainAutoFunctions;
-import frc.utilities.poslog;
-import edu.wpi.first.wpilibj.DigitalInput;
+
+
 
 public class Robot extends TimedRobot {
 
@@ -212,6 +220,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    Pathing.IntiateServer();
+    SmartDashboard.putBoolean("Get path", false);
+    
     isTestMode = false;
 
     CameraServer.startAutomaticCapture();
@@ -272,6 +283,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    
     pov = xboxController.getPOV();
     myLocation.updatePosition();
     String myMode = "***";
@@ -290,7 +302,16 @@ public class Robot extends TimedRobot {
     if (!Switch3.get())
       autoselector += 4;
     SmartDashboard.putNumber("Auto Mode", autoselector);
-    poslog.logpos();
+    
+    
+    if(SmartDashboard.getBoolean("Get path", false) == true){
+      
+    }
+
+    Pathing.receivePath();
+    Pathing.SetSimOrinitation();
+
+ 
 
     if (firstRunTimer4) {
       testTimer.setTimer(1);
