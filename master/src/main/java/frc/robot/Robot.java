@@ -304,11 +304,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Auto Mode", autoselector);
     
     
-    if(SmartDashboard.getBoolean("Get path", false) == true){
-      
-    }
-
-    Pathing.receivePath();
     Pathing.SetSimOrinitation();
 
  
@@ -319,7 +314,7 @@ public class Robot extends TimedRobot {
     }
 
     if (testTimer.isExpired()) {
-      System.out.println(PIDElbow.driveElbow.getAppliedOutput());
+      //System.out.println(PIDElbow.driveElbow.getAppliedOutput());
       firstRunTimer4 = true;
     }
     

@@ -8,13 +8,15 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
+
 //may not work still debugging will build though
 
 public class Pathing {
     
     public static NetworkTableInstance inst = NetworkTableInstance.getDefault();//define the instance 
     public static NetworkTable table = inst.getTable("PathCorners");// get table
-
+    public static List<Double> angles;
      
     
     public static void IntiateServer(){
@@ -34,13 +36,13 @@ public class Pathing {
         table.getEntry("yaw").setDouble(Gyroscope.GetYaw());
     }
     
-    public static void receivePath(){
+    public static List<Double> receivePath(){
         Vector3 target = new Vector3(SmartDashboard.getNumber("X target", 0),SmartDashboard.getNumber("Y target", 0),SmartDashboard.getNumber("Z target", 0) );
         table.getEntry("X target").setDouble(target.x);
         table.getEntry("Y target").setDouble(target.y);
         table.getEntry("Z target").setDouble(target.z);
         try{
-       if (SmartDashboard.getBoolean("Get path" , false) == true){
+
         //System.out.print("1");
 
         // Get the entry containing the path corners
@@ -52,10 +54,12 @@ public class Pathing {
 
         // Get the corner list from NetworkTables
         double[] cornerArray = entry.getDoubleArray(new double[]{});
+        //get distance 
         double distance = table.getEntry("Distance").getDouble(0); // gets the distance of the path (note this is not the direct distance to the target just the length of the path)
         //System.out.print("3");
         //System.out.println(cornerArray);
         //System.out.println(cornerArray[0]);
+        
 
         for (double corner : cornerArray) {
             cornerList.add(corner);
@@ -69,22 +73,40 @@ public class Pathing {
             corners.add(corner);
         }
       
-        for (int k = 0; k < corners.size(); k++) {
+       /* for (int k = 0; k < corners.size(); k++) {
             //just kept because i dont wanna rewrite this later
             
-        }
-        //System.out.print("6");
-    SmartDashboard.putNumber("Distance",distance );
-    SmartDashboard.putBoolean("Get path", false);
-
-
-    
+        }*/
+        //System.out.print(corners.get(1).x);
+        angles = getCornerAngles(corners);
+        return (angles);
     }
-}
-    catch(Exception e) {
+
     
-         }
+    
+
+
+    catch(Exception e) {
+        List<Double> exception = new ArrayList<>(1);      
+        return (exception);
+        }
+    
 }
 
 
+
+//method to list the heading of each point
+public static List<Double> getCornerAngles(List<Vector3> corners) {
+    List<Double> angles = new ArrayList<>();
+    for (int i = 0; i < corners.size() - 1; i++) {
+        Vector3 currentCorner = corners.get(i);
+        Vector3 nextCorner = corners.get(i + 1);
+        Vector3 direction = nextCorner.subtract(currentCorner).normalize();
+        double angle = Math.toDegrees(Math.atan2(direction.z, direction.x));
+        angles.add(angle);
+    }
+    return angles;
 }
+}
+
+
