@@ -1,12 +1,7 @@
 package frc.auto;
 
 import frc.robot.Robot;
-import frc.systems.Balance;
-import frc.systems.PIDDrivetrain;
 import frc.systems.TeleopDrivetrain;
-import frc.systems.PIDElbow;
-import frc.systems.PIDShoulder;
-import frc.utilities.Gyroscope;
 import frc.utilities.SoftwareTimer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -99,44 +94,6 @@ public class BabyAuto {
             }
 
         }
-    }
-
-    public static void middleScoreBalance(){
-        if (firstRunTimer){
-            middleTimer.setTimer(MIDDLEBALANCTIME1);
-            firstRunTimer = false;
-        }
-
-        if (!middleTimer.isExpired()){
-            TeleopDrivetrain.assignMotorPower(MOTORPOWER,-1*MOTORPOWER);// back up a bit
-
-        } else {
-            if (Math.abs(Gyroscope.GetYaw() - 180) > DEADZONEANGLE){//check if its turned yet
-                TeleopDrivetrain.assignMotorPower(MOTORPOWER, MOTORPOWER);//turn
-            } else {
-                if (firstRun){
-                    timer.setTimer(MIDDLEBALANCTIME2);
-                    middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
-                    firstRun = false;
-                }
-
-                if (middleArmDelayTimer.isExpired()){
-                    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-                    PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
-                }
-
-                if (timer.isExpired()){
-                    Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-                    PIDDrivetrain.PIDDrivetrainUpdate();
-
-                } else {
-                    TeleopDrivetrain.assignMotorPower(-1*MOTORPOWER,MOTORPOWER);
-                }
-            }
-
-        }
-
-        
     }
 
     public static void rightScoreMobility(){
