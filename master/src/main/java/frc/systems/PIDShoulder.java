@@ -27,9 +27,9 @@ public class PIDShoulder {
     public static AbsoluteEncoder driveShoulder_L_Encoder;
 
     // PID coefficients
-    private static double kP = 5e-5;
+    private static double kP = 1e-3;
     private static double kI = 0;
-    private static double kD = 1e-5;
+    private static double kD = 1e-6;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
@@ -52,9 +52,6 @@ public class PIDShoulder {
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
-
-        driveShoulder_R_Encoder = driveShoulder_R.getAbsoluteEncoder(null);
-        driveShoulder_L_Encoder = driveShoulder_L.getAbsoluteEncoder(null);
 
         driveShoulder_L.follow(driveShoulder_R, true);
 
@@ -83,11 +80,7 @@ public class PIDShoulder {
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
-            //calibrateShoulderPosition();
-             
-            // Allow faster motion after calibration completes
-            maxVel = 3000;
-            maxAcc = 4000;            
+            //calibrateShoulderPosition();     
         }
     }
 
