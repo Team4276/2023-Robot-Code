@@ -87,6 +87,7 @@ public class Pathing {
 
 
     catch(Exception e) {
+        System.out.print("exception caught at pathing.receivePath");
         List<Double> exception = new ArrayList<>(1);      
         return (exception);
         }
@@ -97,7 +98,7 @@ public class Pathing {
 
 //method to list the heading of each point
 public static List<Double> getCornerAngles(List<Vector3> corners) {
-    List<Double> angles = new ArrayList<>();
+    try{List<Double> angles = new ArrayList<>();
     for (int i = 0; i < corners.size() - 1; i++) {
         Vector3 currentCorner = corners.get(i);
         Vector3 nextCorner = corners.get(i + 1);
@@ -106,6 +107,12 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
         angles.add(angle);
     }
     return angles;
+}
+catch(Exception e){
+    System.out.print("exception caught at pathing.getCornerAngles");
+    List<Double> exception = new ArrayList<>(1);      
+    return (exception);
+}
 }
 }
 
