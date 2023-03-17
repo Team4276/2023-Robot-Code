@@ -14,7 +14,6 @@ public class LogPos {
     public static Vector3 log(){    
     NetworkTableInstance nt = NetworkTableInstance.getDefault();
         NetworkTable table = nt.getTable("limelight");
-        String[] pathnames;
         
         try{
         double[] errorhandle = new double [6];
@@ -28,7 +27,6 @@ public class LogPos {
         
         catch(Exception e){
             Vector3 Exception = new Vector3(0, 0, 0);
-            System.out.print(e);
             return Exception;
         }
     }

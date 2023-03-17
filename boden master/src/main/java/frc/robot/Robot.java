@@ -230,23 +230,23 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
     Pathing.IntiateServer();
+    try{
     File f = new File("/home/admin/"); 
     pathnames = f.list();
     int AmountOfLogs = pathnames.length;
     logfile = new File ("/home/admin/logpos("+ (AmountOfLogs + 1) + ").txt");
+    }
+    catch (Exception e){
+      System.out.print("warning no logs are being made! error (0)");
+    }
 
-    
-
-    
-      
 
     try {
       wr = new FileWriter(logfile);
       
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      System.out.print("warning no logs are being made! error (1)");
     }
     
     SmartDashboard.putBoolean("Get path", false);
