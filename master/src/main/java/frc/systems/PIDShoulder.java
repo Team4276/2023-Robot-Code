@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
@@ -27,9 +26,9 @@ public class PIDShoulder {
     public static AbsoluteEncoder driveShoulder_L_Encoder;
 
     // PID coefficients
-    private static double kP = 1e-3;
+    private static double kP = 5e-3;
     private static double kI = 0;
-    private static double kD = 1e-6;
+    private static double kD = 5e-3;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
@@ -45,7 +44,6 @@ public class PIDShoulder {
     public static double setPoint_Shoulder = 0.0;
 
     private static DigitalInput limitSwitchShoulder;
-    private static double timeLastCalibration = 0.0;
 
     private static double deadband = 0.2;
 
@@ -80,41 +78,10 @@ public class PIDShoulder {
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
-            // calibrateShoulderPosition();
         }
     }
 
-    /*
-     * public static void calibrateShoulderPosition() {
-     * double timeStart = 0.0;
-     * 
-     * setShoulderSpeed(-1 * 0.2);
-     * Timer.delay(0.4); // Slowly extend for a short time, then normal update will
-     * pull it in until the
-     * // limit switch closes
-     * 
-     * timeStart = Timer.getFPGATimestamp();
-     * while (limitSwitchShoulder.get()) {
-     * setShoulderSpeed(0.2);
-     * if ((Timer.getFPGATimestamp() - timeStart) > 4.0) {
-     * break;
-     * }
-     * }
-     * setShoulderSpeed(0.0);
-     * driveShoulder_R.getEncoder().setPosition(0.0);
-     * driveShoulder_L.getEncoder().setPosition(0.0);
-     * setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
-     * timeLastCalibration = Timer.getFPGATimestamp();
-     * }
-     */
-
     public static void PIDShoulderUpdate() {
-
-        if (Robot.xboxController.getRawButton(Xbox.A)) {
-            if ((Timer.getFPGATimestamp() - timeLastCalibration) > 5.0) {
-                // calibrateShoulderPosition();
-            }
-        }
 
         if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
