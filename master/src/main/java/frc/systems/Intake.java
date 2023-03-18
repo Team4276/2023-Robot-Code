@@ -24,7 +24,7 @@ public class Intake {
     }
 
     public void updatePeriodic() {
- 
+
         double rightY = Robot.xboxController.getRightTriggerAxis();
         double leftY = Robot.xboxController.getLeftTriggerAxis();
 

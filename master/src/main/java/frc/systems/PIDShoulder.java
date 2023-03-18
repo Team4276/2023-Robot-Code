@@ -80,36 +80,39 @@ public class PIDShoulder {
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
-            //calibrateShoulderPosition();     
+            // calibrateShoulderPosition();
         }
     }
 
-    /*public static void calibrateShoulderPosition() {
-        double timeStart = 0.0;
-
-        setShoulderSpeed(-1 * 0.2);
-        Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
-                          // limit switch closes
-
-        timeStart = Timer.getFPGATimestamp();
-        while (limitSwitchShoulder.get()) {
-            setShoulderSpeed(0.2);
-            if ((Timer.getFPGATimestamp() - timeStart) > 4.0) {
-                break;
-            }
-        }
-        setShoulderSpeed(0.0);
-        driveShoulder_R.getEncoder().setPosition(0.0);
-        driveShoulder_L.getEncoder().setPosition(0.0);
-        setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
-        timeLastCalibration = Timer.getFPGATimestamp();
-    }*/
+    /*
+     * public static void calibrateShoulderPosition() {
+     * double timeStart = 0.0;
+     * 
+     * setShoulderSpeed(-1 * 0.2);
+     * Timer.delay(0.4); // Slowly extend for a short time, then normal update will
+     * pull it in until the
+     * // limit switch closes
+     * 
+     * timeStart = Timer.getFPGATimestamp();
+     * while (limitSwitchShoulder.get()) {
+     * setShoulderSpeed(0.2);
+     * if ((Timer.getFPGATimestamp() - timeStart) > 4.0) {
+     * break;
+     * }
+     * }
+     * setShoulderSpeed(0.0);
+     * driveShoulder_R.getEncoder().setPosition(0.0);
+     * driveShoulder_L.getEncoder().setPosition(0.0);
+     * setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
+     * timeLastCalibration = Timer.getFPGATimestamp();
+     * }
+     */
 
     public static void PIDShoulderUpdate() {
 
         if (Robot.xboxController.getRawButton(Xbox.A)) {
             if ((Timer.getFPGATimestamp() - timeLastCalibration) > 5.0) {
-                //calibrateShoulderPosition();
+                // calibrateShoulderPosition();
             }
         }
 
@@ -124,32 +127,28 @@ public class PIDShoulder {
                 setPoint_Shoulder = DPAD_LEFT_SHOULDER_EJECT_CUBE;
             }
         }
-        
-        if (Math.abs(Robot.xboxController.getRightY()) < deadband){
+
+        if (Math.abs(Robot.xboxController.getRightY()) < deadband) {
             setPIDReference(setPoint_Shoulder);
-        } else if(Math.abs(Robot.xboxController.getRightY()) > deadband){
+        } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
             setPoint_Shoulder = 0;
-            double power = Robot.xboxController.getRightY()/5;
-            
+            double power = Robot.xboxController.getRightY() / 5;
+
             driveShoulder_R.set(power);
 
         }
 
-
-
-        
-
         if (!limitSwitchShoulder.get()) {
-            if(Math.abs(driveShoulder_R.getEncoder().getPosition()) > 0.05) {
+            if (Math.abs(driveShoulder_R.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                 driveShoulder_R.getEncoder().setPosition(0.0);
+                driveShoulder_R.getEncoder().setPosition(0.0);
             }
-            if(Math.abs(driveShoulder_L.getEncoder().getPosition()) > 0.05) {
+            if (Math.abs(driveShoulder_L.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                 driveShoulder_L.getEncoder().setPosition(0.0);
+                driveShoulder_L.getEncoder().setPosition(0.0);
             }
         }
-                
+
         SmartDashboard.putNumber("ShoulderEncoder_R:  ", driveShoulder_R.getEncoder().getPosition());
         SmartDashboard.putNumber("ShoulderEncoder_L:  ", driveShoulder_L.getEncoder().getPosition());
     }

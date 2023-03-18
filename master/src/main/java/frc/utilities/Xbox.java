@@ -34,4 +34,3 @@ public class Xbox {
 	static public int POVleft = 270;
 
 }
-

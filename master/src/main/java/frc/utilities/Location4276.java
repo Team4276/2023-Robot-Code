@@ -285,7 +285,8 @@ public class Location4276 {
         } // else if AprilTags found the driver station is continuously updating this
           // position via NetworkTables
 
-        SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",requestControlOfRobotFromDriverStation.getBoolean(false));
+        SmartDashboard.putBoolean("requestControlOfRobotFromDriverStation ",
+                requestControlOfRobotFromDriverStation.getBoolean(false));
         SmartDashboard.putNumber("pos_X ", pos_X.getDouble(0.0));
         SmartDashboard.putNumber("pos_Y ", pos_Y.getDouble(0.0));
         SmartDashboard.putNumber("pos_Z ", pos_Z.getDouble(0.0));

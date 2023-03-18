@@ -13,7 +13,7 @@ import frc.utilities.Xbox;
 
 public class PIDElbow {
 
-    // Set points for DPAD  -1.0 is in directopn of more extension
+    // Set points for DPAD -1.0 is in directopn of more extension
     public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -7.5;
     public static final double DPAD_UP_ELBOW_STOW = -0.0;
     public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
@@ -80,7 +80,7 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-                 
+
         }
 
         setModePosition();
@@ -138,16 +138,16 @@ public class PIDElbow {
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
             setPoint_Elbow = Robot.xboxController.getLeftY() * 1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
-            
+
         }
 
         if (!limitSwitchElbow.get()) {
-            if(Math.abs(driveElbow.getEncoder().getPosition()) > 0.05) {
+            if (Math.abs(driveElbow.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
                 driveElbow.getEncoder().setPosition(0.0);
             }
         }
-        
+
         SmartDashboard.putNumber("ElbowEncoder:  ", driveElbow.getEncoder().getPosition());
     }
 

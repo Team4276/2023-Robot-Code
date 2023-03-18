@@ -10,16 +10,16 @@ public class BaseDrivetrain {
     public static CANSparkMax brDriveX = null;
 
     public BaseDrivetrain(int FLport, int BLport, int FRport, int BRport) {
-        if (flDriveX==null){
+        if (flDriveX == null) {
             flDriveX = new CANSparkMax(FLport, MotorType.kBrushless);
         }
-        if (blDriveX==null){
+        if (blDriveX == null) {
             blDriveX = new CANSparkMax(BLport, MotorType.kBrushless);
         }
-        if (frDriveX==null){
+        if (frDriveX == null) {
             frDriveX = new CANSparkMax(FRport, MotorType.kBrushless);
         }
-        if (brDriveX==null){
+        if (brDriveX == null) {
             brDriveX = new CANSparkMax(BRport, MotorType.kBrushless);
         }
 
