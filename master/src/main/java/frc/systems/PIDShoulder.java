@@ -1,7 +1,8 @@
 package frc.systems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
@@ -22,8 +23,8 @@ public class PIDShoulder {
     public static CANSparkMax driveShoulder_R;
     public static CANSparkMax driveShoulder_L;
 
-    public static AbsoluteEncoder driveShoulder_R_Encoder;
-    public static AbsoluteEncoder driveShoulder_L_Encoder;
+    public static RelativeEncoder driveShoulderEncoder;
+    private static final int CPR = 42;
 
     // PID coefficients
     private static double kP = 5e-3;
@@ -50,6 +51,9 @@ public class PIDShoulder {
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
+
+        driveShoulderEncoder = driveShoulder_R.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, CPR);
+        driveShoulder_R.getPIDController().setFeedbackDevice(driveShoulderEncoder);
 
         driveShoulder_L.follow(driveShoulder_R, true);
 
@@ -116,7 +120,6 @@ public class PIDShoulder {
             }
         }
 
-        SmartDashboard.putNumber("ShoulderEncoder_R:  ", driveShoulder_R.getEncoder().getPosition());
-        SmartDashboard.putNumber("ShoulderEncoder_L:  ", driveShoulder_L.getEncoder().getPosition());
+        SmartDashboard.putNumber("ShoulderEncoder:  ", driveShoulderEncoder.getPosition());
     }
 }

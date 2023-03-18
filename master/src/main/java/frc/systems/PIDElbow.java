@@ -1,12 +1,14 @@
 package frc.systems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.Xbox;
@@ -19,7 +21,13 @@ public class PIDElbow {
     public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
     public static final double DPAD_DOWN_ELBOW_COLLECT = -8.25;
 
-    public static CANSparkMax driveElbow;
+    private static CANSparkMax driveElbow;
+
+    private static SparkMaxPIDController driveElbowPidController;
+
+    private static RelativeEncoder driveElbowEncoder;
+    private static final int CPR = 42;
+
     private static double deadband = 0.2;
 
     // PID coefficients
@@ -42,10 +50,15 @@ public class PIDElbow {
 
     public static double setPoint_Elbow = 0.0;
     private static DigitalInput limitSwitchElbow;
-    private static double timeLastCalibration = 0.0;
 
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
+
+        driveElbowEncoder = driveElbow.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, CPR);
+
+        driveElbowPidController = driveElbow.getPIDController();
+
+        driveElbowPidController.setFeedbackDevice(driveElbowEncoder);
 
         limitSwitchElbow = new DigitalInput(RoboRioPorts.DIO_LIMIT_ELBOW);
     }
@@ -59,7 +72,7 @@ public class PIDElbow {
     }
 
     private static void setPIDReference(double setPoint_Elbow) {
-        driveElbow.getPIDController().setReference(setPoint_Elbow,
+        driveElbowPidController.setReference(setPoint_Elbow,
                 CANSparkMax.ControlType.kSmartMotion);
     }
 
@@ -86,34 +99,7 @@ public class PIDElbow {
         setModePosition();
     }
 
-    public static void calibrateElbowPosition() {
-        double timeStart = 0.0;
-
-        driveElbow.set(-1 * 0.2);
-        Timer.delay(0.4); // Slowly extend for a short time, then normal update will pull it in until the
-                          // limit switch closes
-
-        timeStart = Timer.getFPGATimestamp();
-        while (limitSwitchElbow.get()) {
-            driveElbow.set(0.2);
-            if ((Timer.getFPGATimestamp() - timeStart) > 4.0) {
-                break;
-            }
-        }
-        driveElbow.set(0.0);
-        driveElbow.getEncoder().setPosition(0.0);
-        setPoint_Elbow = DPAD_UP_ELBOW_STOW;
-        timeLastCalibration = Timer.getFPGATimestamp();
-        setModePosition();
-    }
-
     public static void PIDElbowUpdate() {
-        if (Robot.xboxController.getRawButton(Xbox.Y)) {
-            if ((Timer.getFPGATimestamp() - timeLastCalibration) > 5.0) {
-                calibrateElbowPosition();
-            }
-        }
-
         if ((Math.abs(Robot.xboxController.getLeftY()) > deadband)) {
             setModeVelocity();
         } else if (Robot.pov != -1) {
@@ -148,7 +134,7 @@ public class PIDElbow {
             }
         }
 
-        SmartDashboard.putNumber("ElbowEncoder:  ", driveElbow.getEncoder().getPosition());
+        SmartDashboard.putNumber("ElbowEncoder:  ", driveElbowEncoder.getPosition());
     }
 
     // Speed inrange -1.0 to +1.0
