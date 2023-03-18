@@ -14,6 +14,23 @@ public class Vector3 {
         this.z = z;
     }
 
+    public void copy(Vector3 other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+    }
+
+    public void set(double new_x, double new_y, double new_z) {
+        x = new_x;
+        y = new_y;
+        z = new_z;
+    }
+
+    public double[] getDoubleArray() {
+        double[] retVal = {x, y, z};
+        return retVal;
+    }
+
     public Vector3 subtract(Vector3 other) {
         double x = this.x - other.x;
         double y = this.y - other.y;
@@ -49,6 +66,10 @@ public class Vector3 {
         Vector3 b = other.normalize();
         double dot = a.dot(b);
         return Math.acos(dot);
+    }
+
+    public boolean isEqual(Vector3 other) {
+        return ( (x==other.x) && (y==other.y) && (z==other.z) );
     }
 
 }
