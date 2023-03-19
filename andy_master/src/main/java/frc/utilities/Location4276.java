@@ -34,14 +34,25 @@ public class Location4276 {
 
         ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
 
+        checkLimelightRobotPosition();
+    }
+
+    public void checkLimelightRobotPosition() {
+
+        final double feet_per_meter = 3.28084;
+
         double[] errorhandle = new double[6];
         double[] positionLimelight = ntLimelight.getEntry("botpose").getDoubleArray(errorhandle);
         double x = positionLimelight[0];
         double y = positionLimelight[1];
         double z = positionLimelight[2];
-        v3Limelight.set(x, y, z);
 
-        positionUpdateTimeMillisecs = java.lang.System.currentTimeMillis();
+        // position units are meters at this point - convert to feet
+        x *= feet_per_meter;
+        y *= feet_per_meter;
+        z *= feet_per_meter;
+
+        v3Limelight.set(x, y, z);
     }
 
     public boolean isNewPositionFix() {
@@ -56,6 +67,22 @@ public class Location4276 {
 
     private double getHeading() {
         return Gyroscope.GetYaw() - gyroCorrection;
+
+        // Robot coordinates reported by Limelight
+        // 3d Cartesian Coordinate System with (0,0,0) located at the center of the
+        // robot's frame projected down to the floor.
+        // X    Pointing forward (Forward Vector)
+        // Y    Pointing toward the robot's right (Right Vector)
+        // Z    Pointing upward (Up Vector)
+
+        // This is different from the coordinate system used by the Gyro (X and Y axis
+        // swapped)
+        // X    Pointing toward the robot's right (Right Vector)
+        // Y    Pointing forward (Forward Vector)
+        // Z    Pointing upward (Up Vector)
+
+        // I am guessing that it doesn't matter for heading because rotation is around
+        // the Z-axis which is same for both
     }
 
     private double getDistanceTo(Vector3 otherPos) {
@@ -67,31 +94,38 @@ public class Location4276 {
         // Find the lowest speed encoder (assume faster speed indicates slippage or
         // minor difference due to turning)
 
-        speed = 0.0;
-
+        double rpmSpeed = 0.0;
         double BRencoder = BaseDrivetrain.brDriveX.getEncoder().getVelocity();
         double BLencoder = BaseDrivetrain.blDriveX.getEncoder().getVelocity();
         double FRencoder = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (speed > BRencoder) {
-            speed = BRencoder;
+        if (rpmSpeed > BRencoder) {
+            rpmSpeed = BRencoder;
         }
-        if (speed > (-1 * BLencoder)) {
-            speed = (-1 * BLencoder);
+        if (rpmSpeed > (-1 * BLencoder)) {
+            rpmSpeed = (-1 * BLencoder);
         }
-        if (speed > FRencoder) {
-            speed = FRencoder;
+        if (rpmSpeed > FRencoder) {
+            rpmSpeed = FRencoder;
         }
-        if (speed > (-1 * FLencoder)) {
-            speed = (-1 * FLencoder);
+        if (rpmSpeed > (-1 * FLencoder)) {
+            rpmSpeed = (-1 * FLencoder);
         }
 
-        return speed;
+        // Speed units are rpm at this point - need to convert to feet/sec:
+        // 8.5:1 gearboxes, on the new wheels that are a little over 3in radius
+        // (100 rotations)/(8.5 gearbox redux) * (2pi*3.05in) = 225.5in, or 18.79ft/100
+        // rotations
+        final double convertRpmToFeetPerSecond = 0.1879 * 60.0;
+
+        return rpmSpeed * convertRpmToFeetPerSecond;
     }
 
     public void updatePosition() {
+
+        checkLimelightRobotPosition();
 
         if (isNewPositionFix()) {
             Robot.myLogFile.write("X,");
