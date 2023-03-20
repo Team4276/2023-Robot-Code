@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
@@ -16,6 +18,7 @@ import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
 import frc.auto.MainAutoFunctions;
 import frc.systems.Balance;
+import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
@@ -31,7 +34,6 @@ import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
 
-
 public class Robot extends TimedRobot {
 
   public static Joystick leftJoystick;
@@ -46,6 +48,10 @@ public class Robot extends TimedRobot {
   public static PIDShoulder mShoulder;
   public static PIDElbow mElbow;
   public static Intake mIntake;
+
+  public static FeederFinder mFeederFinder;
+
+  public static NetworkTable ntLimelight;
 
   public static LedStripControl myLedStrip;
 
@@ -100,7 +106,7 @@ public class Robot extends TimedRobot {
         goDrive = true;
       }
     }
-    
+
     SmartDashboard.putNumber("R joystick Z: ", Math.abs(Robot.rightJoystick.getZ()));
 
     if (goDrive) {
@@ -125,6 +131,8 @@ public class Robot extends TimedRobot {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
 
+    } else if (Robot.xboxController.getRawButton(Xbox.A)) {
+      FeederFinder.updatePeriodic();
     } else {
       if (isTeleop) {
         TeleopDrivetrain.assignMotorPower(0, 0);
@@ -141,12 +149,12 @@ public class Robot extends TimedRobot {
 
     if (!isTeleop) {
       if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
-       TeleopDrivetrain.assignMotorPower(0, 0);
+        TeleopDrivetrain.assignMotorPower(0, 0);
       } else if (BabyAuto.usingDrivetrainMotorsForward) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
       }
     } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-       TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
     } else if (firstRun) {
       TeleopDrivetrain.assignMotorPower(0, 0);
       firstRun = false;
@@ -171,9 +179,8 @@ public class Robot extends TimedRobot {
     mRobotMode = new RobotMode();
     myLogFile = new LogFile();
 
-
     Pathing.IntiateServer();
-        
+
     isTestMode = false;
 
     CameraServer.startAutomaticCapture();
@@ -211,12 +218,16 @@ public class Robot extends TimedRobot {
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
 
+    mFeederFinder = new FeederFinder();
+
+    ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
+
     myLocation = new Location4276();
 
     myLedStrip = new LedStripControl();
 
     Balance.balanceinit();
-    
+
     myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
     SmartDashboard.putString("Set Robot Mode: ", "***");
@@ -235,7 +246,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
- 
+
     myLocation.updatePosition();
     myLocation.updateTelemetry();
 
@@ -254,7 +265,7 @@ public class Robot extends TimedRobot {
     if (!Switch3.get())
       autoselector += 4;
     SmartDashboard.putNumber("Auto Mode", autoselector);
-    
+
     Pathing.SetSimOrinitation();
 
     if (firstRunTimer4) {
@@ -263,10 +274,10 @@ public class Robot extends TimedRobot {
     }
 
     if (testTimer.isExpired()) {
-      //System.out.println(PIDElbow.driveElbow.getAppliedOutput());
+      // System.out.println(PIDElbow.driveElbow.getAppliedOutput());
       firstRunTimer4 = true;
     }
-    
+
   }
 
   @Override

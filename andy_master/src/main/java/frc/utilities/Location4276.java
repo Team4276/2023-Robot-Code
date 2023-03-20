@@ -8,8 +8,6 @@ import frc.systems.BaseDrivetrain;
 
 public class Location4276 {
 
-    private static NetworkTable ntLimelight;
-
     // Limelight
     private static Vector3 v3Limelight;
     private static Vector3 v3PreviousLimelight;
@@ -32,8 +30,6 @@ public class Location4276 {
         v3Position = new Vector3(0.0, 0.0, 0.0);
         v3PrevPosition = new Vector3(0.0, 0.0, 0.0);
 
-        ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
-
         checkLimelightRobotPosition();
     }
 
@@ -42,7 +38,7 @@ public class Location4276 {
         final double feet_per_meter = 3.28084;
 
         double[] errorhandle = new double[6];
-        double[] positionLimelight = ntLimelight.getEntry("botpose").getDoubleArray(errorhandle);
+        double[] positionLimelight = Robot.ntLimelight.getEntry("botpose").getDoubleArray(errorhandle);
         double x = positionLimelight[0];
         double y = positionLimelight[1];
         double z = positionLimelight[2];
@@ -71,15 +67,15 @@ public class Location4276 {
         // Robot coordinates reported by Limelight
         // 3d Cartesian Coordinate System with (0,0,0) located at the center of the
         // robot's frame projected down to the floor.
-        // X    Pointing forward (Forward Vector)
-        // Y    Pointing toward the robot's right (Right Vector)
-        // Z    Pointing upward (Up Vector)
+        // X Pointing forward (Forward Vector)
+        // Y Pointing toward the robot's right (Right Vector)
+        // Z Pointing upward (Up Vector)
 
         // This is different from the coordinate system used by the Gyro (X and Y axis
         // swapped)
-        // X    Pointing toward the robot's right (Right Vector)
-        // Y    Pointing forward (Forward Vector)
-        // Z    Pointing upward (Up Vector)
+        // X Pointing toward the robot's right (Right Vector)
+        // Y Pointing forward (Forward Vector)
+        // Z Pointing upward (Up Vector)
 
         // I am guessing that it doesn't matter for heading because rotation is around
         // the Z-axis which is same for both
