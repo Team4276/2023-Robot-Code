@@ -28,6 +28,7 @@ import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
 import frc.utilities.LogFile;
+import frc.utilities.LogJoystick;
 import frc.utilities.Pathing;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
@@ -117,7 +118,7 @@ public class Robot extends TimedRobot {
       mTeleopDrivetrain.operatorDrive();
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(1)) {
+        || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
       if (firstXPress) {
         PIDDrivetrain.newPositiontohold = true;
         firstXPress = false;
@@ -127,13 +128,13 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.PIDDrivetrainUpdate();
 
     } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
-        || (Robot.leftJoystick.getRawButton(1))) {
+        || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       if (!Balance.pause) {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
 
-    } else if (Robot.xboxController.getRawButton(Xbox.A)) {
+    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B13)) {
       FeederFinder.updatePeriodic();
     } else {
       if (isTeleop) {
@@ -144,7 +145,7 @@ public class Robot extends TimedRobot {
     }
 
     if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(1)))) {
+        || Robot.rightJoystick.getRawButton(LogJoystick.B1)))) {
       firstXPress = true;
       PIDDrivetrain.holdPosition = false;
     }

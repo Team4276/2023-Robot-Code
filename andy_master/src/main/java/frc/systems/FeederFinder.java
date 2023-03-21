@@ -1,6 +1,7 @@
 package frc.systems;
 
 import frc.robot.Robot;
+import frc.utilities.LogJoystick;
 import frc.utilities.Vector3;
 import frc.utilities.Xbox;
 
@@ -28,7 +29,7 @@ public class FeederFinder {
 
     public static void updatePeriodic() {
 
-        if (Robot.xboxController.getRawButton(Xbox.A)) {
+        if (Robot.rightJoystick.getRawButton(LogJoystick.B13)) {
 
             isValidApriltagPosition = checkLimelightForHumanPLayerBoard();
             if (isValidApriltagPosition) {
