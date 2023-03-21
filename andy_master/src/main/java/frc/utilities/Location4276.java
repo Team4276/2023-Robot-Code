@@ -1,7 +1,5 @@
 package frc.utilities;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.systems.BaseDrivetrain;
@@ -14,15 +12,14 @@ public class Location4276 {
 
     private static Vector3 v3Position;
     private static Vector3 v3PrevPosition;
-    private static int nUpdateCount = 0;
 
     private static double heading = 0.0;
     private static double speed = 0.0;
     private static double distance = 0.0;
+    private static double posFixErrorCorrection = 0.0;
 
-    private double gyroCorrection = 0.0;
-    private double prevHeading = 0.0;
-    private long positionUpdateTimeMillisecs;
+    private static double gyroCorrection = 0.0;
+    private static long positionUpdateTimeMillisecs;
 
     public Location4276() {
 
@@ -58,7 +55,6 @@ public class Location4276 {
 
     public void setPositionFix() {
         v3PreviousLimelight.copy(v3Limelight);
-
         v3Position.copy(v3Limelight);
     }
 
@@ -98,17 +94,17 @@ public class Location4276 {
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > BRencoder) {
-            rpmSpeed = BRencoder;
-        }
-        if (rpmSpeed > (-1 * BLencoder)) {
-            rpmSpeed = (-1 * BLencoder);
-        }
         if (rpmSpeed > FRencoder) {
             rpmSpeed = FRencoder;
         }
+        if (rpmSpeed > BRencoder) {
+            rpmSpeed = BRencoder;
+        }
         if (rpmSpeed > (-1 * FLencoder)) {
             rpmSpeed = (-1 * FLencoder);
+        }
+        if (rpmSpeed > (-1 * BLencoder)) {
+            rpmSpeed = (-1 * BLencoder);
         }
 
         // Speed units are rpm at this point - need to convert to feet/sec:
@@ -121,35 +117,28 @@ public class Location4276 {
     }
 
     private boolean isMotionSufficientToEstimateHeading() {
-        return (getEncoderSpeed() > 0.25); // 0.25 feet/sec == 3 inches/sec
+        return (getEncoderSpeed() > 1.0); // feet/sec
     }
 
     public void updatePosition() {
 
-        boolean logEventPositionFix = false;
-
         checkLimelightRobotPosition();
 
         if (isNewPositionFix()) {
-            logEventPositionFix = true;
-            distance = getDistanceTo(v3Limelight);
+            posFixErrorCorrection = getDistanceTo(v3Limelight);
             setPositionFix();
 
         } else {
             // Limelight did not find any Apriltag
+            posFixErrorCorrection = 0.0;
 
-            nUpdateCount++;
-            if (nUpdateCount > 10) {
-                nUpdateCount = 0;
-
-                if (isMotionSufficientToEstimateHeading()) {
-                    // heading of robot moving from previous position to current position
-                    // Y axis == Robot Forward, X == Robot right
-                    // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
-                    // to +180.0
-                    double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
-                    gyroCorrection = Gyroscope.GetYaw() - estimateCourseMadeGood;
-                }
+            if (isMotionSufficientToEstimateHeading()) {
+                // heading of robot moving from previous position to current position
+                // Y axis == Robot Forward, X == Robot right
+                // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
+                // to +180.0
+                double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
+                gyroCorrection = estimateCourseMadeGood - Gyroscope.GetYaw();
             }
 
             // Extrapolate current position from previous position
@@ -170,11 +159,7 @@ public class Location4276 {
 
         if (getEncoderSpeed() > 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
                                        // of stillness
-            if (logEventPositionFix) {
-                Robot.myLogFile.write(String.valueOf("X"));
-            } else {
-                Robot.myLogFile.write(String.valueOf("p"));
-            }
+            Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
             Robot.myLogFile.write(String.valueOf(","));
             Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
             Robot.myLogFile.write(String.valueOf(","));
@@ -191,7 +176,6 @@ public class Location4276 {
             Robot.myLogFile.write(String.valueOf(v3Position.z));
             Robot.myLogFile.write(String.valueOf("\r\n"));
         }
-
     }
 
     public void updateTelemetry() {

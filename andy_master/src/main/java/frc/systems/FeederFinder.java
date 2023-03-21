@@ -3,7 +3,6 @@ package frc.systems;
 import frc.robot.Robot;
 import frc.utilities.LogJoystick;
 import frc.utilities.Vector3;
-import frc.utilities.Xbox;
 
 public class FeederFinder {
 
