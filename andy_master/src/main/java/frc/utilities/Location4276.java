@@ -21,6 +21,7 @@ public class Location4276 {
     private static double distance = 0.0;
 
     private double gyroCorrection = 0.0;
+    private double prevHeading = 0.0;
     private long positionUpdateTimeMillisecs;
 
     public Location4276() {
@@ -119,33 +120,39 @@ public class Location4276 {
         return rpmSpeed * convertRpmToFeetPerSecond;
     }
 
+    private boolean isMotionSufficientToEstimateHeading() {
+        return (getEncoderSpeed() > 0.25); // 0.25 feet/sec == 3 inches/sec
+    }
+
     public void updatePosition() {
+
+        boolean logEventPositionFix = false;
 
         checkLimelightRobotPosition();
 
         if (isNewPositionFix()) {
-            Robot.myLogFile.write("X,");
+            logEventPositionFix = true;
             distance = getDistanceTo(v3Limelight);
             setPositionFix();
 
         } else {
             // Limelight did not find any Apriltag
-            Robot.myLogFile.write("p,");
 
             nUpdateCount++;
             if (nUpdateCount > 10) {
                 nUpdateCount = 0;
 
-                // heading of robot moving from previous position to current position
-                // Y axis == Robot Forward, X == Robot right
-                // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
-                // to +180.0
-                double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
-                gyroCorrection = Gyroscope.GetYaw() - estimateCourseMadeGood;
+                if (isMotionSufficientToEstimateHeading()) {
+                    // heading of robot moving from previous position to current position
+                    // Y axis == Robot Forward, X == Robot right
+                    // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
+                    // to +180.0
+                    double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
+                    gyroCorrection = Gyroscope.GetYaw() - estimateCourseMadeGood;
+                }
             }
 
-            // Estimate current heading and speed to extrapolate current position from
-            // previous position
+            // Extrapolate current position from previous position
 
             long prevTimeMillisecs = positionUpdateTimeMillisecs;
             positionUpdateTimeMillisecs = java.lang.System.nanoTime();
@@ -161,18 +168,29 @@ public class Location4276 {
             v3Position.y = distance * Math.cos(heading);
         }
 
-        Robot.myLogFile.write(String.valueOf(distance));
-        Robot.myLogFile.write(String.valueOf(","));
-        Robot.myLogFile.write(String.valueOf(speed));
-        Robot.myLogFile.write(String.valueOf(","));
-        Robot.myLogFile.write(String.valueOf(heading));
-        Robot.myLogFile.write(String.valueOf(","));
-        Robot.myLogFile.write(String.valueOf(v3Position.x));
-        Robot.myLogFile.write(String.valueOf(","));
-        Robot.myLogFile.write(String.valueOf(v3Position.y));
-        Robot.myLogFile.write(String.valueOf(","));
-        Robot.myLogFile.write(String.valueOf(v3Position.z));
-        Robot.myLogFile.write(String.valueOf("\r\n"));
+        if (getEncoderSpeed() > 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
+                                       // of stillness
+            if (logEventPositionFix) {
+                Robot.myLogFile.write(String.valueOf("X"));
+            } else {
+                Robot.myLogFile.write(String.valueOf("p"));
+            }
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(distance));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(speed));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(heading));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.x));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.y));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.z));
+            Robot.myLogFile.write(String.valueOf("\r\n"));
+        }
 
     }
 
