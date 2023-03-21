@@ -26,7 +26,6 @@ public class PIDElbow {
     private static SparkMaxPIDController driveElbowPidController;
 
     private static RelativeEncoder driveElbowEncoder;
-    private static final int CPR = 42;
 
     private static double deadband = 0.2;
 
@@ -54,7 +53,8 @@ public class PIDElbow {
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
-        driveElbowEncoder = driveElbow.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, CPR);
+        driveElbowEncoder = driveElbow.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature,
+                Robot.COUNTS_PER_NEO_REVOLUTION);
 
         driveElbowPidController = driveElbow.getPIDController();
 
@@ -63,7 +63,7 @@ public class PIDElbow {
         limitSwitchElbow = new DigitalInput(RoboRioPorts.DIO_LIMIT_ELBOW);
     }
 
-    private static void setModePosition() {
+    public static void setModePosition() {
         modeIsSetPosition = true;
     }
 
@@ -122,9 +122,8 @@ public class PIDElbow {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
 
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = Robot.xboxController.getLeftY() * 1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
-
+            setPoint_Elbow = Robot.xboxController.getLeftY() * 1000;
         }
 
         if (!limitSwitchElbow.get()) {
@@ -137,10 +136,4 @@ public class PIDElbow {
         SmartDashboard.putNumber("ElbowEncoder:  ", driveElbowEncoder.getPosition());
     }
 
-    // Speed inrange -1.0 to +1.0
-    public static void setTestElbowSpeed(double speed) {
-        if (Robot.isTestMode) {
-            driveElbow.set(speed);
-        }
-    }
 }

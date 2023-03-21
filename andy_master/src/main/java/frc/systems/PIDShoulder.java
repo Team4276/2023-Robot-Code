@@ -18,13 +18,14 @@ public class PIDShoulder {
     public static final int DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE = 12;
     public static final int DPAD_UP_SHOULDER_STOW = 0;
     public static final int DPAD_LEFT_SHOULDER_EJECT_CUBE = 3;
-    public static final int DPAD_DOWN_ULDER_COLLECT = 0;
+    public static final int DPAD_DOWN_SHOULDER_COLLECT = 0;
 
     public static CANSparkMax driveShoulder_R;
     public static CANSparkMax driveShoulder_L;
 
     public static RelativeEncoder driveShoulderEncoder;
-    private static final int CPR = 42;
+
+    private static double deadband = 0.2;
 
     // PID coefficients
     private static double kP = 5e-3;
@@ -42,22 +43,30 @@ public class PIDShoulder {
 
     private static double allowedErr = 0;
 
+    private static boolean modeIsSetPosition = false; // Otherwise set velocity
+
     public static double setPoint_Shoulder = 0.0;
-
     private static DigitalInput limitSwitchShoulder;
-
-    private static double deadband = 0.2;
 
     public PIDShoulder(int port_R, int port_L) {
         driveShoulder_R = new CANSparkMax(port_R, MotorType.kBrushless);
         driveShoulder_L = new CANSparkMax(port_L, MotorType.kBrushless);
 
-        driveShoulderEncoder = driveShoulder_R.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, CPR);
+        driveShoulderEncoder = driveShoulder_R.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature,
+                Robot.COUNTS_PER_NEO_REVOLUTION);
         driveShoulder_R.getPIDController().setFeedbackDevice(driveShoulderEncoder);
 
         driveShoulder_L.follow(driveShoulder_R, true);
 
         limitSwitchShoulder = new DigitalInput(RoboRioPorts.DIO_LIMIT_SHOULDER);
+    }
+
+    public static void setModePosition() {
+        modeIsSetPosition = true;
+    }
+
+    private static void setModeVelocity() {
+        modeIsSetPosition = false;
     }
 
     private static void setPIDReference(double setPoint_Shoulder) {
@@ -83,6 +92,7 @@ public class PIDShoulder {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
 
         }
+        setModePosition();
     }
 
     public static void PIDShoulderUpdate() {
@@ -91,7 +101,7 @@ public class PIDShoulder {
             if (Xbox.POVup == Robot.pov) {
                 setPoint_Shoulder = DPAD_UP_SHOULDER_STOW;
             } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Shoulder = DPAD_DOWN_ULDER_COLLECT;
+                setPoint_Shoulder = DPAD_DOWN_SHOULDER_COLLECT;
             } else if (Xbox.POVright == Robot.pov) {
                 setPoint_Shoulder = DPAD_RIGHT_SHOULDER_REACH_NEAR_CONE;
             } else if (Xbox.POVleft == Robot.pov) {
@@ -101,12 +111,19 @@ public class PIDShoulder {
 
         if (Math.abs(Robot.xboxController.getRightY()) < deadband) {
             setPIDReference(setPoint_Shoulder);
-        } else if (Math.abs(Robot.xboxController.getRightY()) > deadband) {
-            setPoint_Shoulder = 0;
-            double power = Robot.xboxController.getRightY() / 5;
+        } else {
+            setModeVelocity();
+        }
 
-            driveShoulder_R.set(power);
+        if (modeIsSetPosition) {
+            setPIDReference(setPoint_Shoulder);
 
+        } else if (Math.abs(Robot.xboxController.getLeftY()) < deadband) {
+            driveShoulder_R.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
+
+        } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
+            driveShoulder_R.getPIDController().setReference(setPoint_Shoulder, CANSparkMax.ControlType.kVelocity);
+            setPoint_Shoulder = Robot.xboxController.getLeftY() * 1000;
         }
 
         if (!limitSwitchShoulder.get()) {

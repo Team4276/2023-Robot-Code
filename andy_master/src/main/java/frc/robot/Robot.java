@@ -70,6 +70,8 @@ public class Robot extends TimedRobot {
 
   public static double deadband = 0.05;
 
+  public static final int COUNTS_PER_NEO_REVOLUTION = 42;
+
   private static boolean firstRun = true;
   private static boolean firstXPress = true;
 
