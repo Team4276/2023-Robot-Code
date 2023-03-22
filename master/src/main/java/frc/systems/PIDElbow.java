@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Robot;
 import frc.utilities.RoboRioPorts;
+import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
 
 public class PIDElbow {
@@ -20,6 +21,14 @@ public class PIDElbow {
     public static final double DPAD_UP_ELBOW_STOW = -0.0;
     public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
     public static final double DPAD_DOWN_ELBOW_COLLECT = -8.25;
+
+    private static final double NEAR_CONE_DELAY = 0;
+    private static final double STOW_DELAY = 0;
+    private static final double CUBE_DELAY = 0;
+    private static final double COLLECT_DELAY = 0;
+
+    private static SoftwareTimer delayTimer;
+    private static boolean firstRun = true;
 
     private static CANSparkMax driveElbow;
 
@@ -61,6 +70,8 @@ public class PIDElbow {
         driveElbowPidController.setFeedbackDevice(driveElbowEncoder);
 
         limitSwitchElbow = new DigitalInput(RoboRioPorts.DIO_LIMIT_ELBOW);
+
+        delayTimer = new SoftwareTimer();
     }
 
     private static void setModePosition() {
@@ -104,14 +115,50 @@ public class PIDElbow {
             setModeVelocity();
         } else if (Robot.pov != -1) {
             setModePosition();
+
+
             if (Xbox.POVup == Robot.pov) {
-                setPoint_Elbow = DPAD_UP_ELBOW_STOW;
+                if(firstRun){
+                    delayTimer.setTimer(STOW_DELAY);
+                    firstRun = false;
+                }
+
+                if (delayTimer.isExpired()){
+                    setPoint_Elbow = DPAD_UP_ELBOW_STOW;
+                    firstRun = true;
+                }
             } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT;
+                if(firstRun){
+                    delayTimer.setTimer(COLLECT_DELAY);
+                    firstRun = false;
+                }
+
+                if (delayTimer.isExpired()){
+                    setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT;
+                    firstRun = true;
+                }
+
             } else if (Xbox.POVright == Robot.pov) {
-                setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE;
+                if(firstRun){
+                    delayTimer.setTimer(NEAR_CONE_DELAY);
+                    firstRun = false;
+                }
+
+                if (delayTimer.isExpired()){
+                    setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE;
+                    firstRun = true;
+                }
+                
             } else if (Xbox.POVleft == Robot.pov) {
-                setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE;
+                if(firstRun){
+                    delayTimer.setTimer(CUBE_DELAY);
+                    firstRun = false;
+                }
+
+                if (delayTimer.isExpired()){
+                    setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE;
+                    firstRun = true;
+                }
             }
         }
 
@@ -130,7 +177,7 @@ public class PIDElbow {
         if (!limitSwitchElbow.get()) {
             if (Math.abs(driveElbow.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                driveElbow.getEncoder().setPosition(0.0);
+                driveElbowEncoder.setPosition(0);
             }
         }
 
