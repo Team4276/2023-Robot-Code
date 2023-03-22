@@ -36,7 +36,7 @@ public class Location4276 {
         final double feet_per_meter = 3.28084;
 
         double[] errorhandle = new double[6];
-        double[] positionLimelight = Robot.ntLimelight.getEntry("botpose").getDoubleArray(errorhandle);
+        double[] positionLimelight = Robot.ntLimelight.getEntry("botpos").getDoubleArray(errorhandle);
         double x = positionLimelight[0];
         double y = positionLimelight[1];
         double z = positionLimelight[2];
