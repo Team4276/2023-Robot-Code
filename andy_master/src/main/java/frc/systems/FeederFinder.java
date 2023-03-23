@@ -65,7 +65,13 @@ public class FeederFinder {
                     } else if (v3ApriltagPositionInRobotRelativeCoordinates.y < (-1 * lineFollowerSlowZone)) {
                         power_L += medPower;
                     }
+                } else if (Robot.rightJoystick.getRawButton(LogJoystick.B13)) {
+                    // It is expected that the Limelight wil lose sight of the Apriltag as it gets close to the feeder
+                    // If the driver continues to hold the button down drive straight forward slowly until the button is released
+                    power_R = slowPower;
+                    power_L = slowPower;
                 }
+
                 TeleopDrivetrain.assignMotorPower(power_R, power_L);
             }
         }
@@ -88,6 +94,9 @@ public class FeederFinder {
             x *= feet_per_meter;
             y *= feet_per_meter;
             z *= feet_per_meter;
+
+            // Limelight is offset to the right of the robot centerline
+            y -= 0.5;  // TODO measure on the robot   Units are feet 
 
             v3ApriltagPositionInRobotRelativeCoordinates.set(x, y, z);
             return true;
