@@ -16,7 +16,6 @@ public class LogJoystick {
 	static public int B10 = 10;
 	static public int B11 = 11;
 	static public int B12 = 12;
-	static public int B13 = 13;
 
 	// Axis control mappings
 	// Notes:

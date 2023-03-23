@@ -1,10 +1,13 @@
 package frc.utilities;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.systems.BaseDrivetrain;
 
 public class Location4276 {
+
+    private static NetworkTable ntLimelight;
 
     // Limelight
     private static Vector3 v3Limelight;
@@ -12,14 +15,10 @@ public class Location4276 {
 
     private static Vector3 v3Position;
     private static Vector3 v3PrevPosition;
+    private static int nUpdateCount = 0;
 
-    private static double heading = 0.0;
-    private static double speed = 0.0;
-    private static double distance = 0.0;
-    private static double posFixErrorCorrection = 0.0;
-
-    private static double gyroCorrection = 0.0;
-    private static long positionUpdateTimeMillisecs;
+    private double gyroCorrection = 0.0;
+    private long positionUpdateTimeNanosecs;
 
     public Location4276() {
 
@@ -28,7 +27,10 @@ public class Location4276 {
         v3Position = new Vector3(0.0, 0.0, 0.0);
         v3PrevPosition = new Vector3(0.0, 0.0, 0.0);
 
+        ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
+
         checkLimelightRobotPosition();
+        positionUpdateTimeNanosecs = java.lang.System.nanoTime();
     }
 
     public void checkLimelightRobotPosition() {
@@ -36,7 +38,7 @@ public class Location4276 {
         final double feet_per_meter = 3.28084;
 
         double[] errorhandle = new double[6];
-        double[] positionLimelight = Robot.ntLimelight.getEntry("botpos").getDoubleArray(errorhandle);
+        double[] positionLimelight = ntLimelight.getEntry("botpos").getDoubleArray(errorhandle);
         double x = positionLimelight[0];
         double y = positionLimelight[1];
         double z = positionLimelight[2];
@@ -55,6 +57,7 @@ public class Location4276 {
 
     public void setPositionFix() {
         v3PreviousLimelight.copy(v3Limelight);
+
         v3Position.copy(v3Limelight);
     }
 
@@ -63,24 +66,19 @@ public class Location4276 {
 
         // Robot coordinates reported by Limelight
         // 3d Cartesian Coordinate System with (0,0,0) located at the center of the
-        // robot's frame projected down to the floor.
-        // X Pointing forward (Forward Vector)
-        // Y Pointing toward the robot's right (Right Vector)
-        // Z Pointing upward (Up Vector)
+        // robot’s frame projected down to the floor.
+        // X+ → Pointing forward (Forward Vector)
+        // Y+ → Pointing toward the robot’s right (Right Vector)
+        // Z+ → Pointing upward (Up Vector)
 
         // This is different from the coordinate system used by the Gyro (X and Y axis
         // swapped)
-        // X Pointing toward the robot's right (Right Vector)
-        // Y Pointing forward (Forward Vector)
-        // Z Pointing upward (Up Vector)
+        // X+ → Pointing toward the robot’s right (Right Vector)
+        // Y+ → Pointing forward (Forward Vector)
+        // Z+ → Pointing upward (Up Vector)
 
         // I am guessing that it doesn't matter for heading because rotation is around
         // the Z-axis which is same for both
-    }
-
-    private double getDistanceTo(Vector3 otherPos) {
-        return Math.sqrt(Math.pow((v3Position.x - otherPos.x), 2)
-                + Math.pow((v3Position.y - otherPos.y), 2));
     }
 
     public double getEncoderSpeed() {
@@ -94,20 +92,20 @@ public class Location4276 {
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > FRencoder) {
-            rpmSpeed = FRencoder;
-        }
         if (rpmSpeed > BRencoder) {
             rpmSpeed = BRencoder;
-        }
-        if (rpmSpeed > (-1 * FLencoder)) {
-            rpmSpeed = (-1 * FLencoder);
         }
         if (rpmSpeed > (-1 * BLencoder)) {
             rpmSpeed = (-1 * BLencoder);
         }
+        if (rpmSpeed > FRencoder) {
+            rpmSpeed = FRencoder;
+        }
+        if (rpmSpeed > (-1 * FLencoder)) {
+            rpmSpeed = (-1 * FLencoder);
+        }
 
-        // Speed units are rpm at this point - need to convert to feet/sec:
+        // speed units are rpm at this point - need to convert to feet/sec:
         // 8.5:1 gearboxes, on the new wheels that are a little over 3in radius
         // (100 rotations)/(8.5 gearbox redux) * (2pi*3.05in) = 225.5in, or 18.79ft/100
         // rotations
@@ -116,72 +114,51 @@ public class Location4276 {
         return rpmSpeed * convertRpmToFeetPerSecond;
     }
 
-    private boolean isMotionSufficientToEstimateHeading() {
-        return (getEncoderSpeed() > 1.0); // feet/sec
-    }
-
     public void updatePosition() {
 
         checkLimelightRobotPosition();
 
         if (isNewPositionFix()) {
-            posFixErrorCorrection = getDistanceTo(v3Limelight);
             setPositionFix();
-
         } else {
             // Limelight did not find any Apriltag
-            posFixErrorCorrection = 0.0;
 
-            if (isMotionSufficientToEstimateHeading()) {
+            nUpdateCount++;
+            if (nUpdateCount > 10) {
+                nUpdateCount = 0;
+
                 // heading of robot moving from previous position to current position
                 // Y axis == Robot Forward, X == Robot right
                 // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
                 // to +180.0
                 double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
-                gyroCorrection = estimateCourseMadeGood - Gyroscope.GetYaw();
+                gyroCorrection = Gyroscope.GetYaw() - estimateCourseMadeGood;
             }
 
-            // Extrapolate current position from previous position
+            // Estimate current heading and speed to extrapolate current position from
+            // previous position
 
-            long prevTimeMillisecs = positionUpdateTimeMillisecs;
-            positionUpdateTimeMillisecs = java.lang.System.nanoTime();
-            long deltaTimeMillisecs = (positionUpdateTimeMillisecs - prevTimeMillisecs);
+            long prevTicks = positionUpdateTimeNanosecs;
+            positionUpdateTimeNanosecs = java.lang.System.nanoTime();
+            long deltaTimeNanosecs = (positionUpdateTimeNanosecs - prevTicks);
 
-            heading = getHeading();
-            speed = getEncoderSpeed();
-            distance = speed * (1000.0 * deltaTimeMillisecs);
+            double heading = getHeading();
+            double speed = getEncoderSpeed();
+            double distance = speed * deltaTimeNanosecs;
 
-            v3PrevPosition.copy(v3Position);
+            v3PrevPosition.copy(v3Limelight);
 
-            v3Position.x = distance * Math.sin(heading);
-            v3Position.y = distance * Math.cos(heading);
-        }
-
-        if (getEncoderSpeed() > 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
-                                       // of stillness
-            Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(distance));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(speed));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(heading));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.x));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.y));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.z));
-            Robot.myLogFile.write(String.valueOf("\r\n"));
+            v3Position.x = distance * Math.cos(heading);
+            v3Position.y = distance * Math.sin(heading);
         }
     }
 
     public void updateTelemetry() {
+        double heading = getHeading();
         SmartDashboard.putNumber("CurrentPos_X: ", v3Position.x);
         SmartDashboard.putNumber("CurrentPos_Y: ", v3Position.y);
+        SmartDashboard.putNumber("CurrentPos_Z: ", v3Position.z);
         SmartDashboard.putNumber("Heading: ", heading);
-        SmartDashboard.putNumber("Speed: ", speed);
+        SmartDashboard.putNumber("Speed: ", getEncoderSpeed());
     }
 }

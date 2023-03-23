@@ -5,7 +5,6 @@ import frc.systems.Balance;
 import frc.systems.PIDDrivetrain;
 import frc.systems.TeleopDrivetrain;
 import frc.systems.PIDElbow;
-import frc.systems.PIDShoulder;
 import frc.utilities.Gyroscope;
 import frc.utilities.SoftwareTimer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,20 +35,20 @@ public class BabyAuto {
     public static boolean usingDrivetrainMotorsBackward = false;
     public static boolean usingDrivetrainMotorsNOPOWER = false;
 
-    public static void BabyAutoInit() {
+    public static void BabyAutoInit(){
         timer = new SoftwareTimer();
         middleTimer = new SoftwareTimer();
         middleArmDelayTimer = new SoftwareTimer();
         timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS = new SoftwareTimer();
     }
 
-    public static void leftScoreMobility() {
-        if (firstRun) {
+    public static void leftScoreMobility(){
+        if (firstRun){
             timer.setTimer(LEFTMOBILITYTIME);
             firstRun = false;
         }
 
-        if (timer.isExpired()) {
+        if (timer.isExpired()){
             usingDrivetrainMotorsNOPOWER = true;
             taskIsFinished = true;
         } else {
@@ -57,32 +56,29 @@ public class BabyAuto {
         }
     }
 
-    public static void middleBalance(boolean forward) {
-        if (firstRun) {
+    public static void middleBalance(boolean forward){
+        if (firstRun){
             timer.setTimer(MIDDLEBALANCTIME2);
-            // middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
+            //middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
             firstRun = false;
         }
 
-        /*
-         * if (middleArmDelayTimer.isExpired()){
-         * if (firstRunTimer){
-         * middleTimer.setTimer(MIDDLEBALANCTIME4);
-         * }
-         * 
-         * PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-         * PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
-         * }
-         */
+        /*if (middleArmDelayTimer.isExpired()){
+            if (firstRunTimer){
+                middleTimer.setTimer(MIDDLEBALANCTIME4);
+            }
 
-        if (timer.isExpired()) {
-            if (firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix) {
+            PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
+        }*/
+
+        if (timer.isExpired()){
+            if (firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix){
                 timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.setTimer(0.5);
                 firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix = false;
 
             }
 
-            if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()) {
+            if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
 
                 balance = true;
             } else {
@@ -90,69 +86,69 @@ public class BabyAuto {
                 Robot.isTeleop = true;
             }
 
+            
             SmartDashboard.putBoolean("isTeleop", Robot.isTeleop);
 
         } else {
             if (forward) {
                 usingDrivetrainMotorsForward = true;
-            } else if (!forward) {
+            } else if(!forward){
                 usingDrivetrainMotorsBackward = true;
             }
 
         }
     }
 
-    public static void middleScoreBalance() {
-        if (firstRunTimer) {
+    public static void middleScoreBalance(){
+        if (firstRunTimer){
             middleTimer.setTimer(MIDDLEBALANCTIME1);
             firstRunTimer = false;
         }
 
-        if (!middleTimer.isExpired()) {
-            TeleopDrivetrain.assignMotorPower(MOTORPOWER, -1 * MOTORPOWER);// back up a bit
+        if (!middleTimer.isExpired()){
+            TeleopDrivetrain.assignMotorPower(MOTORPOWER,-1*MOTORPOWER);// back up a bit
 
         } else {
-            if (Math.abs(Gyroscope.GetYaw() - 180) > DEADZONEANGLE) {// check if its turned yet
-                TeleopDrivetrain.assignMotorPower(MOTORPOWER, MOTORPOWER);// turn
+            if (Math.abs(Gyroscope.GetYaw() - 180) > DEADZONEANGLE){//check if its turned yet
+                TeleopDrivetrain.assignMotorPower(MOTORPOWER, MOTORPOWER);//turn
             } else {
-                if (firstRun) {
+                if (firstRun){
                     timer.setTimer(MIDDLEBALANCTIME2);
                     middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
                     firstRun = false;
                 }
 
-                if (middleArmDelayTimer.isExpired()) {
-                    PIDElbow.setModePosition();
+                if (middleArmDelayTimer.isExpired()){
                     PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-                    PIDShoulder.setModePosition();
-                    PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_SHOULDER_COLLECT;
                 }
 
-                if (timer.isExpired()) {
+                if (timer.isExpired()){
                     Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
                     PIDDrivetrain.PIDDrivetrainUpdate();
 
                 } else {
-                    TeleopDrivetrain.assignMotorPower(-1 * MOTORPOWER, MOTORPOWER);
+                    TeleopDrivetrain.assignMotorPower(-1*MOTORPOWER,MOTORPOWER);
                 }
             }
 
         }
 
+        
     }
 
-    public static void rightScoreMobility() {
-        if (firstRun) {
+    public static void rightScoreMobility(){
+        if (firstRun){
             timer.setTimer(RIGHTMOBILITYTIME);
             firstRun = false;
         }
 
-        if (timer.isExpired()) {
-            TeleopDrivetrain.assignMotorPower(0, 0);
+        if (timer.isExpired()){
+            TeleopDrivetrain.assignMotorPower(0,0);
             taskIsFinished = true;
         } else {
-            TeleopDrivetrain.assignMotorPower(MOTORPOWER, -1 * MOTORPOWER);
+            TeleopDrivetrain.assignMotorPower(MOTORPOWER,-1*MOTORPOWER);
         }
 
+        
     }
 }
