@@ -30,7 +30,6 @@ import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
 import frc.systems.PIDShoulder;
 import frc.systems.TeleopDrivetrain;
-import frc.systems.LogPos;
 
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
@@ -235,10 +234,18 @@ public class Robot extends TimedRobot {
     File f = new File("/home/admin/"); 
     pathnames = f.list();
     int AmountOfLogs = pathnames.length;
+    if (AmountOfLogs < 10)
+    {
     logfile = new File ("/home/admin/logpos("+ (AmountOfLogs + 1) + ").txt");
+    }else {
+      System.out.println("Warning no logs are being made (Max file size reached)");
     }
+    } 
+
+      
+   
     catch (Exception e){
-      System.out.print("warning no logs are being made! error (0)");
+      System.out.println("warning no logs are being made! error (0)");
     }
 
 
@@ -246,7 +253,7 @@ public class Robot extends TimedRobot {
       wr = new FileWriter(logfile);
       
     } catch (Exception e) {
-      System.out.print("warning no logs are being made! error (1)");
+      System.out.println("warning no logs are being made! error (1)");
     }
     
     SmartDashboard.putBoolean("Get path", false);
@@ -337,7 +344,7 @@ public class Robot extends TimedRobot {
     /*List<Double> angles = Pathing.receivePath();
     try{        
     for (int k = 0; k < angles.size()/2; k++) {
-            System.out.println("angle: "+ k + angles.get(k));
+            System.out.println("angle: "+ angles.get(k));
             
         }}
         catch(Exception e){
@@ -347,12 +354,12 @@ public class Robot extends TimedRobot {
        
         try{
         for (int k = angles.size()/2; k < angles.size(); k++) {
-          System.out.println("mag: " + (angles.size()/2 + -k) + angles.get(k));
+          System.out.println("mag: " + angles.get(k));
           
       }}
       catch(Exception e){
         System.out.println(e);
-       }*/
+       } */
 
 
  
