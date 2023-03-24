@@ -69,7 +69,7 @@ public class TeleopDrivetrain extends BaseDrivetrain {
                     linear = -Robot.rightJoystick.getY();
                 }
                 if (Math.abs(Robot.rightJoystick.getZ()) > deadband) {
-                    turn = Math.pow(Robot.rightJoystick.getZ(), 3 / 2);
+                    turn = 0.29 * Math.pow(Robot.rightJoystick.getZ(), 3 / 2);
                 }
                 leftY = linear + turn;
                 rightY = -linear + turn;

@@ -167,7 +167,7 @@ public class PIDElbow {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
 
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = Robot.xboxController.getLeftY() * 1000;
+            setPoint_Elbow = (-1*Robot.xboxController.getLeftY()) * 1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
 
         }

@@ -87,18 +87,16 @@ public class FeederFinder {
 
         final double feet_per_meter = 3.28084;
         
-        double[] errorhandle = new double[6];
-        double[] positionLimelight = Robot.ntLimelight.getEntry("targetpose_cameraspace")
-                .getDoubleArray(errorhandle);
-        double x = positionLimelight[0];
-        double y = positionLimelight[1];
-        double z = positionLimelight[2];
+        double[] defaultValue = new double[6];
+        double[] positionLimelight = new double[6];
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
 
         long idPrimaryApriltagInView = Robot.ntLimelight.getEntry("tid").getInteger(0);
         if (idPrimaryApriltagInView == idApriltagOnHumanPlayerBoard) {
-            errorhandle = new double[6];
-            positionLimelight = Robot.ntLimelight.getEntry("targetpose_robotspace")
-                    .getDoubleArray(errorhandle);
+            positionLimelight = Robot.ntLimelight.getEntry("targetpose_cameraspace")
+                    .getDoubleArray(defaultValue);
             x = positionLimelight[0];
             y = positionLimelight[1];
             z = positionLimelight[2];
