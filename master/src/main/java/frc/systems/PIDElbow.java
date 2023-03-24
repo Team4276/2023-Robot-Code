@@ -40,7 +40,7 @@ public class PIDElbow {
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 0;
+    private static double kP = 0.1;
     private static double kI = 0;
     private static double kD = 0;
     private static double kIz = 0;
@@ -167,7 +167,7 @@ public class PIDElbow {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
 
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = (-1*Robot.xboxController.getLeftY()) * 1000;
+            setPoint_Elbow = (-1*Robot.xboxController.getLeftY()) *2000; //1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
 
         }
