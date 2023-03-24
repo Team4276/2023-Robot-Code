@@ -17,10 +17,10 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
-    public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -7.5;
-    public static final double DPAD_UP_ELBOW_STOW = -0.0;
-    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = -3;
-    public static final double DPAD_DOWN_ELBOW_COLLECT = -8.25;
+    public static final double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = 7.5;
+    public static final double DPAD_UP_ELBOW_STOW = 0.0;
+    public static final double DPAD_LEFT_ELBOW_EJECT_CUBE = 3;
+    public static final double DPAD_DOWN_ELBOW_COLLECT = 8.25;
 
     private static final double NEAR_CONE_DELAY = 0;
     private static final double STOW_DELAY = 0;
@@ -40,9 +40,9 @@ public class PIDElbow {
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 1e-4;
+    private static double kP = 0;
     private static double kI = 0;
-    private static double kD = 1e-6;
+    private static double kD = 0;
     private static double kIz = 0;
     private static double kFF = 0.000156;
     private static double kMaxOutput = 1;
@@ -63,11 +63,9 @@ public class PIDElbow {
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
-        driveElbowEncoder = driveElbow.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, CPR);
+        driveElbowEncoder = driveElbow.getEncoder();
 
         driveElbowPidController = driveElbow.getPIDController();
-
-        driveElbowPidController.setFeedbackDevice(driveElbowEncoder);
 
         limitSwitchElbow = new DigitalInput(RoboRioPorts.DIO_LIMIT_ELBOW);
 
@@ -182,6 +180,7 @@ public class PIDElbow {
         }
 
         SmartDashboard.putNumber("ElbowEncoder:  ", driveElbowEncoder.getPosition());
+        SmartDashboard.putNumber("Elbow Power", driveElbow.getAppliedOutput());
     }
 
     // Speed inrange -1.0 to +1.0
