@@ -37,8 +37,8 @@ public class FeederFinder {
             if (isValidApriltagPosition) {
 
                 // Units are feet
-                // X Pointing forward (Forward Vector)
-                // Y Pointing toward the robot's right (Right Vector)
+                // X toward the robot's right (Right Vector)
+                // Y Pointing forward (Forward Vector)
                 // Z Pointing upward (Up Vector)
 
                 // Drive robot forward, steering to make the "Y" coordinate zero so we are going
@@ -46,26 +46,26 @@ public class FeederFinder {
                 // the Apriltag on the human player board
                 SmartDashboard.putNumber("APriltag14_X", v3ApriltagPositionInRobotRelativeCoordinates.x);
                 SmartDashboard.putNumber("APriltag14_Y", v3ApriltagPositionInRobotRelativeCoordinates.y);
-                if (v3ApriltagPositionInRobotRelativeCoordinates.x > stopRangeFeet) {
+                if (v3ApriltagPositionInRobotRelativeCoordinates.y > stopRangeFeet) {
                     power_R = slowPower;
                     power_L = slowPower;
-                    if (v3ApriltagPositionInRobotRelativeCoordinates.x > slowRangeFeet) {
+                    if (v3ApriltagPositionInRobotRelativeCoordinates.y > slowRangeFeet) {
                         power_R = medPower;
                         power_L = medPower;
-                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.x > medRangeFeet) {
+                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.y > medRangeFeet) {
                         power_R = fastPower;
                         power_L = fastPower;
                     }
 
-                    if (v3ApriltagPositionInRobotRelativeCoordinates.y > lineFollowerDeadZone) {
+                    if (v3ApriltagPositionInRobotRelativeCoordinates.x > lineFollowerDeadZone) {
                         power_R += slowPower;
-                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.y > lineFollowerSlowZone) {
+                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.x > lineFollowerSlowZone) {
                         power_R += medPower;
                     }
 
-                    if (v3ApriltagPositionInRobotRelativeCoordinates.y < (-1 * lineFollowerDeadZone)) {
+                    if (v3ApriltagPositionInRobotRelativeCoordinates.x < (-1 * lineFollowerDeadZone)) {
                         power_L += slowPower;
-                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.y < (-1 * lineFollowerSlowZone)) {
+                    } else if (v3ApriltagPositionInRobotRelativeCoordinates.x < (-1 * lineFollowerSlowZone)) {
                         power_L += medPower;
                     }
                 }
@@ -86,7 +86,7 @@ public class FeederFinder {
     public static boolean checkLimelightForHumanPLayerBoard() {
 
         final double feet_per_meter = 3.28084;
-        
+
         double[] defaultValue = new double[6];
         double[] positionLimelight = new double[6];
         double x = 0.0;
@@ -95,19 +95,19 @@ public class FeederFinder {
 
         long idPrimaryApriltagInView = Robot.ntLimelight.getEntry("tid").getInteger(0);
         if (idPrimaryApriltagInView == idApriltagOnHumanPlayerBoard) {
-            positionLimelight = Robot.ntLimelight.getEntry("botpos") 
-                    .getDoubleArray(defaultValue);  //"targetpose_cameraspace")
+            positionLimelight = Robot.ntLimelight.getEntry("targetpose_cameraspace")
+                    .getDoubleArray(defaultValue); // "targetpose_cameraspace")
             x = positionLimelight[0];
             y = positionLimelight[1];
             z = positionLimelight[2];
 
             // position units are meters at this point - convert to feet
-            x *= feet_per_meter;
-            y *= feet_per_meter;
-            z *= feet_per_meter;
+            //x *= feet_per_meter;
+            //y *= feet_per_meter;
+            //z *= feet_per_meter;
 
             // Limelight is offset to the right of the robot centerline
-            y -= 0.5; // TODO measure on the robot Units are feet
+            x -= 0.5; // TODO measure on the robot Units are feet
 
             v3ApriltagPositionInRobotRelativeCoordinates.set(x, y, z);
             return true;

@@ -29,6 +29,7 @@ public class PIDElbow {
 
     private static SoftwareTimer delayTimer;
     private static boolean firstRun = true;
+    private static boolean firstRun2ElectricBoogaloo = true;
 
     private static CANSparkMax driveElbow;
 
@@ -40,11 +41,12 @@ public class PIDElbow {
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 0.1;
-    private static double kI = 0;
+    private static double kP = 5e-5;
+    private static double kI = 1e-6;
     private static double kD = 0;
     private static double kIz = 0;
     private static double kFF = 0.000156;
+
     private static double kMaxOutput = 1;
     private static double kMinOutput = -1;
 
@@ -167,7 +169,7 @@ public class PIDElbow {
             driveElbow.getPIDController().setReference(0, CANSparkMax.ControlType.kVelocity);
 
         } else if (Math.abs(Robot.xboxController.getLeftY()) > deadband) {
-            setPoint_Elbow = (-1*Robot.xboxController.getLeftY()) *2000; //1000;
+            setPoint_Elbow = (-1*Robot.xboxController.getLeftY()) *1000;
             driveElbow.getPIDController().setReference(setPoint_Elbow, CANSparkMax.ControlType.kVelocity);
 
         }
@@ -175,7 +177,15 @@ public class PIDElbow {
         if (!limitSwitchElbow.get()) {
             if (Math.abs(driveElbow.getEncoder().getPosition()) > 0.05) {
                 // Reset encoders all the time when the limit switch is in contact
-                driveElbowEncoder.setPosition(0);
+                if (firstRun2ElectricBoogaloo){
+                    driveElbowEncoder.setPosition(0);
+                    firstRun2ElectricBoogaloo = false;
+                }
+                if (!(Robot.xboxController.getRightY() > deadband)){
+                    firstRun2ElectricBoogaloo = true;
+                    setModePosition();
+                    setPoint_Elbow = 0;
+                }
             }
         }
 

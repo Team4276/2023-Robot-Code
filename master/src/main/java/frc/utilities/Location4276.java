@@ -144,12 +144,15 @@ public class Location4276 {
             // Extrapolate current position from previous position
 
             long prevTimeMillisecs = positionUpdateTimeMillisecs;
-            positionUpdateTimeMillisecs = java.lang.System.nanoTime();
+            positionUpdateTimeMillisecs = java.lang.System.currentTimeMillis();
             long deltaTimeMillisecs = (positionUpdateTimeMillisecs - prevTimeMillisecs);
 
             heading = getHeading();
             speed = getEncoderSpeed();
-            distance = speed * (1000.0 * deltaTimeMillisecs);
+            distance = speed * (deltaTimeMillisecs/1000.0);
+
+            SmartDashboard.putNumber("distance", distance);
+            SmartDashboard.putNumber("DektaTimeMillis", deltaTimeMillisecs);
 
             v3PrevPosition.copy(v3Position);
 
