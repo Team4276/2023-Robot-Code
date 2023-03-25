@@ -115,10 +115,6 @@ public class Robot extends TimedRobot {
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
-      if (firstXPress) {
-        PIDDrivetrain.newPositiontohold = true;
-        firstXPress = false;
-      }
 
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
@@ -141,8 +137,8 @@ public class Robot extends TimedRobot {
     }
 
     if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(LogJoystick.B1)))) {
-      firstXPress = true;
+        || (!Robot.rightJoystick.getRawButton(LogJoystick.B1))))) {
+      PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
     }
 
