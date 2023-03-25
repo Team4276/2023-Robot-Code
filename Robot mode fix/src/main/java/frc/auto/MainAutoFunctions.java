@@ -48,8 +48,6 @@ public class MainAutoFunctions{
             AutoScoringFunctions.scoreLow();
         } else if (!BabyAuto.taskIsFinished) {
             BabyAuto.ScoreMobility();
-        } else {
-            // idk somtin im probably missing
         }
     }
 
@@ -62,8 +60,6 @@ public class MainAutoFunctions{
     public static void auto_balance(){
         if (!BabyAuto.taskIsFinished) {
             BabyAuto.middleBalance(true);
-        } else {
-            // idk somtin im probably missing
         }
 
     }
@@ -73,8 +69,6 @@ public class MainAutoFunctions{
             AutoScoringFunctions.scoreLow();
         } else if (!BabyAuto.taskIsFinished) {
             BabyAuto.middleBalance(false);
-        } else {
-            // idk somtin im probably missing
         }
     }
 

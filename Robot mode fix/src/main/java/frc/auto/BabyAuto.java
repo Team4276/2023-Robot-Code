@@ -91,7 +91,7 @@ public class BabyAuto {
 
             if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
 
-                balance = true;
+                RobotMode.set(ROBOT_MODE.BALANCING);
             } else {
                 set(AUTO_MOBILITY_MODE.NOPOWER);
             }

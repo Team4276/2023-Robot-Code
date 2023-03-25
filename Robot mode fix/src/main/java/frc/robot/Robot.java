@@ -20,6 +20,7 @@ import frc.auto.MainAutoFunctions;
 import frc.auto.BabyAuto.AUTO_MOBILITY_MODE;
 import frc.auto.MainAutoFunctions.AUTOS;
 import frc.systems.Balance;
+import frc.systems.BaseDrivetrain;
 import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
@@ -108,9 +109,6 @@ public class Robot extends TimedRobot {
     } else if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
       FeederFinder.updatePeriodic();
 
-    } else {
-      RobotMode.set(ROBOT_MODE.IDLING);
-
     }
 
     // ************************************************ \\
@@ -118,7 +116,6 @@ public class Robot extends TimedRobot {
     if (RobotMode.get() == ROBOT_MODE.TELEOP_DRIVING){
       mTeleopDrivetrain.operatorDrive();
     }
-
     
     if (RobotMode.get() == ROBOT_MODE.AUTO_DRIVING){
       if (BabyAuto.get() == AUTO_MOBILITY_MODE.NOPOWER) {
@@ -132,21 +129,16 @@ public class Robot extends TimedRobot {
       
     }
 
-    if (RobotMode.get() == ROBOT_MODE.IDLING){
-      TeleopDrivetrain.assignMotorPower(0, 0);
-
-    }
-
     if (RobotMode.get() != ROBOT_MODE.HOLD_POSITION){
       PIDDrivetrain.newPositiontohold = true;
-      
+        
     } else {
       PIDDrivetrain.newPositiontohold = false;
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
-
+  
     }
-
+  
     if (RobotMode.get() != ROBOT_MODE.BALANCING){
       Balance.pause = false;
     } else {
@@ -156,7 +148,16 @@ public class Robot extends TimedRobot {
       }
     }
     
+    if ((BaseDrivetrain.blDriveX.getAppliedOutput() == 0)
+     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)
+     && (BaseDrivetrain.frDriveX.getAppliedOutput() == 0)
+     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)){
+      RobotMode.set(ROBOT_MODE.IDLING);
+    }
+
   }
+
+  
 
   public static void timedArm() {
 
@@ -257,9 +258,9 @@ public class Robot extends TimedRobot {
       autoselector += 2;
     if (!Switch3.get())
       autoselector += 4;
-    SmartDashboard.putString("Auto Mode", MainAutoFunctions.getString());
-    SmartDashboard.putString("Robot Mode", RobotMode.getString());
-    SmartDashboard.putString("Auto Mobility Mode", BabyAuto.getString());
+    SmartDashboard.putString("Auto: ", MainAutoFunctions.getString());
+    SmartDashboard.putString("Robot Mode: ", RobotMode.getString());
+    SmartDashboard.putString("Auto Mobility Mode: ", BabyAuto.getString());
 
     Pathing.SetSimOrinitation();
   }
@@ -292,6 +293,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+
+
     if (MainAutoFunctions.get() == AUTOS.NO_BANANA) {
       // do nothing
     } else if (MainAutoFunctions.get() == AUTOS.SHOOT_BACKUP) {

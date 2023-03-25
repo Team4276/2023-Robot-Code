@@ -12,8 +12,10 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.utilities.RobotMode;
 import frc.utilities.LogJoystick;
 import frc.utilities.Toggler;
+import frc.utilities.RobotMode.ROBOT_MODE;
 
 public class TeleopDrivetrain extends BaseDrivetrain {
     private static boolean brakeModeisEngaged = true;
@@ -82,13 +84,9 @@ public class TeleopDrivetrain extends BaseDrivetrain {
             case TANK:
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
                     rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
-                } else {
-                    rightY = 0;
                 }
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
-                } else {
-                    leftY = 0;
                 }
                 assignMotorPower(rightY, leftY);
                 break;
