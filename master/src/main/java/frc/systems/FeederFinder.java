@@ -9,10 +9,10 @@ public class FeederFinder {
 
     private static final int idApriltagOnHumanPlayerBoard = 14;
 
-    private static final double medPower = 0.3;
-    private static final double slowPower = 0.1;
+    private static final double medPower = 0.2;
+    private static final double slowPower = 0.15;
 
-    private static final double lineFollowerDeadZone = 0.1;
+    private static final double lineFollowerDeadZone = 0.05;
 
     private static boolean isValidApriltagPosition = false;
     private static Vector3 v3ApriltagPositionInRobotRelativeCoordinates;
@@ -45,9 +45,9 @@ public class FeederFinder {
                 power_L = medPower;
 
                 if (v3ApriltagPositionInRobotRelativeCoordinates.x < lineFollowerDeadZone) {
-                    power_L += slowPower;
-                } else if (v3ApriltagPositionInRobotRelativeCoordinates.x < (-1 * lineFollowerDeadZone)) {
                     power_R += slowPower;
+                } else if (v3ApriltagPositionInRobotRelativeCoordinates.x < (-1 * lineFollowerDeadZone)) {
+                    power_L += slowPower;
                 }
 
             } else {
@@ -88,7 +88,7 @@ public class FeederFinder {
             z *= feet_per_meter;
 
             // Limelight is offset to the right of the robot centerline
-            // x -= 0.5; // TODO measure on the robot Units are feet
+            x += 0.2; // TODO measure on the robot Units are feet
 
             v3ApriltagPositionInRobotRelativeCoordinates.set(x, y, z);
             return true;
