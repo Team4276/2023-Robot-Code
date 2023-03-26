@@ -87,33 +87,36 @@ public class Location4276 {
         // Find the lowest speed encoder (assume faster speed indicates slippage or
         // minor difference due to turning)
 
-        double rpmSpeed = 0.0;
+        double rpmSpeed = 10000000.0;
+
         double BRencoder = BaseDrivetrain.brDriveX.getEncoder().getVelocity();
         double BLencoder = BaseDrivetrain.blDriveX.getEncoder().getVelocity();
         double FRencoder = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > FRencoder) {
+        if (rpmSpeed > FRencoder) {  
             rpmSpeed = FRencoder;
         }
-        if (rpmSpeed > BRencoder) {
-            rpmSpeed = BRencoder;
+        if (rpmSpeed > (-1 * BRencoder)) { 
+            rpmSpeed = (-1 * BRencoder);
         }
-        if (rpmSpeed > (-1 * FLencoder)) {
+        if (rpmSpeed > (-1 * FLencoder)) { 
             rpmSpeed = (-1 * FLencoder);
         }
-        if (rpmSpeed > (-1 * BLencoder)) {
-            rpmSpeed = (-1 * BLencoder);
+        if (rpmSpeed > BLencoder) {
+            rpmSpeed = BLencoder;
         }
 
         // Speed units are rpm at this point - need to convert to feet/sec:
         // 8.5:1 gearboxes, on the new wheels that are a little over 3in radius
         // (100 rotations)/(8.5 gearbox redux) * (2pi*3.05in) = 225.5in, or 18.79ft/100
         // rotations
-        final double convertRpmToFeetPerSecond = 0.1879 * 60.0;
+        final double convertRpmToFeet = 0.1879;
+        rpmSpeed *= convertRpmToFeet;    // feet/min
+        rpmSpeed /= 60.0;                // feet/sec
 
-        return rpmSpeed * convertRpmToFeetPerSecond;
+        return rpmSpeed;
     }
 
     private boolean isMotionSufficientToEstimateHeading() {
