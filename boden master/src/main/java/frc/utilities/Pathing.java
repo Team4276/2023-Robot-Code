@@ -73,13 +73,16 @@ public class Pathing {
             corners.add(corner);
         }
       
-       /* for (int k = 0; k < corners.size(); k++) {
-            //just kept because i dont wanna rewrite this later
+        /*for (int k = 0; k < corners.size(); k++) {
+            System.out.println(corners.get(k).x);
+            System.out.println(corners.get(k).y);
+            System.out.println(corners.get(k).z);
+            System.out.println("");
             
         }*/
         //System.out.print(corners.get(1).x);
         angles = getCornerAngles(corners);
-        angles.addAll(getMagnitude(corners));
+        angles.addAll(getDistance(corners));
         return (angles);
     }
 
@@ -103,9 +106,9 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
     for (int i = 0; i < corners.size() - 1; i++) {
         Vector3 currentCorner = corners.get(i);
         Vector3 nextCorner = corners.get(i + 1);
-        Vector3 direction = nextCorner.subtract(currentCorner).normalize();
-        double angle = Math.toDegrees(Math.atan2(direction.z, direction.x));
-        angles.add(angle);
+        
+        angles.add(nextCorner.angle(currentCorner));
+
     }
     return angles;
 }
@@ -118,7 +121,7 @@ catch(Exception e){
 
 
 
-public static List<Double> getMagnitude(List<Vector3> corners1) {
+public static List<Double> getDistance(List<Vector3> corners1) {
    
    
    
@@ -126,18 +129,17 @@ public static List<Double> getMagnitude(List<Vector3> corners1) {
 
 
 
-    try{List<Double> Magnitudes = new ArrayList<>();
+    try{List<Double> Distance = new ArrayList<>();
     for (int i = 0; i < corners1.size() - 1; i++) {
         Vector3 currentCorner1 = corners1.get(i);
         Vector3 nextCorner1 = corners1.get(i + 1);
-        Vector3 direction1= nextCorner1.subtract(currentCorner1);
-        double distance = direction1.magnitude();
-        Magnitudes.add(distance);
+        double distance = currentCorner1.distance(nextCorner1);
+        Distance.add(distance);
     }
-    return Magnitudes;
+    return Distance;
 }
 catch(Exception e){
-    System.out.print("exception caught at pathing.getMagnitude");
+    System.out.print("exception caught at pathing.getDistance");
     List<Double> exception = new ArrayList<>(1);      
     return (exception);
 }

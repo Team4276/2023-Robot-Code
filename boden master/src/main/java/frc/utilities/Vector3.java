@@ -47,10 +47,19 @@ public class Vector3 {
     }
     
     public double angle(Vector3 other) {
-        Vector3 a = this.normalize();
-        Vector3 b = other.normalize();
-        double dot = a.dot(b);
-        return Math.acos(dot);
+        double norm = this.magnitude()*other.magnitude();
+        double angleprior = this.dot(other)/norm;
+        double angleradians = Math.acos(angleprior);
+        double angle = Math.toDegrees(angleradians);
+        return angle;
     }
+
+    public double distance(Vector3 other)
+    {
+        double dx = this.x- other.x;
+        double dy = this.y- other.y;
+        double dz = this.z- other.z;
+        return Math.sqrt(dx*dx + dy*dy + dz*dz);
     
+    }
 }
