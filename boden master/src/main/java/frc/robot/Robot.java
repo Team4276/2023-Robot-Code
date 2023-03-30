@@ -341,6 +341,8 @@ public class Robot extends TimedRobot {
     
     
     Pathing.SetSimOrinitation();
+    //debug code just prints all the angles and distances of a recived path
+    
     /*List<Double> angles = Pathing.receivePath();
     try{        
     for (int k = 0; k < angles.size()/2; k++) {
@@ -359,8 +361,8 @@ public class Robot extends TimedRobot {
       }}
       catch(Exception e){
         System.out.println(e);
-       } */
-
+       } 
+*/
 
  
 

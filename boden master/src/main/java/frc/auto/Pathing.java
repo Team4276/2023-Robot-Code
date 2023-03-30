@@ -54,7 +54,7 @@ public class Pathing {
 
         // Get the corner list from NetworkTables
         double[] cornerArray = entry.getDoubleArray(new double[]{});
-        //get distance 
+        //System.out.print(cornerArray[0]);
         double distance = table.getEntry("Distance").getDouble(0); // gets the distance of the path (note this is not the direct distance to the target just the length of the path)
         //System.out.print("3");
         //System.out.println(cornerArray);
@@ -63,7 +63,7 @@ public class Pathing {
 
         for (double corner : cornerArray) {
             cornerList.add(corner);
-           // System.out.print("4");
+            //System.out.print("4");
         }
 
         // Convert the corner list to a list of Vector3 objects
@@ -72,6 +72,7 @@ public class Pathing {
             Vector3 corner = new Vector3(cornerList.get(i), cornerList.get(i + 1), cornerList.get(i + 2));
             corners.add(corner);
         }
+        //System.out.print("5");
       
         /*for (int k = 0; k < corners.size(); k++) {
             System.out.println(corners.get(k).x);
@@ -83,6 +84,7 @@ public class Pathing {
         //System.out.print(corners.get(1).x);
         angles = getCornerAngles(corners);
         angles.addAll(getDistance(corners));
+        System.out.println(angles);
         return (angles);
     }
 
@@ -115,6 +117,7 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
 catch(Exception e){
     System.out.print("exception caught at pathing.getCornerAngles");
     List<Double> exception = new ArrayList<>(1);      
+    
     return (exception);
 }
 }
