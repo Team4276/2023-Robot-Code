@@ -24,6 +24,12 @@ public class Vector3 {
         z = other.z;     
         return this;
     }
+    
+    public void set(double new_x, double new_y, double new_z) {
+        x = new_x;
+        y = new_y;
+        z = new_z;
+    }
 
     public Vector3(double val_x, double val_y, double val_z) {
         x = val_x;

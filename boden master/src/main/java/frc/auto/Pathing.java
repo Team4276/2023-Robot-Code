@@ -1,4 +1,4 @@
-package frc.utilities;
+package frc.auto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.Gyroscope;
+import frc.utilities.Vector3;
 
 
 
@@ -84,7 +86,6 @@ public class Pathing {
         //System.out.print(corners.get(1).x);
         angles = getCornerAngles(corners);
         angles.addAll(getDistance(corners));
-        System.out.println(angles);
         return (angles);
     }
 
