@@ -51,7 +51,7 @@ public class LedStripControl {
         }
 
         if (Robot.xboxController.getRawButton(Xbox.X)
-                || Robot.rightJoystick.getRawButton(3)) {
+                || Robot.rightJoystick.getRawButton(LogJoystick.B3)) {
             mode = LedStripControl.LED_MODE.LED_TELEOP_HOLD_POSITION;
 
         } else if (Robot.xboxController.getRawButton(Xbox.B)) {

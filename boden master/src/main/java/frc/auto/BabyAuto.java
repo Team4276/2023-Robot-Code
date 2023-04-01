@@ -5,7 +5,6 @@ import frc.systems.Balance;
 import frc.systems.PIDDrivetrain;
 import frc.systems.TeleopDrivetrain;
 import frc.systems.PIDElbow;
-import frc.systems.PIDShoulder;
 import frc.utilities.Gyroscope;
 import frc.utilities.SoftwareTimer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -70,7 +69,6 @@ public class BabyAuto {
             }
 
             PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-            PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
         }*/
 
         if (timer.isExpired()){
@@ -122,7 +120,6 @@ public class BabyAuto {
 
                 if (middleArmDelayTimer.isExpired()){
                     PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-                    PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
                 }
 
                 if (timer.isExpired()){

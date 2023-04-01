@@ -1,4 +1,4 @@
-package frc.utilities;
+package frc.auto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.Gyroscope;
+import frc.utilities.Vector3;
 
 
 
@@ -54,7 +56,7 @@ public class Pathing {
 
         // Get the corner list from NetworkTables
         double[] cornerArray = entry.getDoubleArray(new double[]{});
-        //get distance 
+        //System.out.print(cornerArray[0]);
         double distance = table.getEntry("Distance").getDouble(0); // gets the distance of the path (note this is not the direct distance to the target just the length of the path)
         //System.out.print("3");
         //System.out.println(cornerArray);
@@ -63,7 +65,7 @@ public class Pathing {
 
         for (double corner : cornerArray) {
             cornerList.add(corner);
-           // System.out.print("4");
+            //System.out.print("4");
         }
 
         // Convert the corner list to a list of Vector3 objects
@@ -72,14 +74,18 @@ public class Pathing {
             Vector3 corner = new Vector3(cornerList.get(i), cornerList.get(i + 1), cornerList.get(i + 2));
             corners.add(corner);
         }
+        //System.out.print("5");
       
-       /* for (int k = 0; k < corners.size(); k++) {
-            //just kept because i dont wanna rewrite this later
+        /*for (int k = 0; k < corners.size(); k++) {
+            System.out.println(corners.get(k).x);
+            System.out.println(corners.get(k).y);
+            System.out.println(corners.get(k).z);
+            System.out.println("");
             
         }*/
         //System.out.print(corners.get(1).x);
         angles = getCornerAngles(corners);
-        angles.addAll(getMagnitude(corners));
+        angles.addAll(getDistance(corners));
         return (angles);
     }
 
@@ -103,22 +109,23 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
     for (int i = 0; i < corners.size() - 1; i++) {
         Vector3 currentCorner = corners.get(i);
         Vector3 nextCorner = corners.get(i + 1);
-        Vector3 direction = nextCorner.subtract(currentCorner).normalize();
-        double angle = Math.toDegrees(Math.atan2(direction.z, direction.x));
-        angles.add(angle);
+        
+        angles.add(nextCorner.angle(currentCorner));
+
     }
     return angles;
 }
 catch(Exception e){
     System.out.print("exception caught at pathing.getCornerAngles");
     List<Double> exception = new ArrayList<>(1);      
+    
     return (exception);
 }
 }
 
 
 
-public static List<Double> getMagnitude(List<Vector3> corners1) {
+public static List<Double> getDistance(List<Vector3> corners1) {
    
    
    
@@ -126,18 +133,17 @@ public static List<Double> getMagnitude(List<Vector3> corners1) {
 
 
 
-    try{List<Double> Magnitudes = new ArrayList<>();
+    try{List<Double> Distance = new ArrayList<>();
     for (int i = 0; i < corners1.size() - 1; i++) {
         Vector3 currentCorner1 = corners1.get(i);
         Vector3 nextCorner1 = corners1.get(i + 1);
-        Vector3 direction1= nextCorner1.subtract(currentCorner1);
-        double distance = direction1.magnitude();
-        Magnitudes.add(distance);
+        double distance = currentCorner1.distance(nextCorner1);
+        Distance.add(distance);
     }
-    return Magnitudes;
+    return Distance;
 }
 catch(Exception e){
-    System.out.print("exception caught at pathing.getMagnitude");
+    System.out.print("exception caught at pathing.getDistance");
     List<Double> exception = new ArrayList<>(1);      
     return (exception);
 }

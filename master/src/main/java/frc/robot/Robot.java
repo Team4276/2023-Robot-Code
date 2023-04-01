@@ -70,7 +70,6 @@ public class Robot extends TimedRobot {
   public static double deadband = 0.05;
 
   private static boolean firstRun = true;
-  private static boolean firstXPress = true;
 
   private static DigitalInput Switch1;
   private static DigitalInput Switch2;
@@ -91,6 +90,11 @@ public class Robot extends TimedRobot {
   public static boolean isTestMode = false;
 
   public static boolean isTeleop = true;
+
+  
+  public static boolean isJoystickInReverse() {
+    return  (Robot.rightJoystick.getY() > deadband);
+  }
 
   public static void timedDrive() {
     boolean goDrive = false;
@@ -115,10 +119,6 @@ public class Robot extends TimedRobot {
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
-      if (firstXPress) {
-        PIDDrivetrain.newPositiontohold = true;
-        firstXPress = false;
-      }
 
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
@@ -141,8 +141,8 @@ public class Robot extends TimedRobot {
     }
 
     if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(LogJoystick.B1)))) {
-      firstXPress = true;
+        || (!Robot.rightJoystick.getRawButton(LogJoystick.B1))))) {
+      PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
     }
 
