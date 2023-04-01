@@ -11,6 +11,7 @@ public class RobotMode {
     HOLD_POSITION,
     IDLING,
     AUTO_DRIVING,
+    AUTO_BALANCING
   };
 
   private static ROBOT_MODE myRobotMode;
@@ -46,6 +47,8 @@ public class RobotMode {
         return "IDLING";
       case 7:
         return "AUTO_DRIVING";
+      case 8:
+        return "AUTO_BALANCING";
 
 
       default:

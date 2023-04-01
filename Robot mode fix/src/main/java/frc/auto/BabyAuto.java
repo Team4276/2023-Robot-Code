@@ -9,8 +9,6 @@ public class BabyAuto {
     private static final double MIDDLEBALANCTIME2 = 2.5; // drive up onto platform
     public static final double MOTORPOWER = 0.20;
 
-    public static boolean balance = false;
-
     private static SoftwareTimer timer;
     private static SoftwareTimer timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS;
 
@@ -91,7 +89,7 @@ public class BabyAuto {
 
             if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
 
-                RobotMode.set(ROBOT_MODE.BALANCING);
+                RobotMode.set(ROBOT_MODE.AUTO_BALANCING);
             } else {
                 set(AUTO_MOBILITY_MODE.NOPOWER);
             }

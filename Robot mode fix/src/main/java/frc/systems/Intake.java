@@ -24,14 +24,13 @@ public class Intake {
     }
 
     public void updatePeriodic() {
-
-        double rightY = Robot.xboxController.getRightTriggerAxis();
-        double leftY = Robot.xboxController.getLeftTriggerAxis();
+        double rightY = Robot.xboxController.getRightY();
 
         if (rightY > deadband) {
             // Intake
             setSpeed(0.9);
-        } else if ((leftY > deadband) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite direction
+        } else if ((rightY < (-1 * deadband)) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite
+                                                                                       // direction
             // Outtake
             setSpeed(-0.9);
         } else {

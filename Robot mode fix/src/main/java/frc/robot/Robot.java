@@ -20,7 +20,6 @@ import frc.auto.MainAutoFunctions;
 import frc.auto.BabyAuto.AUTO_MOBILITY_MODE;
 import frc.auto.MainAutoFunctions.AUTOS;
 import frc.systems.Balance;
-import frc.systems.BaseDrivetrain;
 import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
@@ -80,6 +79,11 @@ public class Robot extends TimedRobot {
   public static int autoselector = 0;
 
   public static void timedDrive() {
+    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) || (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
+      RobotMode.set(ROBOT_MODE.IDLING);
+
+    }
+
     // ************************************************ \\
     // Command Inputs
     boolean goDrive = false;
@@ -102,7 +106,7 @@ public class Robot extends TimedRobot {
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
           RobotMode.set(ROBOT_MODE.HOLD_POSITION);
 
-    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
+    } else if (Robot.xboxController.getRawButton(Xbox.B)
         || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
           RobotMode.set(ROBOT_MODE.BALANCING);
 
@@ -113,6 +117,9 @@ public class Robot extends TimedRobot {
 
     // ************************************************ \\
     // Executing Commands
+
+    
+
     if (RobotMode.get() == ROBOT_MODE.TELEOP_DRIVING){
       mTeleopDrivetrain.operatorDrive();
     }
@@ -129,17 +136,21 @@ public class Robot extends TimedRobot {
       
     }
 
-    if (RobotMode.get() != ROBOT_MODE.HOLD_POSITION){
-      PIDDrivetrain.newPositiontohold = true;
+    if (RobotMode.get() == ROBOT_MODE.IDLING){
+      TeleopDrivetrain.assignMotorPower( 0, 0);
+    }
+
+    if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION){
+      PIDDrivetrain.newPositiontohold = false;
+      PIDDrivetrain.PIDDrivetrainUpdate();
         
     } else {
-      PIDDrivetrain.newPositiontohold = false;
-      PIDDrivetrain.holdPosition = true;
-      PIDDrivetrain.PIDDrivetrainUpdate();
+      PIDDrivetrain.newPositiontohold = true;
+
   
     }
   
-    if (RobotMode.get() != ROBOT_MODE.BALANCING){
+    if ((RobotMode.get() != ROBOT_MODE.BALANCING) || (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
       Balance.pause = false;
     } else {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
@@ -148,12 +159,6 @@ public class Robot extends TimedRobot {
       }
     }
     
-    if ((BaseDrivetrain.blDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.frDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)){
-      RobotMode.set(ROBOT_MODE.IDLING);
-    }
 
   }
 
@@ -175,6 +180,7 @@ public class Robot extends TimedRobot {
     myLogFile = new LogFile();
 
     MainAutoFunctions.MainAutoFunctionsInit();
+    
     RobotMode.RobotModeInit();
     BabyAuto.BabyAutoInit();
 
