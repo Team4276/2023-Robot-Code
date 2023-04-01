@@ -79,6 +79,7 @@ public class PIDDrivetrain extends BaseDrivetrain {
             pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
 
         } else {
+            newPositiontohold = true;
             pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
         }
     }

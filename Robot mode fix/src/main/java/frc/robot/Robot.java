@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
   public static int autoselector = 0;
 
   public static void timedDrive() {
-    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) || (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
+    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
       RobotMode.set(ROBOT_MODE.IDLING);
 
     }
@@ -88,8 +88,8 @@ public class Robot extends TimedRobot {
     // Command Inputs
     boolean goDrive = false;
     if (TeleopDrivetrain.currentMode == TeleopDrivetrain.DriveMode.ARCADE) {
-      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-          || (Math.abs(Robot.rightJoystick.getZ()) > deadband)) {
+      if ((Math.abs(Robot.leftJoystick.getY()) > deadband)
+          || (Math.abs(Robot.leftJoystick.getZ()) > deadband)) {
         goDrive = true;
       }
     } else { // TANK drive
@@ -141,7 +141,6 @@ public class Robot extends TimedRobot {
     }
 
     if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION){
-      PIDDrivetrain.newPositiontohold = false;
       PIDDrivetrain.PIDDrivetrainUpdate();
         
     } else {
@@ -150,7 +149,7 @@ public class Robot extends TimedRobot {
   
     }
   
-    if ((RobotMode.get() != ROBOT_MODE.BALANCING) || (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
+    if ((RobotMode.get() != ROBOT_MODE.BALANCING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
       Balance.pause = false;
     } else {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
@@ -183,7 +182,6 @@ public class Robot extends TimedRobot {
     
     RobotMode.RobotModeInit();
     BabyAuto.BabyAutoInit();
-
 
     Pathing.IntiateServer();
 
@@ -232,7 +230,6 @@ public class Robot extends TimedRobot {
 
     myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
-    SmartDashboard.putString("Set Robot Mode: ", "***");
   }
 
   /**
