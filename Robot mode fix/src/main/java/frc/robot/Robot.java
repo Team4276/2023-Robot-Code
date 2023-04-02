@@ -33,7 +33,6 @@ import frc.utilities.LogJoystick;
 import frc.utilities.Pathing;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
-import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
 import frc.utilities.RobotMode.ROBOT_MODE;
 
@@ -60,11 +59,8 @@ public class Robot extends TimedRobot {
   public static LogFile myLogFile;
 
   public static Timer systemTimer;
-  public static SoftwareTimer testTimer;
 
   public static double initialPitch = 0;
-
-  public static boolean isCAN = true;
 
   public static Location4276 myLocation;
 
@@ -76,7 +72,7 @@ public class Robot extends TimedRobot {
   private static DigitalInput Switch2;
   private static DigitalInput Switch3;
 
-  public static int autoselector = 0;
+  private static int autoselector = 0;
 
   public static void timedDrive() {
     if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
@@ -117,9 +113,6 @@ public class Robot extends TimedRobot {
 
     // ************************************************ \\
     // Executing Commands
-
-    
-
     if (RobotMode.get() == ROBOT_MODE.TELEOP_DRIVING){
       mTeleopDrivetrain.operatorDrive();
     }
@@ -164,7 +157,6 @@ public class Robot extends TimedRobot {
   
 
   public static void timedArm() {
-
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
   }
@@ -186,8 +178,6 @@ public class Robot extends TimedRobot {
     Pathing.IntiateServer();
 
     CameraServer.startAutomaticCapture();
-
-    testTimer = new SoftwareTimer();
 
     Switch1 = new DigitalInput(5);
     Switch2 = new DigitalInput(6);
