@@ -50,19 +50,18 @@ public class MainAutoFunctions{
         } else if (!BabyAuto.taskIsFinished) {
             BabyAuto.ScoreMobility();
         }
+
+        /*if (AutoScoringFunctions.scoreLow()){
+            BabyAuto.ScoreMobility();
+        }*/
     }
 
     public static void auto_shoot(){
-        if (!AutoScoringFunctions.taskIsFinished){
-            AutoScoringFunctions.scoreLow();
-        }
+        AutoScoringFunctions.scoreLow();
     }
 
     public static void auto_balance(){
-        if (!BabyAuto.taskIsFinished) {
-            BabyAuto.middleBalance(true);
-        }
-
+        BabyAuto.middleBalance(true);
     }
 
     public static void auto_shoot_balance(){
@@ -70,6 +69,18 @@ public class MainAutoFunctions{
             AutoScoringFunctions.scoreLow();
         } else if (!BabyAuto.taskIsFinished) {
             BabyAuto.middleBalance(false);
+        }
+
+        /*if (AutoScoringFunctions.scoreLow()){
+            BabyAuto.middleBalance(false)
+        }*/
+    }
+
+    public static void auto_mobility_balance(){
+        if (AutoScoringFunctions.scoreLow()){
+            if (BabyAuto.ScoreMobility()){
+                BabyAuto.middleBalance(true);
+            }
         }
     }
 

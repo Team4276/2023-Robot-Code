@@ -202,9 +202,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-
-    PIDElbow.PIDElbowInit();
-
+    
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
 
