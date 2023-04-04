@@ -208,13 +208,13 @@ public class PIDElbow {
 
         if (position == Pos.CALIBRATING){
             if (Xbox.POVup == Robot.pov) {
-                DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = getCorrectedPos();
+                DPAD_UP_ELBOW_STOW = getCorrectedPos();
 
             } else if (Xbox.POVdown == Robot.pov) {
                 DPAD_DOWN_ELBOW_COLLECT = getCorrectedPos();
 
             } else if (Xbox.POVright == Robot.pov) {
-                DPAD_UP_ELBOW_STOW = getCorrectedPos();
+                DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = getCorrectedPos();
 
             } else if (Xbox.POVleft == Robot.pov) {
                 DPAD_LEFT_ELBOW_EJECT_CUBE = getCorrectedPos();
