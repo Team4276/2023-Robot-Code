@@ -9,7 +9,7 @@ public class BabyAuto {
     private static final double MIDDLEBALANCTIME2 = 2.5; // drive up onto platform
     public static final double MOTORPOWER = 0.20;
 
-    public static boolean balance = false;
+    private static final double DEADZONE = 2;
 
     private static SoftwareTimer timer;
     private static SoftwareTimer timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS;
@@ -25,6 +25,7 @@ public class BabyAuto {
         FORWARD,
         BACKWARD,
         NOPOWER,
+        TURNING
     }
 
     public static AUTO_MOBILITY_MODE get() {
@@ -44,6 +45,8 @@ public class BabyAuto {
             return "BACKWARD";
           case 2:
             return "NOPOWER";
+          case 3:
+            return "TURNING";
     
           default:
             break;
@@ -58,7 +61,7 @@ public class BabyAuto {
         myAutoMobilityMode = AUTO_MOBILITY_MODE.NOPOWER;
     }
 
-    public static void ScoreMobility(){
+    public static boolean ScoreMobility(){
         RobotMode.set(ROBOT_MODE.AUTO_DRIVING);
 
         if (firstRun){
@@ -69,14 +72,18 @@ public class BabyAuto {
         if (timer.isExpired()){
             set(AUTO_MOBILITY_MODE.NOPOWER);
             taskIsFinished = true;
+
+            return true;
         } else {
             set(AUTO_MOBILITY_MODE.BACKWARD);
+
+            return false;
         }
     }
 
     public static void middleBalance(boolean forward){
         RobotMode.set(ROBOT_MODE.AUTO_DRIVING);
-        
+
         if (firstRun){
             timer.setTimer(MIDDLEBALANCTIME2);
             firstRun = false;
@@ -90,8 +97,9 @@ public class BabyAuto {
             }
 
             if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
+                RobotMode.set(ROBOT_MODE.AUTO_BALANCING);
 
-                RobotMode.set(ROBOT_MODE.BALANCING);
+
             } else {
                 set(AUTO_MOBILITY_MODE.NOPOWER);
             }
@@ -103,6 +111,19 @@ public class BabyAuto {
                 set(AUTO_MOBILITY_MODE.BACKWARD);
             }
 
+        }
+        
+    }
+
+    public static void doabarrelroll(double current_angle, double desired_angle){
+        RobotMode.set(ROBOT_MODE.AUTO_DRIVING);
+
+        if (current_angle < desired_angle - DEADZONE){
+            //turn
+        } else if(current_angle > desired_angle + DEADZONE){
+            //turn
+        } else {
+            //dont turn
         }
     }
 

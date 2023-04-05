@@ -20,7 +20,6 @@ import frc.auto.MainAutoFunctions;
 import frc.auto.BabyAuto.AUTO_MOBILITY_MODE;
 import frc.auto.MainAutoFunctions.AUTOS;
 import frc.systems.Balance;
-import frc.systems.BaseDrivetrain;
 import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
@@ -34,7 +33,6 @@ import frc.utilities.LogJoystick;
 import frc.utilities.Pathing;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
-import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
 import frc.utilities.RobotMode.ROBOT_MODE;
 
@@ -61,11 +59,8 @@ public class Robot extends TimedRobot {
   public static LogFile myLogFile;
 
   public static Timer systemTimer;
-  public static SoftwareTimer testTimer;
 
   public static double initialPitch = 0;
-
-  public static boolean isCAN = true;
 
   public static Location4276 myLocation;
 
@@ -77,15 +72,20 @@ public class Robot extends TimedRobot {
   private static DigitalInput Switch2;
   private static DigitalInput Switch3;
 
-  public static int autoselector = 0;
+  private static int autoselector = 0;
 
   public static void timedDrive() {
+    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
+      RobotMode.set(ROBOT_MODE.IDLING);
+
+    }
+
     // ************************************************ \\
     // Command Inputs
     boolean goDrive = false;
     if (TeleopDrivetrain.currentMode == TeleopDrivetrain.DriveMode.ARCADE) {
-      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-          || (Math.abs(Robot.rightJoystick.getZ()) > deadband)) {
+      if ((Math.abs(Robot.leftJoystick.getY()) > deadband)
+          || (Math.abs(Robot.leftJoystick.getZ()) > deadband)) {
         goDrive = true;
       }
     } else { // TANK drive
@@ -102,7 +102,7 @@ public class Robot extends TimedRobot {
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
           RobotMode.set(ROBOT_MODE.HOLD_POSITION);
 
-    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
+    } else if (Robot.xboxController.getRawButton(Xbox.B)
         || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
           RobotMode.set(ROBOT_MODE.BALANCING);
 
@@ -129,17 +129,20 @@ public class Robot extends TimedRobot {
       
     }
 
-    if (RobotMode.get() != ROBOT_MODE.HOLD_POSITION){
-      PIDDrivetrain.newPositiontohold = true;
+    if (RobotMode.get() == ROBOT_MODE.IDLING){
+      TeleopDrivetrain.assignMotorPower( 0, 0);
+    }
+
+    if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION){
+      PIDDrivetrain.PIDDrivetrainUpdate();
         
     } else {
-      PIDDrivetrain.newPositiontohold = false;
-      PIDDrivetrain.holdPosition = true;
-      PIDDrivetrain.PIDDrivetrainUpdate();
+      PIDDrivetrain.newPositiontohold = true;
+
   
     }
   
-    if (RobotMode.get() != ROBOT_MODE.BALANCING){
+    if ((RobotMode.get() != ROBOT_MODE.BALANCING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
       Balance.pause = false;
     } else {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
@@ -148,19 +151,12 @@ public class Robot extends TimedRobot {
       }
     }
     
-    if ((BaseDrivetrain.blDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.frDriveX.getAppliedOutput() == 0)
-     && (BaseDrivetrain.brDriveX.getAppliedOutput() == 0)){
-      RobotMode.set(ROBOT_MODE.IDLING);
-    }
 
   }
 
   
 
   public static void timedArm() {
-
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
   }
@@ -175,15 +171,13 @@ public class Robot extends TimedRobot {
     myLogFile = new LogFile();
 
     MainAutoFunctions.MainAutoFunctionsInit();
+    
     RobotMode.RobotModeInit();
     BabyAuto.BabyAutoInit();
-
 
     Pathing.IntiateServer();
 
     CameraServer.startAutomaticCapture();
-
-    testTimer = new SoftwareTimer();
 
     Switch1 = new DigitalInput(5);
     Switch2 = new DigitalInput(6);
@@ -208,9 +202,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-
-    PIDElbow.PIDElbowInit();
-
+    
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
 
@@ -226,7 +218,6 @@ public class Robot extends TimedRobot {
 
     myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
-    SmartDashboard.putString("Set Robot Mode: ", "***");
   }
 
   /**
