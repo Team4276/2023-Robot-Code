@@ -4,6 +4,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.utilities.LogJoystick;
 import frc.utilities.Vector3;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 
 public class FeederFinder {
 
@@ -17,17 +21,19 @@ public class FeederFinder {
     private static boolean isValidApriltagPosition = false;
     private static Vector3 v3ApriltagPositionInRobotRelativeCoordinates;
 
+
     public FeederFinder() {
         v3ApriltagPositionInRobotRelativeCoordinates = new Vector3(0.0, 0.0, 0.0);
     }
 
     public static void updatePeriodic() {
 
-        if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
+        if (Robot.rightJoystick.getRawButton(LogJoystick.B9)) {
 
             isValidApriltagPosition = checkLimelightForHumanPLayerBoard();
             double power_R = 0.0;
             double power_L = 0.0;
+            double default1 = 0;
             if (isValidApriltagPosition) {
 
                 // Units are feet
@@ -68,29 +74,22 @@ public class FeederFinder {
 
         final double feet_per_meter = 3.28084;
 
-        double[] defaultValue = new double[6];
-        double[] positionLimelight = new double[6];
-        double x = 0.0;
-        double y = 0.0;
-        double z = 0.0;
+        Vector3 _2dapriltaglocation = new Vector3 (0.0, 0.0, 0.0);
+
 
         long idPrimaryApriltagInView = Robot.ntLimelight.getEntry("tid").getInteger(0);
         if (idPrimaryApriltagInView == idApriltagOnHumanPlayerBoard) {
-            positionLimelight = Robot.ntLimelight.getEntry("targetpose_cameraspace")
-                    .getDoubleArray(defaultValue); // "targetpose_cameraspace")
-            x = positionLimelight[0];
-            y = positionLimelight[1];
-            z = positionLimelight[2];
+            // "targetpose_cameraspace")
+            double default1 = 0;
+            _2dapriltaglocation.x = Robot.ntLimelight.getEntry("tx").getDouble(_2dapriltaglocation.x);
+            _2dapriltaglocation.y = Robot.ntLimelight.getEntry("ty").getDouble(_2dapriltaglocation.y);
+
 
             // position units are meters at this point - convert to feet
-            x *= feet_per_meter;
-            y *= feet_per_meter;
-            z *= feet_per_meter;
+            _2dapriltaglocation.x *= feet_per_meter;
+            _2dapriltaglocation.y *= feet_per_meter;
 
-            // Limelight is offset to the right of the robot centerline
-            x += 0.2; // TODO measure on the robot Units are feet
-
-            v3ApriltagPositionInRobotRelativeCoordinates.set(x, y, z);
+            v3ApriltagPositionInRobotRelativeCoordinates.set(_2dapriltaglocation.x, _2dapriltaglocation.y, _2dapriltaglocation.z);
             return true;
         }
         return false;

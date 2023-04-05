@@ -33,7 +33,7 @@ import frc.systems.LogPos;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
 import frc.systems.TeleopDrivetrain;
-
+import frc.utilities.DistanceLog;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
@@ -52,7 +52,7 @@ import frc.auto.FollowPath;
 
 
 
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot  {
 
   public static Joystick leftJoystick;
   public static Joystick rightJoystick;
@@ -295,10 +295,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try{
+      if (Robot.rightJoystick.getRawButton(LogJoystick.B7)){
       FollowPath.Follow();
+    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B8)){
+      FollowPath.stop();
+    }
     } 
     catch(Exception e){
-      
+      DriverStation.reportWarning("unknown error on attempting to follow path", false);
     }
 
     pov = xboxController.getPOV();
@@ -309,7 +313,9 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putString("Robot Mode: ", RobotMode.getString(mRobotMode));
 
-    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+    SmartDashboard.putNumber("Distance travled", DistanceLog.DistanceTracker());
+
+    SmartDashboard.putNumber("Yaw", Gyroscope.GetYaw());
     LogPos.log();
 
     autoselector = 0;

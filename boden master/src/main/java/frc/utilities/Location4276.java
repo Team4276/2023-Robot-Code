@@ -165,7 +165,8 @@ public class Location4276 {
         }
 
         if (getEncoderSpeed() != 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
-                                        // of stillness
+            
+            try{// of stillnes
             Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
             Robot.myLogFile.write(String.valueOf(","));
             Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
@@ -182,6 +183,10 @@ public class Location4276 {
             Robot.myLogFile.write(String.valueOf(","));
             Robot.myLogFile.write(String.valueOf(v3Position.z));
             Robot.myLogFile.write(String.valueOf("\r\n"));
+            }
+            catch (Exception e){
+                
+            }
         }
     }
 

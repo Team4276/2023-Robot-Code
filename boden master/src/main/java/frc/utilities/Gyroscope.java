@@ -8,8 +8,11 @@ public class Gyroscope {
     public static final ADIS16470_IMU imu = new ADIS16470_IMU();
 
     static public double GetYaw() {
-
-        return imu.getAngle();
+        double yaw = imu.getAngle() % 360;
+        if (yaw < 0){
+        yaw = imu.getAngle() % 360 * -1;
+        }
+        return yaw;
     }
 
     static public double GetRoll() {
