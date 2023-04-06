@@ -110,7 +110,7 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
         Vector3 currentCorner = corners.get(i);
         Vector3 nextCorner = corners.get(i + 1);
         
-        angles.add(nextCorner.angle(currentCorner));
+        angles.add(-nextCorner.angle(currentCorner));
 
     }
     return angles;
