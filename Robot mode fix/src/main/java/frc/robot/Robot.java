@@ -273,6 +273,8 @@ public class Robot extends TimedRobot {
       MainAutoFunctions.set(AUTOS.SHOOT_BACKUP);
     if (autoselector == 2)
       MainAutoFunctions.set(AUTOS.SHOOT);
+    if (autoselector == 3)
+      MainAutoFunctions.set(AUTOS.MOBILITY_BALANCE);
     if (autoselector == 4)
       MainAutoFunctions.set(AUTOS.BALANCE);
     if (autoselector == 7)
@@ -296,6 +298,8 @@ public class Robot extends TimedRobot {
       MainAutoFunctions.auto_balance();
     } else if (MainAutoFunctions.get() == AUTOS.SHOOT_BALANCE) {
       MainAutoFunctions.auto_shoot_balance();
+    } else if (MainAutoFunctions.get() == AUTOS.MOBILITY_BALANCE) {
+      MainAutoFunctions.auto_mobility_balance();
     }
 
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);

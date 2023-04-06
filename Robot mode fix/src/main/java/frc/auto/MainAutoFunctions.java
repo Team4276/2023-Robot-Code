@@ -7,7 +7,7 @@ public class MainAutoFunctions{
         SHOOT_BALANCE,
         SHOOT,
         BALANCE,
-        NINJAGO // Coming soon to theaters near you
+        MOBILITY_BALANCE
     }
 
     private static AUTOS Auto;

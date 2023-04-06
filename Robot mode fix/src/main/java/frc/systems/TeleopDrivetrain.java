@@ -82,9 +82,13 @@ public class TeleopDrivetrain extends BaseDrivetrain {
             case TANK:
                 if (Math.abs(Robot.rightJoystick.getY()) > deadband) {
                     rightY = Math.pow(Robot.rightJoystick.getY(), 3 / 2);
+                } else {
+                    rightY = 0;
                 }
                 if (Math.abs(Robot.leftJoystick.getY()) > deadband) {
                     leftY = -Math.pow(Robot.leftJoystick.getY(), 3 / 2);
+                } else {
+                    leftY = 0;
                 }
                 assignMotorPower(rightY, leftY);
                 break;
