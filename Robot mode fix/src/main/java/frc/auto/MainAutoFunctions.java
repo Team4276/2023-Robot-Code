@@ -84,5 +84,9 @@ public class MainAutoFunctions{
         }
     }
 
+    public static void ninjago(){
+
+    }
+
 
 }
