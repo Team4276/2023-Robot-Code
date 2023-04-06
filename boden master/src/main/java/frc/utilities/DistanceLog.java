@@ -14,7 +14,7 @@ public class DistanceLog extends BaseDrivetrain {
     double BrDistanceTravled = (brDriveX.getEncoder().getPosition() * WheelCircumfrence)/42;
     double BlDistanceTravled = (blDriveX.getEncoder().getPosition() * WheelCircumfrence)/42;
     double FlDistanceTravled = (flDriveX.getEncoder().getPosition() * WheelCircumfrence)/42;        
-    double distanceTravledstart = (FrDistanceTravled + BrDistanceTravled + FlDistanceTravled + BlDistanceTravled)/4;
+    double distanceTravledstart = (FlDistanceTravled)/1;
         
         return distanceTravledstart;
     }

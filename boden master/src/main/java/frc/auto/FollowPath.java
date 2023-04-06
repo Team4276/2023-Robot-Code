@@ -32,7 +32,8 @@ public class FollowPath extends BaseDrivetrain{
      {
 
         int i = 0;
-    
+    Angles.clear();
+    Distances.clear();
     
     double FrDistanceTravled = (frDriveX.getEncoder().getPosition() * WheelCircumfrence)/42;
     double BrDistanceTravled = (brDriveX.getEncoder().getPosition() * WheelCircumfrence)/42;
@@ -51,7 +52,7 @@ public class FollowPath extends BaseDrivetrain{
             }
     
     
-    double distanceTravled = (FrDistanceTravled + BrDistanceTravled + FlDistanceTravled + BlDistanceTravled)/4 - currentdistance;
+    double distanceTravled = (FlDistanceTravled)/1 - currentdistance;
     
 
     double correctedYaw = Gyroscope.GetYaw();
@@ -68,22 +69,25 @@ public class FollowPath extends BaseDrivetrain{
 
         Distances.add(FullPath.get(k));
     }
-    double dead_zone_range_upper = Angles.get(i) + 2;//in degrees 
-    double dead_zone_range_lower = Angles.get(i) - 2;//in degrees 
+    if (Angles.get(i) < 0){
+        Angles.set(i, Angles.get(i) + 360);
+    }
+    double dead_zone_range_upper = Angles.get(i) + 0.2;//in degrees 
+    double dead_zone_range_lower = Angles.get(i) - 0.2;//in degrees 
 
     //turn towards point
     if (angleReached != true){
         
-        if ( 360 - correctedYaw < dead_zone_range_upper && 360 - correctedYaw > dead_zone_range_lower){
+        if (correctedYaw < dead_zone_range_upper && correctedYaw > dead_zone_range_lower){
 
             FollowPath.stop();
             
             angleReached = true;
-            System.out.println("done");
+            System.out.println("done2");
     
         }
     
-        if (  360 - correctedYaw > Angles.get(i)){
+        if (correctedYaw > Angles.get(i) && angleReached == false){
             frDriveX.set(0.05);
             brDriveX.set(0.05);
             flDriveX.set(0.05);
@@ -92,7 +96,7 @@ public class FollowPath extends BaseDrivetrain{
             angleReached = false;
         }
         
-        if ( 360 - correctedYaw < Angles.get(i)){
+        if (correctedYaw < Angles.get(i) && angleReached == false){
             frDriveX.set(-0.05);
             brDriveX.set(-0.05);
             flDriveX.set(-0.05);
@@ -102,9 +106,9 @@ public class FollowPath extends BaseDrivetrain{
 
         }
 
-} else if (angleReached == true && pointReached != true){//drive towards point
+} else if (angleReached && pointReached != true){//drive towards point
      
-   if (distanceTravled < Distances.get(i)){
+   if (distanceTravled < Distances.get(i) && pointReached == false){
         frDriveX.set(-0.05); 
         brDriveX.set(-0.05);
         flDriveX.set(0.05);
@@ -114,7 +118,7 @@ public class FollowPath extends BaseDrivetrain{
     }
 
 
-    if (distanceTravled > Distances.get(i)){
+    if (distanceTravled > Distances.get(i) && pointReached == false){
         frDriveX.set(0.05);
         brDriveX.set(0.05);
         flDriveX.set(-0.05);
@@ -124,7 +128,7 @@ public class FollowPath extends BaseDrivetrain{
 
     }
 
-    if ((distanceTravled - Distances.get(i)) > 0.5 && (distanceTravled - Distances.get(i)) < 1 || distanceTravled - Distances.get(i) < 0.5 && distanceTravled - Distances.get(i) > 1){
+    if ((distanceTravled - Distances.get(i)) >  -0.07 && (distanceTravled - Distances.get(i)) < 0.5){
 
         FollowPath.stop();
 
@@ -132,12 +136,11 @@ public class FollowPath extends BaseDrivetrain{
         System.out.println("done");
 
     }
-}
-    if (pointReached && angleReached){
+}   else if (pointReached && angleReached){
         i++;//increments to next point
         
         angleReached = false;//resets angle
-        pointReached = false;//resets distance 
+        pointReached = false;//resets distance 0
         xyz = true;//updates pos 
 
     }
