@@ -11,20 +11,20 @@ public class Balance {
 
     private static boolean firstRun = true;
 
-    public static void balanceinit(){
+    public static void balanceinit() {
         checkTimer = new SoftwareTimer();
     }
 
     public static void balance(double pitch) {
         if (pause) {
-            if (firstRun){
+            if (firstRun) {
                 checkTimer.setTimer(CHECKTIME);
                 firstRun = false;
             }
 
-            if (checkTimer.isExpired()){
+            if (checkTimer.isExpired()) {
                 pause = false;
-            } else { 
+            } else {
                 TeleopDrivetrain.assignMotorPower(0, 0);
 
             }
@@ -33,7 +33,7 @@ public class Balance {
             if (Math.abs(pitch) > DEAD_ZONE) {
 
                 PIDDrivetrain.holdPosition = false;
-                PIDDrivetrain.setPoint = (PID.getOutput(pitch, 0))/4;
+                PIDDrivetrain.setPoint = (PID.getOutput(pitch, 0)) / 4;
             } else {
                 pause = true;
             }

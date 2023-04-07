@@ -23,7 +23,7 @@ public class TeleopDrivetrain extends BaseDrivetrain {
 
     private Toggler brakeModeToggler;
 
-    private double deadband = 0.0;  // 0.05;
+    private double deadband = 0.0; // 0.05;
 
     public TeleopDrivetrain(int FLport, int BLport, int FRport, int BRport) {
 
@@ -69,7 +69,7 @@ public class TeleopDrivetrain extends BaseDrivetrain {
                     linear = -Robot.rightJoystick.getY();
                 }
                 if (Math.abs(Robot.rightJoystick.getZ()) > deadband) {
-                    turn = Math.pow(Robot.rightJoystick.getZ(), 3/2);
+                    turn = 0.29 * Math.pow(Robot.rightJoystick.getZ(), 3 / 2);
                 }
                 leftY = linear + turn;
                 rightY = -linear + turn;
@@ -96,6 +96,8 @@ public class TeleopDrivetrain extends BaseDrivetrain {
             default:
                 break;
         }
+
+        SmartDashboard.putString("Current Drive Mode", currentMode_s);
     }
 
     public enum DriveMode {

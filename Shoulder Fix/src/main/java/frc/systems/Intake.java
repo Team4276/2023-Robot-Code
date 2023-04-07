@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.robot.Robot;
 
 import frc.auto.AutoScoringFunctions;
-//import frc.utilities.Xbox;
 
 public class Intake {
 
@@ -24,15 +23,14 @@ public class Intake {
     }
 
     public void updatePeriodic() {
- 
-        double rightY = Robot.xboxController.getRightTriggerAxis();
-        double leftY = Robot.xboxController.getLeftTriggerAxis();
-        if (rightY > deadband) {
+
+        if (Robot.xboxController.getRightTriggerAxis() > deadband) {
             // Intake
-            setSpeed(0.9);
-        } else if ((leftY > deadband) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite direction
+            setSpeed(0.65);
+        } else if ((Robot.xboxController.getLeftTriggerAxis() > deadband) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite
+                                                                                       // direction
             // Outtake
-            setSpeed(-0.9);
+            setSpeed(-0.65);
         } else {
             setSpeed(0.0);
         }

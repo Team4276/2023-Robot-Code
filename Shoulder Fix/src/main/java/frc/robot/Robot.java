@@ -5,29 +5,35 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.auto.AutoScoringFunctions;
+import frc.auto.BabyAuto;
+import frc.auto.MainAutoFunctions;
 import frc.systems.Balance;
+import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
-import frc.systems.Shoulder;
+import frc.systems.PIDShoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
+import frc.utilities.LogFile;
+import frc.utilities.LogJoystick;
+import frc.utilities.Pathing;
 import frc.utilities.RoboRioPorts;
+import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
-import frc.auto.AutoScoringFunctions;
-import frc.auto.BabyAuto;
-import frc.auto.MainAutoFunctions;
-import frc.utilities.poslog;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
 
@@ -40,11 +46,18 @@ public class Robot extends TimedRobot {
   public static PIDDrivetrain mPIDDrivetrain;
 
   Notifier armRateGroup;
-  public static Shoulder mShoulder;
   public static PIDElbow mElbow;
+  public static PIDShoulder mShoulder;
+
   public static Intake mIntake;
 
+  public static FeederFinder mFeederFinder;
+
+  public static NetworkTable ntLimelight;
+
   public static LedStripControl myLedStrip;
+
+  public static LogFile myLogFile;
 
   public static Timer systemTimer;
   public static SoftwareTimer testTimer;
@@ -55,12 +68,11 @@ public class Robot extends TimedRobot {
 
   public static Location4276 myLocation;
 
-  public static double pov;
+  public static double pov = -1;
 
   public static double deadband = 0.05;
 
   private static boolean firstRun = true;
-  private static boolean firstXPress = true;
 
   private static DigitalInput Switch1;
   private static DigitalInput Switch2;
@@ -76,58 +88,16 @@ public class Robot extends TimedRobot {
 
   private static boolean firstRunTimer4 = true;
 
-  public enum ROBOT_MODE {
-    NOT_INITIALIZED,
-    AUTO_1_MOBILITY,
-    AUTO_2_BALANCE,
-    TELEOP_NORMAL,
-    TELEOP_BALANCE,
-    TELEOP_HOLD_POSITION;
-
-    private int numMode = 0;
-
-    ROBOT_MODE() {
-    }
-
-    ROBOT_MODE(int val) {
-      numMode = val;
-    }
-
-    public int getInt() {
-      return numMode;
-    }
-
-    public void setInt(int val) {
-      numMode = val;
-    }
-
-    public String getString() {
-      switch (numMode) {
-        case 0:
-          return "NOT_INITIALIZED";
-        case 1:
-          return "AUTO_1_MOBILITY";
-        case 2:
-          return "AUTO_2_BALANCE";
-        case 3:
-          return "TELEOP_NORMAL";
-        case 4:
-          return "TELEOP_BALANCE";
-        case 5:
-          return "TELEOP_HOLD_POSITION";
-
-        default:
-          break;
-      }
-      return "*****";
-    }
-  };
-
-  public static final ROBOT_MODE mRobotMode = ROBOT_MODE.NOT_INITIALIZED;
+  public static RobotMode mRobotMode;
 
   public static boolean isTestMode = false;
 
   public static boolean isTeleop = true;
+
+  
+  public static boolean isJoystickInReverse() {
+    return  (Robot.rightJoystick.getY() > deadband);
+  }
 
   public static void timedDrive() {
     boolean goDrive = false;
@@ -137,12 +107,12 @@ public class Robot extends TimedRobot {
         goDrive = true;
       }
     } else { // TANK drive}
-    if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-        || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
+      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
+          || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
         goDrive = true;
       }
     }
-    
+
     SmartDashboard.putNumber("R joystick Z: ", Math.abs(Robot.rightJoystick.getZ()));
 
     if (goDrive) {
@@ -151,22 +121,20 @@ public class Robot extends TimedRobot {
       mTeleopDrivetrain.operatorDrive();
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(1)) {
-      if (firstXPress) {
-        PIDDrivetrain.newPositiontohold = true;
-        firstXPress = false;
-      }
+        || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
 
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
 
     } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
-        || (Robot.leftJoystick.getRawButton(1))) {
+        || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       if (!Balance.pause) {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
 
+    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
+      FeederFinder.updatePeriodic();
     } else {
       if (isTeleop) {
         TeleopDrivetrain.assignMotorPower(0, 0);
@@ -176,22 +144,22 @@ public class Robot extends TimedRobot {
     }
 
     if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(1)))) {
-      firstXPress = true;
+        || (!Robot.rightJoystick.getRawButton(LogJoystick.B1))))) {
+      PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
     }
 
     if (!isTeleop) {
       if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
-      TeleopDrivetrain.assignMotorPower(0, 0);
+        TeleopDrivetrain.assignMotorPower(0, 0);
       } else if (BabyAuto.usingDrivetrainMotorsForward) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
+      } else if (BabyAuto.usingDrivetrainMotorsBackward) {
+      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+      } else if (firstRun) {
+        TeleopDrivetrain.assignMotorPower(0, 0);
+        firstRun = false;
       }
-    } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-        TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
-    } else if (firstRun) {
-      TeleopDrivetrain.assignMotorPower(0, 0);
-      firstRun = false;
     }
   }
 
@@ -199,7 +167,7 @@ public class Robot extends TimedRobot {
 
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
-    Shoulder.ShoulderUpdate();
+    PIDShoulder.PIDShoulderUpdate();
   }
 
   /**
@@ -209,6 +177,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    mRobotMode = new RobotMode();
+    myLogFile = new LogFile();
+
+    Pathing.IntiateServer();
 
     isTestMode = false;
 
@@ -237,21 +210,24 @@ public class Robot extends TimedRobot {
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-    mShoulder = new Shoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
+    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-
-    PIDElbow.PIDElbowInit();
 
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
+
+    mFeederFinder = new FeederFinder();
+
+    ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
 
     myLocation = new Location4276();
 
     myLedStrip = new LedStripControl();
 
     Balance.balanceinit();
-    // TMP TMP TMP myLedStrip.setMode(frc.utilities.LED_MODE.LED_OFF);
+
+    myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
     SmartDashboard.putString("Set Robot Mode: ", "***");
   }
@@ -269,12 +245,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    pov = xboxController.getPOV();
+
     myLocation.updatePosition();
-    String myMode = "***";
-    SmartDashboard.getString("Set Robot Mode: ", myMode);
-    // mRobotMode.setInt((int) myMode);
-    SmartDashboard.putString("Robot Mode: ", myMode);
+    myLocation.updateTelemetry();
+
+    pov = xboxController.getPOV();
+
+    SmartDashboard.putString("Robot Mode: ", RobotMode.getString(mRobotMode));
 
     SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
 
@@ -287,7 +264,8 @@ public class Robot extends TimedRobot {
     if (!Switch3.get())
       autoselector += 4;
     SmartDashboard.putNumber("Auto Mode", autoselector);
-    poslog.logpos();
+
+    Pathing.SetSimOrinitation();
 
     if (firstRunTimer4) {
       testTimer.setTimer(1);
@@ -295,10 +273,10 @@ public class Robot extends TimedRobot {
     }
 
     if (testTimer.isExpired()) {
-      System.out.println(PIDElbow.driveElbow.getAppliedOutput());
+      // System.out.println(PIDElbow.driveElbow.getAppliedOutput());
       firstRunTimer4 = true;
     }
-    
+
   }
 
   @Override

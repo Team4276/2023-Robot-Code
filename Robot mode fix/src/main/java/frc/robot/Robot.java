@@ -24,6 +24,7 @@ import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
+import frc.systems.PIDShoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
@@ -49,6 +50,7 @@ public class Robot extends TimedRobot {
   Notifier armRateGroup;
   public static PIDElbow mElbow;
   public static Intake mIntake;
+  public static PIDShoulder mShoulder;
 
   public static FeederFinder mFeederFinder;
 
@@ -59,8 +61,6 @@ public class Robot extends TimedRobot {
   public static LogFile myLogFile;
 
   public static Timer systemTimer;
-
-  public static double initialPitch = 0;
 
   public static Location4276 myLocation;
 
@@ -73,6 +73,8 @@ public class Robot extends TimedRobot {
   private static DigitalInput Switch3;
 
   private static int autoselector = 0;
+
+  private static boolean firstRun;
 
   public static void timedDrive() {
     if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
@@ -124,7 +126,9 @@ public class Robot extends TimedRobot {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
       } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.BACKWARD) {
         TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
-
+      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.TURNING){
+        double power = BabyAuto.doabarrelroll(Gyroscope.GetCorrectedYaw());
+        TeleopDrivetrain.assignMotorPower(power, power);
       }
       
     }
@@ -145,7 +149,7 @@ public class Robot extends TimedRobot {
     if ((RobotMode.get() != ROBOT_MODE.BALANCING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
       Balance.pause = false;
     } else {
-      Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+      Balance.balance(Gyroscope.GetCorrectPitch());
       if (!Balance.pause) {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
@@ -158,6 +162,7 @@ public class Robot extends TimedRobot {
 
   public static void timedArm() {
     mIntake.updatePeriodic();
+    PIDShoulder.PIDShoulderUpdate();
     PIDElbow.PIDElbowUpdate();
   }
 
@@ -202,6 +207,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
+    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
@@ -218,6 +224,11 @@ public class Robot extends TimedRobot {
 
     myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
   }
 
   /**
@@ -233,13 +244,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
     myLocation.updatePosition();
     myLocation.updateTelemetry();
 
     pov = xboxController.getPOV();
 
-    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch());
 
     autoselector = 0;
 
@@ -258,6 +268,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
+
     autoselector = 0;
 
     if (!Switch1.get())
@@ -308,7 +324,11 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    initialPitch = Gyroscope.GetPitch();
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
   }
 
   /** This function is called periodically during operator control. */
@@ -320,12 +340,15 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    firstRun = true;
 
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+    firstRun = true;
+
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_OFF);
   }
 

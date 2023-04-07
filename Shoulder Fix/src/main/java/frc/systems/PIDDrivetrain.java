@@ -57,23 +57,25 @@ public class PIDDrivetrain extends BaseDrivetrain {
     }
 
     public static void PIDDrivetrainUpdate() {
-        Update(1, frDriveX);
-        Update(-1, flDriveX);
-        Update(1, brDriveX);
-        Update(-1, blDriveX);
+        Update(1, frDriveX, false);
+        Update(-1, flDriveX, false);
+        Update(1, brDriveX,false);
+        Update(-1, blDriveX,true);
     }
 
-    public static void Update(double sign, CANSparkMax motor) {
+    public static void Update(double sign, CANSparkMax motor, Boolean lastMotor) {
         SparkMaxPIDController pidController = motor.getPIDController();
         RelativeEncoder encoder = motor.getEncoder();
 
         if (holdPosition) {
             if (newPositiontohold) {
                 holdThisPosition = encoder.getPosition();
-                newPositiontohold = false;
+                if (lastMotor){
+                    newPositiontohold = false;
+                }
             }
 
-            pidController.setReference(sign*holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
+            pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
 
         } else {
             newPositiontohold = true;

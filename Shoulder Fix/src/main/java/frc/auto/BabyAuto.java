@@ -65,7 +65,6 @@ public class BabyAuto {
             }
 
             PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-            PIDShoulder.setPoint_Shoulder = PIDShoulder.DPAD_DOWN_ULDER_COLLECT;
         }*/
 
         if (timer.isExpired()){
@@ -95,6 +94,7 @@ public class BabyAuto {
 
         }
     }
+
 
     public static void rightScoreMobility(){
         if (firstRun){
