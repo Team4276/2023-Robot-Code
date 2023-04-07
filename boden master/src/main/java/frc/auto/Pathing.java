@@ -109,8 +109,16 @@ public static List<Double> getCornerAngles(List<Vector3> corners) {
     for (int i = 0; i < corners.size() - 1; i++) {
         Vector3 currentCorner = corners.get(i);
         Vector3 nextCorner = corners.get(i + 1);
+        nextCorner.y = nextCorner.z;
+        currentCorner.y = currentCorner.z;
+        if (nextCorner.y == 0){
+            nextCorner.y += 0.0001;
+        }
+        if (currentCorner.y == 0){
+            currentCorner.y += 0.0001;
+        }
         
-        angles.add(-nextCorner.angle(currentCorner));
+        angles.add(nextCorner.angle(currentCorner));
 
     }
     return angles;

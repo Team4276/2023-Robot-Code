@@ -22,6 +22,7 @@ public class LogPos {
         Robot.wr.write(String.valueOf(vectorpos.x));
         Robot.wr.write(String.valueOf(vectorpos.y));
         Robot.wr.write(String.valueOf(vectorpos.z));
+    
         return vectorpos;
         }
         

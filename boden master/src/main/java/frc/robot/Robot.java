@@ -296,11 +296,12 @@ public class Robot extends TimedRobot  {
   public void robotPeriodic() {
     try{
       if (Robot.rightJoystick.getRawButton(LogJoystick.B7)){
-      FollowPath.Follow();
-    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B8)){
+    FollowPath.Follow();
+      } else if (Robot.rightJoystick.getRawButton(LogJoystick.B8)){
       FollowPath.stop();
     }
-    } 
+
+  } 
     catch(Exception e){
       DriverStation.reportWarning("unknown error on attempting to follow path", false);
     }
@@ -333,7 +334,7 @@ public class Robot extends TimedRobot  {
     //debug code just prints all the angles and distances of a recived path
     
     List<Double> angles = Pathing.receivePath();
-    /*try{        
+    try{        
     for (int k = 0; k < angles.size()/2; k++) {
             System.out.println("angle: "+ angles.get(k));
             
@@ -350,7 +351,7 @@ public class Robot extends TimedRobot  {
       }}
       catch(Exception e){
         System.out.println(e);
-      }*/  
+      }
 
 
  

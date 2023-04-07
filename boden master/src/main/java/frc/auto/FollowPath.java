@@ -60,7 +60,7 @@ public class FollowPath extends BaseDrivetrain{
         correctedYaw += 360;
         
     }
-
+    correctedYaw -= 180;
     for (int k = 0; k < FullPath.size()/2; k++){
 
         Angles.add(FullPath.get(k));
@@ -78,7 +78,7 @@ public class FollowPath extends BaseDrivetrain{
     //turn towards point
     if (angleReached != true){
         
-        if (correctedYaw < dead_zone_range_upper && correctedYaw > dead_zone_range_lower){
+        if (correctedYaw < dead_zone_range_upper - 180&& correctedYaw > dead_zone_range_lower - 180){
 
             FollowPath.stop();
             

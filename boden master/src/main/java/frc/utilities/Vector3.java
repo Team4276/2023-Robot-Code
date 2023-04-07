@@ -68,8 +68,10 @@ public class Vector3 {
     }
 
     public double angle(Vector3 other) {
-        double norm = magnitude() * other.magnitude();
-        double angleprior = dot(other) / norm;
+        double mag1 = this.magnitude();
+        double mag2 = other.magnitude();
+        double norm = mag1 * mag2;
+        double angleprior = other.dot(this) / norm;
         double angleradians = Math.acos(angleprior);
         double angle = Math.toDegrees(angleradians);
         return angle;
