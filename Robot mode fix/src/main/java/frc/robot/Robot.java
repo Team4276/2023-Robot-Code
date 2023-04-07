@@ -24,6 +24,7 @@ import frc.systems.FeederFinder;
 import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
+import frc.systems.PIDShoulder;
 import frc.systems.TeleopDrivetrain;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
@@ -49,6 +50,7 @@ public class Robot extends TimedRobot {
   Notifier armRateGroup;
   public static PIDElbow mElbow;
   public static Intake mIntake;
+  public static PIDShoulder mShoulder;
 
   public static FeederFinder mFeederFinder;
 
@@ -160,6 +162,7 @@ public class Robot extends TimedRobot {
 
   public static void timedArm() {
     mIntake.updatePeriodic();
+    PIDShoulder.PIDShoulderUpdate();
     PIDElbow.PIDElbowUpdate();
   }
 
@@ -204,6 +207,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
+    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);

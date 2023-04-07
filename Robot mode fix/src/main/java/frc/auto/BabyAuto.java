@@ -20,9 +20,6 @@ public class BabyAuto {
     private static boolean firstRun1 = true;
     private static boolean firstRun2 = true;
     private static boolean firstRun3 = true;
-    private static boolean firstRun4 = true;
-    private static boolean firstRun5 = true;
-    private static boolean firstRun6 = true;
 
     private static PIDController turnController;
 
