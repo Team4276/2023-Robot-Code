@@ -2,7 +2,6 @@ package frc.systems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
@@ -26,8 +25,6 @@ public class PIDElbow {
     private static SparkMaxPIDController driveElbowPidController;
 
     private static SparkMaxAbsoluteEncoder driveElbowEncoder;
-
-    private static SparkMaxLimitSwitch driveElbowReverseLimitSwitch;
 
     private static double deadband = 0.2;
 
@@ -173,7 +170,7 @@ public class PIDElbow {
                     currentPos = 0;
                 }
     
-                position = position.values()[currentPos];
+                position = Pos.values()[currentPos];
     
             }
             if (Robot.xboxController.getLeftBumperReleased()){
@@ -185,7 +182,7 @@ public class PIDElbow {
 
                 }
     
-                position = position.values()[currentPos];
+                position = Pos.values()[currentPos];
     
             }
             if (Robot.xboxController.getYButton()){

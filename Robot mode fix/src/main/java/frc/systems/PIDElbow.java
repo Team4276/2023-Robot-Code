@@ -2,7 +2,6 @@ package frc.systems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
@@ -26,8 +25,6 @@ public class PIDElbow {
     private static SparkMaxPIDController driveElbowPidController;
 
     private static SparkMaxAbsoluteEncoder driveElbowEncoder;
-
-    private static SparkMaxLimitSwitch driveElbowReverseLimitSwitch;
 
     private static double deadband = 0.2;
 
@@ -93,9 +90,6 @@ public class PIDElbow {
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
-        driveElbowReverseLimitSwitch = driveElbow.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
-
-        driveElbowReverseLimitSwitch.enableLimitSwitch(true);
 
         driveElbowEncoder = driveElbow.getAbsoluteEncoder(Type.kDutyCycle);
 

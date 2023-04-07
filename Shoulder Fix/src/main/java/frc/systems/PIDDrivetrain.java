@@ -4,8 +4,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class PIDDrivetrain extends BaseDrivetrain {
     public PIDDrivetrain(int FLport, int BLport, int FRport, int BRport) {
 

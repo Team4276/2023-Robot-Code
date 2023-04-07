@@ -166,7 +166,7 @@ public class Robot extends TimedRobot {
   public static void timedArm() {
 
     mIntake.updatePeriodic();
-    //PIDElbow.PIDElbowUpdate();
+    PIDElbow.PIDElbowUpdate();
     PIDShoulder.PIDShoulderUpdate();
   }
 
@@ -210,7 +210,7 @@ public class Robot extends TimedRobot {
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-    //mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
+    mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 

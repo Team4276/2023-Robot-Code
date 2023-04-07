@@ -96,6 +96,8 @@ public class TeleopDrivetrain extends BaseDrivetrain {
             default:
                 break;
         }
+
+        SmartDashboard.putString("Current Drive Mode", currentMode_s);
     }
 
     public enum DriveMode {
