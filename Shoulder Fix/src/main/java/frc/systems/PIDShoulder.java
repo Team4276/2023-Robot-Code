@@ -15,10 +15,10 @@ import frc.utilities.Xbox;
 public class PIDShoulder {
 
     // Set points for DPAD -1.0 is in directopn of more extension
-    private static double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = 0.0;
-    private static double DPAD_UP_ELBOW_STOW = 0.0;
+    private static double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = -0.0;
+    private static double DPAD_UP_ELBOW_STOW = -0.0;
     private static double DPAD_LEFT_ELBOW_EJECT_CUBE = -0.25;
-    private static double DPAD_DOWN_ELBOW_COLLECT = 0.2;
+    private static double DPAD_DOWN_ELBOW_COLLECT = -0.2;
 
     private static CANSparkMax driveShoulderR;
     private static CANSparkMax driveShoulderL;
@@ -42,6 +42,12 @@ public class PIDShoulder {
     private static double kIzp = 0;
     private static double kFFp = 0.000156;
 
+    private static double kPph = 3e-2;
+    private static double kIph = 0;
+    private static double kDph = 4e-1;
+    private static double kIzph = 0;
+    private static double kFFph = 0.000156;
+
     private static double kMaxOutput = 1;
     private static double kMinOutput = -1;
 
@@ -57,6 +63,8 @@ public class PIDShoulder {
     private static double shoulderZero = 0;
 
     private static int smartMotionSlot = 0;
+
+    private static final double SLOWZONE = 0.025;
 
     public PIDShoulder(int portR, int portL) {
         driveShoulderR = new CANSparkMax(portR, MotorType.kBrushless);
@@ -98,6 +106,17 @@ public class PIDShoulder {
             pidController.setSmartMotionMinOutputVelocity(minVel, 1);
             pidController.setSmartMotionMaxAccel(maxAcc, 1);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, 1);
+
+            pidController.setP(kPph, 2);
+            pidController.setI(kIph, 2);
+            pidController.setD(kDph, 2);
+            pidController.setIZone(kIzph, 2);
+            pidController.setFF(kFFph, 2);
+            pidController.setOutputRange(kMinOutput, kMaxOutput, 2);
+            pidController.setSmartMotionMaxVelocity(maxVel, 2);
+            pidController.setSmartMotionMinOutputVelocity(minVel, 2);
+            pidController.setSmartMotionMaxAccel(maxAcc, 2);
+            pidController.setSmartMotionAllowedClosedLoopError(allowedErr, 2);
 
         }
 
@@ -146,6 +165,9 @@ public class PIDShoulder {
         } else {
             smartMotionSlot = 1;
 
+            if (Math.abs(getCorrectedPos() - setPoint_Shoulder) < SLOWZONE){
+                smartMotionSlot = 2;
+            }
 
             setPIDReference(setPoint_Shoulder, ControlType.kSmartMotion, smartMotionSlot);
         }
