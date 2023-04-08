@@ -131,7 +131,7 @@ public class PIDShoulder {
 
     }
 
-    private static double getCorrectedPos(){
+    private static double getCorrectedPos(){ //use for display
         return driveShoulderEncoder.getPosition() - shoulderZero;
 
     }
@@ -142,20 +142,20 @@ public class PIDShoulder {
             smartMotionSlot = 0;
             setPIDReference(speed, ControlType.kSmartVelocity, smartMotionSlot);
 
-            setPoint_Shoulder = getCorrectedPos();
+            setPoint_Shoulder = driveShoulderEncoder.getPosition();
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
-                setPoint_Shoulder = DPAD_UP_ELBOW_STOW;
+                setPoint_Shoulder = DPAD_UP_ELBOW_STOW + shoulderZero;
 
             } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Shoulder = DPAD_DOWN_ELBOW_COLLECT;
+                setPoint_Shoulder = DPAD_DOWN_ELBOW_COLLECT + shoulderZero;
 
             } else if (Xbox.POVright == Robot.pov) {
-                setPoint_Shoulder = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE;
+                setPoint_Shoulder = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + shoulderZero;
 
             } else if (Xbox.POVleft == Robot.pov) {
-                setPoint_Shoulder = DPAD_LEFT_ELBOW_EJECT_CUBE;
+                setPoint_Shoulder = DPAD_LEFT_ELBOW_EJECT_CUBE + shoulderZero;
 
             }
 
@@ -174,10 +174,12 @@ public class PIDShoulder {
 
 
         SmartDashboard.putNumber("Raw Shoulder Encoder:  ", driveShoulderEncoder.getPosition());
+        SmartDashboard.putNumber("Raw SetPoint Shoulder", setPoint_Shoulder);
         SmartDashboard.putNumber("Corrected Shoulder Encoder", getCorrectedPos());
+        SmartDashboard.putNumber("Corrected SetPoint Shoulder", setPoint_Shoulder - shoulderZero);
         SmartDashboard.putNumber("Shoulder Power R", driveShoulderR.getAppliedOutput());
         SmartDashboard.putNumber("Shoulder Power L", driveShoulderL.getAppliedOutput());
-        SmartDashboard.putNumber("SetPoint Shoulder", setPoint_Shoulder);
+
 
     }
 
