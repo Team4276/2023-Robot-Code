@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -23,6 +24,7 @@ import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
 import frc.systems.TeleopDrivetrain;
+import frc.utilities.FieldPose;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
@@ -51,6 +53,7 @@ public class Robot extends TimedRobot {
   public static FeederFinder mFeederFinder;
 
   public static NetworkTable ntLimelight;
+  public static FieldPose fieldPose;
 
   public static LedStripControl myLedStrip;
 
@@ -217,6 +220,7 @@ public class Robot extends TimedRobot {
     mFeederFinder = new FeederFinder();
 
     ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
+    fieldPose = new FieldPose();
 
     myLocation = new Location4276();
 
