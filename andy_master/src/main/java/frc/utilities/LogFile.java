@@ -15,6 +15,7 @@ public class LogFile {
     private FileWriter logFileWriter;
 
     public LogFile() {
+        init();
     }
 
     public boolean init() {

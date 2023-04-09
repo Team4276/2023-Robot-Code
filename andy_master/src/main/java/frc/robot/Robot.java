@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -73,7 +72,6 @@ public class Robot extends TimedRobot {
   public static double deadband = 0.05;
 
   private static boolean firstRun = true;
-  private static boolean firstXPress = true;
 
   private static DigitalInput Switch1;
   private static DigitalInput Switch2;
@@ -94,6 +92,11 @@ public class Robot extends TimedRobot {
   public static boolean isTestMode = false;
 
   public static boolean isTeleop = true;
+
+  
+  public static boolean isJoystickInReverse() {
+    return  (Robot.rightJoystick.getY() > deadband);
+  }
 
   public static void timedDrive() {
     boolean goDrive = false;
@@ -118,10 +121,6 @@ public class Robot extends TimedRobot {
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
-      if (firstXPress) {
-        PIDDrivetrain.newPositiontohold = true;
-        firstXPress = false;
-      }
 
       PIDDrivetrain.holdPosition = true;
       PIDDrivetrain.PIDDrivetrainUpdate();
@@ -133,7 +132,7 @@ public class Robot extends TimedRobot {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
 
-    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B13)) {
+    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
       FeederFinder.updatePeriodic();
     } else {
       if (isTeleop) {
@@ -144,8 +143,8 @@ public class Robot extends TimedRobot {
     }
 
     if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || Robot.rightJoystick.getRawButton(LogJoystick.B1)))) {
-      firstXPress = true;
+        || (!Robot.rightJoystick.getRawButton(LogJoystick.B1))))) {
+      PIDDrivetrain.newPositiontohold = true;
       PIDDrivetrain.holdPosition = false;
     }
 
@@ -154,12 +153,12 @@ public class Robot extends TimedRobot {
         TeleopDrivetrain.assignMotorPower(0, 0);
       } else if (BabyAuto.usingDrivetrainMotorsForward) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
-      }
     } else if (BabyAuto.usingDrivetrainMotorsBackward) {
       TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
     } else if (firstRun) {
       TeleopDrivetrain.assignMotorPower(0, 0);
       firstRun = false;
+      }
     }
   }
 
@@ -212,15 +211,12 @@ public class Robot extends TimedRobot {
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
-    PIDElbow.PIDElbowInit();
-
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
 
     mFeederFinder = new FeederFinder();
 
     ntLimelight = NetworkTableInstance.getDefault().getTable("limelight");
-    fieldPose = new FieldPose();
 
     myLocation = new Location4276();
 
