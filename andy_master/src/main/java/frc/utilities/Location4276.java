@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.systems.BaseDrivetrain;
 
-
 public class Location4276 {
 
     // PhotonVision
@@ -60,13 +59,13 @@ public class Location4276 {
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > FRencoder) {  
+        if (rpmSpeed > FRencoder) {
             rpmSpeed = FRencoder;
         }
-        if (rpmSpeed > (-1 * BRencoder)) { 
+        if (rpmSpeed > (-1 * BRencoder)) {
             rpmSpeed = (-1 * BRencoder);
         }
-        if (rpmSpeed > (-1 * FLencoder)) { 
+        if (rpmSpeed > (-1 * FLencoder)) {
             rpmSpeed = (-1 * FLencoder);
         }
         if (rpmSpeed > BLencoder) {
@@ -78,8 +77,8 @@ public class Location4276 {
         // (100 rotations)/(8.5 gearbox redux) * (2pi*3.05in) = 225.5in, or 18.79ft/100
         // rotations
         final double convertRpmToFeet = 0.1879;
-        rpmSpeed *= convertRpmToFeet;    // feet/min
-        rpmSpeed /= 60.0;                // feet/sec
+        rpmSpeed *= convertRpmToFeet; // feet/min
+        rpmSpeed /= 60.0; // feet/sec
 
         return rpmSpeed;
     }
@@ -91,14 +90,15 @@ public class Location4276 {
     public void updatePosition() {
 
         FieldPose.updatePosition();
-        SmartDashboard.putNumber("robotPose_X: ", FieldPose.position.getX());
-        SmartDashboard.putNumber("robotPose_Y: ", FieldPose.position.getY());
 
-        if(FieldPose.isValidPosition) { 
+        if (FieldPose.isValidPosition) {
             v3PhotonVision.x = FieldPose.position.getX();
             v3PhotonVision.y = FieldPose.position.getY();
+
+            SmartDashboard.putNumber("PhotonVision_X: ", v3PhotonVision.x);
+            SmartDashboard.putNumber("PhotonVision_Y: ", v3PhotonVision.y);
         }
-  
+
         if (isNewPositionFix()) {
             posFixErrorCorrection = getDistanceTo(v3PhotonVision);
             setPositionFix();
@@ -114,6 +114,7 @@ public class Location4276 {
                 // to +180.0
                 double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
                 gyroCorrection = estimateCourseMadeGood - Gyroscope.GetYaw();
+                SmartDashboard.putNumber("gyroCorrection: ", gyroCorrection);
             }
 
             // Extrapolate current position from previous position
@@ -124,10 +125,7 @@ public class Location4276 {
 
             heading = getHeading();
             speed = getEncoderSpeed();
-            distance = speed * (deltaTimeMillisecs/1000.0);
-
-            SmartDashboard.putNumber("distance", distance);
-            SmartDashboard.putNumber("DektaTimeMillis", deltaTimeMillisecs);
+            distance = speed * (deltaTimeMillisecs / 1000.0);
 
             v3PrevPosition.copy(v3Position);
 
@@ -136,27 +134,26 @@ public class Location4276 {
         }
 
         if (getEncoderSpeed() != 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
-            
-            try{// of stillnes
-            Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(distance));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(speed));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(heading));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.x));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.y));
-            Robot.myLogFile.write(String.valueOf(","));
-            Robot.myLogFile.write(String.valueOf(v3Position.z));
-            Robot.myLogFile.write(String.valueOf("\r\n"));
-            }
-            catch (Exception e){
-                
+
+            try {// of stillnes
+                Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(distance));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(speed));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(heading));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(v3Position.x));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(v3Position.y));
+                Robot.myLogFile.write(String.valueOf(","));
+                Robot.myLogFile.write(String.valueOf(v3Position.z));
+                Robot.myLogFile.write(String.valueOf("\r\n"));
+            } catch (Exception e) {
+
             }
         }
     }
