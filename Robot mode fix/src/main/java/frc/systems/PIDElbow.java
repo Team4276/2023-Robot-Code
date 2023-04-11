@@ -32,21 +32,17 @@ public class PIDElbow {
     private static double deadband = 0.2;
 
     // PID coefficients
-    private static double kP = 2e-2;
-    private static double kI = 0;
-    private static double kD = 0;
-    private static double kIz = 0;
-    private static double kFF = 0.000156;
-
-    private static double kMaxOutput = 1;
-    private static double kMinOutput = -1;
-
-    // Smart Motion Coefficients
-    private static double maxVel = 80; // rpm
-    private static double maxAcc = 10;
-    private static double minVel = 0;
-
-    private static double allowedErr = 0;
+    private static double[] kParray = {2e-2, 2e-2, 2e-2}; // 0: manual; 1: pos controlled; 2: hold
+    private static double[] kIarray = {0, 0, 0};
+    private static double[] kDarray = {0, 0, 0};
+    private static double[] kIzarray = {0, 0, 0};
+    private static double[] kFFarray = {0.000156, 0.0, 0.0};
+    private static double kMaxOutputarray = 1;
+    private static double kMinOutputarray = -1;
+    private static double maxVelarray = 80;
+    private static double maxAccarray = 10;
+    private static double minVelarray = 0;
+    private static double allowedErrarray = 0;
 
     private static double setPoint_Elbow = 0.0;
 
@@ -113,29 +109,26 @@ public class PIDElbow {
         driveElbowLimitSwitch = driveElbow.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
         driveElbowLimitSwitch.enableLimitSwitch(true);
 
-        int smartMotionSlot = 0;
+        int i = 2;
 
-        CANSparkMax[] motorArray = { driveElbow };
-        for (CANSparkMax motor : motorArray) {
-            SparkMaxPIDController pidController = motor.getPIDController();
-
-            pidController.setP(kP);
-            pidController.setI(kI);
-            pidController.setD(kD);
-            pidController.setIZone(kIz);
-            pidController.setFF(kFF);
-            pidController.setOutputRange(kMinOutput, kMaxOutput);
-            pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
-            pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
-            pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-            pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-
+        while (i > -1){
+            driveElbowPidController.setP(kParray[i],i);
+            driveElbowPidController.setI(kIarray[i],i);
+            driveElbowPidController.setD(kDarray[i],i);
+            driveElbowPidController.setIZone(kIzarray[i],i);
+            driveElbowPidController.setFF(kFFarray[i],i);
+            driveElbowPidController.setOutputRange(kMaxOutputarray, kMinOutputarray, i);
+            driveElbowPidController.setSmartMotionMaxVelocity(maxVelarray, i);
+            driveElbowPidController.setSmartMotionMinOutputVelocity(minVelarray, i);
+            driveElbowPidController.setSmartMotionMaxAccel(maxAccarray, i);
+            driveElbowPidController.setSmartMotionAllowedClosedLoopError(allowedErrarray, i);
+            i -= 1;
         }
 
     }
 
-    private static void setPIDReference(double setPoint_Elbow, ControlType controlType) {
-        driveElbowPidController.setReference(setPoint_Elbow, controlType);
+    private static void setPIDReference(double setPoint_Elbow, ControlType controlType, int slot) {
+        driveElbowPidController.setReference(setPoint_Elbow, controlType, slot);
     }
 
     private static void setZero(){
@@ -194,38 +187,38 @@ public class PIDElbow {
         
         if (position == Pos.STOW){
             setPoint_Elbow = DPAD_UP_ELBOW_STOW + elbowZero;
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 1);
 
         }
         
         if (position == Pos.COLLECT){
             setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT + elbowZero;
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 1);
 
         } 
         
         if (position == Pos.MID_CONE){
             setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + elbowZero;
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 1);
 
         } 
         
         if (position == Pos.MID_CUBE){
             setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE + elbowZero;
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 1);
 
         }
 
         if (position == Pos.MANUAL){
             double speed = Robot.xboxController.getLeftY() * 500;
-            setPIDReference(speed, ControlType.kSmartVelocity);
+            setPIDReference(speed, ControlType.kSmartVelocity, 0);
 
             setPoint_Elbow = driveElbowEncoder.getPosition();
 
         }
 
         if (position == Pos.IDLE){
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 2);
 
         }
 
@@ -233,7 +226,7 @@ public class PIDElbow {
         if (position == Pos.LIMIT){
             if (Robot.xboxController.getRightY() > deadband){
                 double speed = Robot.xboxController.getLeftY() * 500;
-                setPIDReference(speed, ControlType.kSmartVelocity);
+                setPIDReference(speed, ControlType.kSmartVelocity, 0);
 
                 setPoint_Elbow = driveElbowEncoder.getPosition();
 
@@ -243,7 +236,7 @@ public class PIDElbow {
                     firstRun = false;
                 }
 
-                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion, 1);
             }
 
 
