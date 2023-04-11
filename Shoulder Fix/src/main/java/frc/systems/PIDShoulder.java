@@ -48,8 +48,8 @@ public class PIDShoulder {
     private static double kIzph = 0;
     private static double kFFph = 0.000156;
 
-    private static double kMaxOutput = 1;
-    private static double kMinOutput = -1;
+    private static double kMaxOutput = 0.5;
+    private static double kMinOutput = -0.5;
 
     // Smart Motion Coefficients
     private static double maxVel = 75; // rpm

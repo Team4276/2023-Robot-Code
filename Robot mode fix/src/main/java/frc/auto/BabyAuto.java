@@ -68,6 +68,8 @@ public class BabyAuto {
         timer1 = new SoftwareTimer();
         timer2 = new SoftwareTimer();
 
+        turnController = new PIDController(kP, kI, kD);
+
         myAutoMobilityMode = AUTO_MOBILITY_MODE.NOPOWER;
 
         

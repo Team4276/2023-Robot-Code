@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
 
   public static Location4276 myLocation;
 
-  public static double pov;
+  public static double pov = -1;
 
   public static double deadband = 0.05;
 
@@ -162,7 +162,7 @@ public class Robot extends TimedRobot {
 
   public static void timedArm() {
     mIntake.updatePeriodic();
-    PIDShoulder.PIDShoulderUpdate();
+    //PIDShoulder.PIDShoulderUpdate();
     PIDElbow.PIDElbowUpdate();
   }
 
@@ -207,7 +207,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-    mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
+    //mShoulder = new PIDShoulder(RoboRioPorts.CAN_SHOULDER_R, RoboRioPorts.CAN_SHOULDER_L);
     
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);

@@ -24,12 +24,11 @@ public class Intake {
     }
 
     public void updatePeriodic() {
-        double rightY = Robot.xboxController.getRightY();
 
-        if (rightY > deadband) {
+        if (Math.abs(Robot.xboxController.getRightTriggerAxis()) > deadband) {
             // Intake
             setSpeed(0.65);
-        } else if ((rightY < (-1 * deadband)) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite
+        } else if ((Math.abs(Robot.xboxController.getLeftTriggerAxis()) > deadband) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite
                                                                                        // direction
             // Outtake
             setSpeed(-0.65);
