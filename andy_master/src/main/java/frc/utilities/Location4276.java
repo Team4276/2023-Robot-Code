@@ -1,5 +1,7 @@
 package frc.utilities;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.systems.BaseDrivetrain;
@@ -27,6 +29,11 @@ public class Location4276 {
         v3PreviousPhotonVision = new Vector3(0.0, 0.0, 0.0);
         v3Position = new Vector3(0.0, 0.0, 0.0);
         v3PrevPosition = new Vector3(0.0, 0.0, 0.0);
+    }
+
+    public Pose2d getRobotPosition() {
+        Rotation2d rot2d = Rotation2d.fromDegrees(heading);
+        return new Pose2d(v3Position.x, v3Position.y, rot2d);
     }
 
     public boolean isNewPositionFix() {

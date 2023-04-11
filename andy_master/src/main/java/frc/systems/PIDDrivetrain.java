@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PIDDrivetrain extends BaseDrivetrain {
@@ -61,8 +62,8 @@ public class PIDDrivetrain extends BaseDrivetrain {
     public static void PIDDrivetrainUpdate() {
         Update(1, frDriveX, false);
         Update(-1, flDriveX, false);
-        Update(1, brDriveX,false);
-        Update(-1, blDriveX,true);
+        Update(1, brDriveX, false);
+        Update(-1, blDriveX, true);
     }
 
     public static void Update(double sign, CANSparkMax motor, Boolean lastMotor) {
@@ -72,7 +73,7 @@ public class PIDDrivetrain extends BaseDrivetrain {
         if (holdPosition) {
             if (newPositiontohold) {
                 holdThisPosition = encoder.getPosition();
-                if (lastMotor){
+                if (lastMotor) {
                     newPositiontohold = false;
                 }
             }
@@ -83,6 +84,14 @@ public class PIDDrivetrain extends BaseDrivetrain {
             newPositiontohold = true;
             pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
         }
+    }
+
+    public static void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
+
+        // TODO: Use PID set velocity to set speed on left and right drive motors, (for
+        // use in path following)
+        double left = speeds.leftMetersPerSecond;
+        double right = speeds.rightMetersPerSecond;
     }
 
 }
