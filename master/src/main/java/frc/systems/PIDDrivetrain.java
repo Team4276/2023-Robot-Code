@@ -4,7 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.RobotMode;
+import frc.utilities.RobotMode.ROBOT_MODE;
 
 public class PIDDrivetrain extends BaseDrivetrain {
     public PIDDrivetrain(int FLport, int BLport, int FRport, int BRport) {
@@ -33,8 +34,6 @@ public class PIDDrivetrain extends BaseDrivetrain {
 
     public static boolean newPositiontohold = true;
 
-    public static boolean holdPosition;
-
     public static double setPoint;
 
     public static void PIDDrivetrainInit() {
@@ -61,23 +60,24 @@ public class PIDDrivetrain extends BaseDrivetrain {
     public static void PIDDrivetrainUpdate() {
         Update(1, frDriveX, false);
         Update(-1, flDriveX, false);
-        Update(1, brDriveX,false);
-        Update(-1, blDriveX,true);
+        Update(1, brDriveX, false);
+        Update(-1, blDriveX, true);
     }
 
-    public static void Update(double sign, CANSparkMax motor, Boolean lastMotor) {
+    public static void Update(double sign, CANSparkMax motor, boolean lastMotor) {
         SparkMaxPIDController pidController = motor.getPIDController();
         RelativeEncoder encoder = motor.getEncoder();
 
-        if (holdPosition) {
+        if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION) {
             if (newPositiontohold) {
                 holdThisPosition = encoder.getPosition();
                 if (lastMotor){
                     newPositiontohold = false;
                 }
+
+                pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
             }
 
-            pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
 
         } else {
             newPositiontohold = true;

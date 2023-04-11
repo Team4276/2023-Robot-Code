@@ -1,114 +1,155 @@
 package frc.auto;
 
-import frc.robot.Robot;
-import frc.systems.TeleopDrivetrain;
+import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.RobotMode.ROBOT_MODE;
+
+import edu.wpi.first.math.controller.PIDController;
 
 public class BabyAuto {
     private static final double LEFTMOBILITYTIME = 4.5; // time in seconds
-    private static final double RIGHTMOBILITYTIME = 2.5; // time in seconds
-    private static final double MIDDLEBALANCTIME1 = 0.5; // initial back away
     private static final double MIDDLEBALANCTIME2 = 2.5; // drive up onto platform
-    private static final double MIDDLEBALANCTIME3 = 0; // delay until arm goes down
     public static final double MOTORPOWER = 0.20;
-    private static final double DEADZONEANGLE = 5; // deg
 
-    public static boolean balance = false;
+    private static final double DEADZONE = 2;
+    private static double desired_angle = 0;
 
-    private static SoftwareTimer timer;
-    private static SoftwareTimer middleTimer;
-    private static SoftwareTimer middleArmDelayTimer;
-    private static SoftwareTimer timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS;
+    private static SoftwareTimer timer1;
+    private static SoftwareTimer timer2;
 
-    private static boolean firstRun = true;
-    private static boolean firstRunTimer = true;
-    private static boolean firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix = true;
+    private static boolean firstRun1 = true;
+    private static boolean firstRun2 = true;
+    private static boolean firstRun3 = true;
+
+    private static PIDController turnController;
+
+    private static double kP = 1;
+    private static double kI = 0;
+    private static double kD = 0;
 
     public static boolean taskIsFinished = false;
 
-    public static boolean usingDrivetrainMotorsForward = false;
-    public static boolean usingDrivetrainMotorsBackward = false;
-    public static boolean usingDrivetrainMotorsNOPOWER = false;
+    public static AUTO_MOBILITY_MODE myAutoMobilityMode;
 
-    public static void BabyAutoInit(){
-        timer = new SoftwareTimer();
-        middleTimer = new SoftwareTimer();
-        middleArmDelayTimer = new SoftwareTimer();
-        timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS = new SoftwareTimer();
+    public static enum AUTO_MOBILITY_MODE{
+        FORWARD,
+        BACKWARD,
+        NOPOWER,
+        TURNING
     }
 
-    public static void leftScoreMobility(){
-        if (firstRun){
-            timer.setTimer(LEFTMOBILITYTIME);
-            firstRun = false;
+    public static AUTO_MOBILITY_MODE get() {
+        return myAutoMobilityMode;
+    }
+    
+    public static void set(AUTO_MOBILITY_MODE val) {
+        myAutoMobilityMode = val;
+    }
+
+    public static String getString() {
+
+        switch (myAutoMobilityMode.ordinal()) {
+          case 0:
+            return "FORWARD";
+          case 1:
+            return "BACKWARD";
+          case 2:
+            return "NOPOWER";
+          case 3:
+            return "TURNING";
+    
+          default:
+            break;
+        }
+        return "*****";
+      }
+
+    public static void BabyAutoInit(){
+        timer1 = new SoftwareTimer();
+        timer2 = new SoftwareTimer();
+
+        turnController = new PIDController(kP, kI, kD);
+
+        myAutoMobilityMode = AUTO_MOBILITY_MODE.NOPOWER;
+
+        
+        turnController.setPID(kP, kI, kD);
+    }
+
+    public static boolean ScoreMobility(){
+        RobotMode.set(ROBOT_MODE.AUTO_DRIVING);
+
+        if (firstRun1){
+            timer1.setTimer(LEFTMOBILITYTIME);
+            firstRun1 = false;
         }
 
-        if (timer.isExpired()){
-            usingDrivetrainMotorsNOPOWER = true;
+        if (timer1.isExpired()){
+            set(AUTO_MOBILITY_MODE.NOPOWER);
             taskIsFinished = true;
+
+            firstRun1 = true;
+
+            return true;
+
         } else {
-            usingDrivetrainMotorsBackward = true;
+            set(AUTO_MOBILITY_MODE.BACKWARD);
+
+            return false;
         }
     }
 
     public static void middleBalance(boolean forward){
-        if (firstRun){
-            timer.setTimer(MIDDLEBALANCTIME2);
-            //middleArmDelayTimer.setTimer(MIDDLEBALANCTIME3);
-            firstRun = false;
+        RobotMode.set(ROBOT_MODE.AUTO_DRIVING);
+
+        if (firstRun1){
+            timer1.setTimer(MIDDLEBALANCTIME2);
+            firstRun1 = false;
         }
 
-        /*if (middleArmDelayTimer.isExpired()){
-            if (firstRunTimer){
-                middleTimer.setTimer(MIDDLEBALANCTIME4);
-            }
-
-            PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_COLLECT;
-        }*/
-
-        if (timer.isExpired()){
-            if (firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix){
-                timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.setTimer(0.5);
-                firstRunTimer3_holy_cow_we_have_too_many_logic_variables_for_this_code_i_ned_to_fix = false;
+        if (timer1.isExpired()){
+            if (firstRun2){
+                timer2.setTimer(0.5);
+                firstRun2 = false;
 
             }
 
-            if (timer4_GOD_IGOTTASTOPADDINSOMANYTIMERS.isExpired()){  
+            if (timer2.isExpired()){  
+                RobotMode.set(ROBOT_MODE.AUTO_BALANCING);
 
-                balance = true;
+
             } else {
-                usingDrivetrainMotorsNOPOWER = true;
-                Robot.isTeleop = true;
+                set(AUTO_MOBILITY_MODE.NOPOWER);
             }
-
-            
-            SmartDashboard.putBoolean("isTeleop", Robot.isTeleop);
 
         } else {
             if (forward) {
-                usingDrivetrainMotorsForward = true;
+                set(AUTO_MOBILITY_MODE.FORWARD);
             } else if(!forward){
-                usingDrivetrainMotorsBackward = true;
+                set(AUTO_MOBILITY_MODE.BACKWARD);
             }
 
         }
+        
     }
 
+    public static double doabarrelroll(double current_angle){
+        double power = 0;
 
-    public static void rightScoreMobility(){
-        if (firstRun){
-            timer.setTimer(RIGHTMOBILITYTIME);
-            firstRun = false;
+        if (firstRun3){
+            desired_angle = current_angle + 180;
+            if (desired_angle > 360){
+                desired_angle -= 360;
+            }
+            firstRun3 = false;
         }
 
-        if (timer.isExpired()){
-            TeleopDrivetrain.assignMotorPower(0,0);
-            taskIsFinished = true;
+        if(Math.abs(current_angle) > DEADZONE){
+            power = turnController.calculate(current_angle, desired_angle);
         } else {
-            TeleopDrivetrain.assignMotorPower(MOTORPOWER,-1*MOTORPOWER);
+            firstRun3 = true;
         }
 
-        
+        return power;
     }
 }

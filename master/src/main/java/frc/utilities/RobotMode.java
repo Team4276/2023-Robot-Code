@@ -4,18 +4,19 @@ public class RobotMode {
 
   public enum ROBOT_MODE {
     NOT_INITIALIZED,
-    AUTO_1_MOBILITY,
-    AUTO_2_BALANCE,
-    TELEOP_NORMAL,
-    TELEOP_BALANCE,
-    TELEOP_HOLD_POSITION,
+    TELEOP_DRIVING,
     TELEOP_APPROACHING_PATH_START,
-    TELEOP_FOLLOWING_PATH
+    TELEOP_FOLLOWING_PATH,
+    BALANCING,
+    HOLD_POSITION,
+    IDLING,
+    AUTO_DRIVING,
+    AUTO_BALANCING
   };
 
   private static ROBOT_MODE myRobotMode;
 
-  public RobotMode() {
+  public static void RobotModeInit() {
     myRobotMode = ROBOT_MODE.NOT_INITIALIZED;
   }
 
@@ -27,29 +28,32 @@ public class RobotMode {
     myRobotMode = val;
   }
 
-  public static String getString(RobotMode mRobotMode) {
+  public static String getString() {
 
     switch (myRobotMode.ordinal()) {
       case 0:
         return "NOT_INITIALIZED";
       case 1:
-        return "AUTO_1_MOBILITY";
+        return "TELEOP_DRIVING";
       case 2:
-        return "AUTO_2_BALANCE";
-      case 3:
-        return "TELEOP_NORMAL";
-      case 4:
-        return "TELEOP_BALANCE";
-      case 5:
-        return "TELEOP_HOLD_POSITION";
-      case 6:
         return "TELEOP_APPROACHING_PATH_START";
-      case 7:
+      case 3:
         return "TELEOP_FOLLOWING_PATH";
+      case 4:
+        return "BALANCING";
+      case 5:
+        return "HOLD_POSITION";
+      case 6:
+        return "IDLING";
+      case 7:
+        return "AUTO_DRIVING";
+      case 8:
+        return "AUTO_BALANCING";
+
 
       default:
         break;
     }
     return "*****";
   }
-};
+}

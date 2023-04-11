@@ -95,13 +95,13 @@ public class Location4276 {
         double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
 
         // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > FRencoder) {  
+        if (rpmSpeed > FRencoder) {
             rpmSpeed = FRencoder;
         }
         if (rpmSpeed > (-1 * BRencoder)) { 
             rpmSpeed = (-1 * BRencoder);
         }
-        if (rpmSpeed > (-1 * FLencoder)) { 
+        if (rpmSpeed > (-1 * FLencoder)) {
             rpmSpeed = (-1 * FLencoder);
         }
         if (rpmSpeed > BLencoder) {
@@ -164,7 +164,7 @@ public class Location4276 {
         }
 
         if (getEncoderSpeed() != 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
-                                        // of stillness
+                                       // of stillness
             Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
             Robot.myLogFile.write(String.valueOf(","));
             Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
