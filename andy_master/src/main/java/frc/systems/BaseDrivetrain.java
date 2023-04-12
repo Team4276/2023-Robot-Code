@@ -25,8 +25,9 @@ public class BaseDrivetrain {
 
         flDriveX.getEncoder().setPosition(0.0);
         frDriveX.getEncoder().setPosition(0.0);
-        blDriveX.getEncoder().setPosition(0.0);
-        brDriveX.getEncoder().setPosition(0.0);
+
+        brDriveX.follow(frDriveX);
+        blDriveX.follow(flDriveX);
     }
 
 }

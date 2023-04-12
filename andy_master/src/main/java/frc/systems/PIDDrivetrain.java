@@ -3,9 +3,11 @@ package frc.systems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.utilities.RobotMode;
+import frc.utilities.RobotMode.ROBOT_MODE;
 
 public class PIDDrivetrain extends BaseDrivetrain {
     public PIDDrivetrain(int FLport, int BLport, int FRport, int BRport) {
@@ -34,14 +36,15 @@ public class PIDDrivetrain extends BaseDrivetrain {
 
     public static boolean newPositiontohold = true;
 
-    public static boolean holdPosition;
-
     public static double setPoint;
+
+    private static double leftRPM = 0;
+    private static double rightRPM = 0;
 
     public static void PIDDrivetrainInit() {
         int smartMotionSlot = 0;
 
-        CANSparkMax[] motorArray = { frDriveX, flDriveX, brDriveX, blDriveX };
+        CANSparkMax[] motorArray = { frDriveX, flDriveX };
         for (CANSparkMax motor : motorArray) {
             SparkMaxPIDController pidController = motor.getPIDController();
 
@@ -57,41 +60,47 @@ public class PIDDrivetrain extends BaseDrivetrain {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
 
+
     }
 
     public static void PIDDrivetrainUpdate() {
-        Update(1, frDriveX, false);
-        Update(-1, flDriveX, false);
-        Update(1, brDriveX, false);
-        Update(-1, blDriveX, true);
+        Update(1, frDriveX, false, false);
+        Update(-1, flDriveX, true, true);
     }
 
-    public static void Update(double sign, CANSparkMax motor, Boolean lastMotor) {
+    public static void Update(double sign, CANSparkMax motor, boolean lastMotor, boolean left) {
         SparkMaxPIDController pidController = motor.getPIDController();
         RelativeEncoder encoder = motor.getEncoder();
 
-        if (holdPosition) {
+        if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION) {
             if (newPositiontohold) {
                 holdThisPosition = encoder.getPosition();
-                if (lastMotor) {
+                if (lastMotor){
                     newPositiontohold = false;
                 }
+
+                pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
             }
 
-            pidController.setReference(holdThisPosition, CANSparkMax.ControlType.kSmartMotion);
 
-        } else {
+        } else if (RobotMode.get() == ROBOT_MODE.BALANCING) {
             newPositiontohold = true;
             pidController.setReference(setPoint * sign, CANSparkMax.ControlType.kVelocity);
+        } else if ((RobotMode.get() == ROBOT_MODE.TELEOP_APPROACHING_PATH_START) || (RobotMode.get() == ROBOT_MODE.TELEOP_FOLLOWING_PATH)) {
+            newPositiontohold = true;
+
+            if (left){
+                pidController.setReference(leftRPM, ControlType.kVelocity);
+            } else {
+                pidController.setReference(rightRPM, ControlType.kVelocity);
+            }
         }
     }
 
     public static void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
+        leftRPM = speeds.leftMetersPerSecond / 0.05727192;
+        rightRPM = speeds.leftMetersPerSecond / 0.05727192;
 
-        // TODO: Use PID set velocity to set speed on left and right drive motors, (for
-        // use in path following)
-        double left = speeds.leftMetersPerSecond;
-        double right = speeds.rightMetersPerSecond;
     }
 
 }

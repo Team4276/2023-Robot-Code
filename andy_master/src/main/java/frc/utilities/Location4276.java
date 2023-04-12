@@ -45,8 +45,23 @@ public class Location4276 {
         v3Position.copy(v3PhotonVision);
     }
 
-    private double getHeading() {
-        return Gyroscope.GetYaw() - gyroCorrection;
+    public static double getRawHeading() {
+        double retVal = Gyroscope.GetYaw();   // starts at zero, negative is CCW from top, 
+        retVal %= 360;                        // now in range -360 to +360
+        
+        if (retVal > 180){
+            retVal -= 360;
+        }
+        if (retVal < -180){
+            retVal += 360;
+        }
+        return retVal;
+    }
+
+    private static double getHeading() {
+        double retVal = getRawHeading();
+        retVal += gyroCorrection;               
+        return retVal;
     }
 
     private double getDistanceTo(Vector3 otherPos) {
@@ -90,10 +105,6 @@ public class Location4276 {
         return rpmSpeed;
     }
 
-    private boolean isMotionSufficientToEstimateHeading() {
-        return (getEncoderSpeed() > 1.0); // feet/sec
-    }
-
     public void updatePosition() {
 
         FieldPose.updatePosition();
@@ -102,8 +113,16 @@ public class Location4276 {
             v3PhotonVision.x = FieldPose.position.getX();
             v3PhotonVision.y = FieldPose.position.getY();
 
+            // Average gyro correction over 10 samples
+            gyroCorrection *= 0.9;
+            gyroCorrection += ((FieldPose.getRotationDegrees() - getRawHeading()) / 10.0);
+
             SmartDashboard.putNumber("PhotonVision_X: ", v3PhotonVision.x);
             SmartDashboard.putNumber("PhotonVision_Y: ", v3PhotonVision.y);
+            SmartDashboard.putNumber("RawGyro: ", Gyroscope.GetYaw());
+            SmartDashboard.putNumber("getRawHeading: ", getRawHeading());
+            SmartDashboard.putNumber("FieldPose.getRotationDegrees: ", FieldPose.getRotationDegrees());
+            SmartDashboard.putNumber("gyroCorrection: ", gyroCorrection);
         }
 
         if (isNewPositionFix()) {
@@ -113,32 +132,22 @@ public class Location4276 {
         } else {
             // PhotonVision did not find any Apriltag
             posFixErrorCorrection = 0.0;
-
-            if (isMotionSufficientToEstimateHeading()) {
-                // heading of robot moving from previous position to current position
-                // Y axis == Robot Forward, X == Robot right
-                // 0.0 heading == Robot forward, Positive rotation to Robot Right, range -180.0
-                // to +180.0
-                double estimateCourseMadeGood = v3PrevPosition.angle(v3Position);
-                gyroCorrection = estimateCourseMadeGood - Gyroscope.GetYaw();
-                SmartDashboard.putNumber("gyroCorrection: ", gyroCorrection);
-            }
-
-            // Extrapolate current position from previous position
-
-            long prevTimeMillisecs = positionUpdateTimeMillisecs;
-            positionUpdateTimeMillisecs = java.lang.System.currentTimeMillis();
-            long deltaTimeMillisecs = (positionUpdateTimeMillisecs - prevTimeMillisecs);
-
-            heading = getHeading();
-            speed = getEncoderSpeed();
-            distance = speed * (deltaTimeMillisecs / 1000.0);
-
-            v3PrevPosition.copy(v3Position);
-
-            v3Position.x = distance * Math.sin(heading);
-            v3Position.y = distance * Math.cos(heading);
         }
+
+        // Extrapolate current position from previous position
+
+        long prevTimeMillisecs = positionUpdateTimeMillisecs;
+        positionUpdateTimeMillisecs = java.lang.System.currentTimeMillis();
+        long deltaTimeMillisecs = (positionUpdateTimeMillisecs - prevTimeMillisecs);
+
+        heading = getHeading();
+        speed = getEncoderSpeed();
+        distance = speed * (deltaTimeMillisecs / 1000.0);
+
+        v3PrevPosition.copy(v3Position);
+
+        v3Position.x += distance * Math.sin(heading);
+        v3Position.y += distance * Math.cos(heading);
 
         if (getEncoderSpeed() != 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
 

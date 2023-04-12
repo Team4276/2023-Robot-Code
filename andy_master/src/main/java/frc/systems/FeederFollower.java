@@ -11,17 +11,17 @@ import frc.robot.Robot;
 import frc.utilities.LogJoystick;
 import frc.utilities.Route;
 import frc.utilities.SoftwareTimer;
+import frc.utilities.RobotMode.ROBOT_MODE;
+import frc.utilities.RobotMode;
 
 public class FeederFollower {
-
-    public boolean isPathStarted = false;
 
     private Route routeBlueFeeder;
     private Route routeRedFeeder;
 
     private final double barrierDistanceFromCenterlineInMeters = 1.5616;
     private final double inchesPerMeter = 39.3701;
-    private final double robotTrackWidthInMeters = 30.0 / inchesPerMeter;
+    private final double robotTrackWidthInMeters = 19.75 / inchesPerMeter;
 
     private RamseteController pathController;
     private Trajectory pathTrajectory;
@@ -47,28 +47,28 @@ public class FeederFollower {
         if (Robot.rightJoystick.getRawButton(LogJoystick.B8)) {
 
             // Choose red or blue feeder on the same side of the field as the robot
-            isPathStarted = false;
+            RobotMode.set(ROBOT_MODE.TELEOP_APPROACHING_PATH_START);
             if (currentRobotPose.getX() > 0) {
                 pathTrajectory = routeBlueFeeder.trajectory;
                 if ((currentRobotPose.getX() > pathTrajectory.getInitialPose().getX())
                         && (currentRobotPose.getY() > barrierDistanceFromCenterlineInMeters)) {
-                    if (!isPathStarted) {
+                    if (RobotMode.get() == ROBOT_MODE.TELEOP_APPROACHING_PATH_START) {
                         pathTimer.start();
-                    }
-                    isPathStarted = true;
+                    }             
+                    RobotMode.set(ROBOT_MODE.TELEOP_FOLLOWING_PATH);
                 }
             } else {
                 pathTrajectory = routeRedFeeder.trajectory;
                 if ((currentRobotPose.getX() < pathTrajectory.getInitialPose().getX())
                         && (currentRobotPose.getY() > barrierDistanceFromCenterlineInMeters)) {
-                    if (!isPathStarted) {
+                    if (RobotMode.get() == ROBOT_MODE.TELEOP_APPROACHING_PATH_START) {
                         pathTimer.start();
                     }
-                    isPathStarted = true;
+                    RobotMode.set(ROBOT_MODE.TELEOP_FOLLOWING_PATH);
                 }
             }
 
-            if (!isPathStarted) {
+            if (RobotMode.get() == ROBOT_MODE.TELEOP_APPROACHING_PATH_START) {
                 // Drive straight towords the start of the path
                 goal = pathTrajectory.getStates().get(0);
             } else {

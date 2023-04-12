@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
 import frc.auto.MainAutoFunctions;
+import frc.auto.BabyAuto.AUTO_MOBILITY_MODE;
+import frc.auto.MainAutoFunctions.AUTOS;
 import frc.systems.Balance;
 import frc.systems.FeederFinder;
 import frc.systems.Intake;
@@ -32,8 +34,8 @@ import frc.utilities.LogJoystick;
 import frc.utilities.Pathing;
 import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
-import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
+import frc.utilities.RobotMode.ROBOT_MODE;
 
 public class Robot extends TimedRobot {
 
@@ -59,111 +61,106 @@ public class Robot extends TimedRobot {
   public static LogFile myLogFile;
 
   public static Timer systemTimer;
-  public static SoftwareTimer testTimer;
-
-  public static double initialPitch = 0;
-
-  public static boolean isCAN = true;
 
   public static Location4276 myLocation;
 
-  public static double pov;
+  public static double pov = -1;
 
   public static double deadband = 0.05;
-
-  private static boolean firstRun = true;
 
   private static DigitalInput Switch1;
   private static DigitalInput Switch2;
   private static DigitalInput Switch3;
 
-  private static boolean auto0 = false;
-  private static boolean auto1 = false;
-  private static boolean auto2 = false;
-  private static boolean auto3 = false;
-  private static boolean auto4 = false;
+  private static int autoselector = 0;
 
-  public static int autoselector = 0;
-
-  private static boolean firstRunTimer4 = true;
-
-  public static RobotMode mRobotMode;
-
-  public static boolean isTestMode = false;
-
-  public static boolean isTeleop = true;
-
-  
-  public static boolean isJoystickInReverse() {
-    return  (Robot.rightJoystick.getY() > deadband);
-  }
+  private static boolean firstRun;
 
   public static void timedDrive() {
+    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
+      RobotMode.set(ROBOT_MODE.IDLING);
+
+    }
+
+    // ************************************************ \\
+    // Command Inputs
     boolean goDrive = false;
     if (TeleopDrivetrain.currentMode == TeleopDrivetrain.DriveMode.ARCADE) {
-      if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
-          || (Math.abs(Robot.rightJoystick.getZ()) > deadband)) {
+      if ((Math.abs(Robot.leftJoystick.getY()) > deadband)
+          || (Math.abs(Robot.leftJoystick.getZ()) > deadband)) {
         goDrive = true;
       }
-    } else { // TANK drive}
+    } else { // TANK drive
       if ((Math.abs(Robot.rightJoystick.getY()) > deadband)
           || (Math.abs(Robot.leftJoystick.getY()) > deadband)) {
         goDrive = true;
       }
     }
 
-    SmartDashboard.putNumber("R joystick Z: ", Math.abs(Robot.rightJoystick.getZ()));
-
     if (goDrive) {
-      PIDDrivetrain.newPositiontohold = true;
-      PIDDrivetrain.holdPosition = false;
-      mTeleopDrivetrain.operatorDrive();
+      RobotMode.set(ROBOT_MODE.TELEOP_DRIVING);
 
     } else if (Robot.xboxController.getRawButton(Xbox.X)
         || Robot.rightJoystick.getRawButton(LogJoystick.B1)) {
+          RobotMode.set(ROBOT_MODE.HOLD_POSITION);
 
-      PIDDrivetrain.holdPosition = true;
-      PIDDrivetrain.PIDDrivetrainUpdate();
-
-    } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
+    } else if (Robot.xboxController.getRawButton(Xbox.B)
         || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
-      Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
-      if (!Balance.pause) {
-        PIDDrivetrain.PIDDrivetrainUpdate();
-      }
+          RobotMode.set(ROBOT_MODE.BALANCING);
 
     } else if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
       FeederFinder.updatePeriodic();
-    } else {
-      if (isTeleop) {
-        TeleopDrivetrain.assignMotorPower(0, 0);
-        Balance.pause = false;
-      }
 
     }
 
-    if (!((Robot.xboxController.getRawButton(Xbox.X)
-        || (!Robot.rightJoystick.getRawButton(LogJoystick.B1))))) {
-      PIDDrivetrain.newPositiontohold = true;
-      PIDDrivetrain.holdPosition = false;
+    // ************************************************ \\
+    // Executing Commands
+    if (RobotMode.get() == ROBOT_MODE.TELEOP_DRIVING){
+      mTeleopDrivetrain.operatorDrive();
     }
-
-    if (!isTeleop) {
-      if (BabyAuto.usingDrivetrainMotorsNOPOWER) {
+    
+    if (RobotMode.get() == ROBOT_MODE.AUTO_DRIVING){
+      if (BabyAuto.get() == AUTO_MOBILITY_MODE.NOPOWER) {
         TeleopDrivetrain.assignMotorPower(0, 0);
-      } else if (BabyAuto.usingDrivetrainMotorsForward) {
+      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.FORWARD) {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
-    } else if (BabyAuto.usingDrivetrainMotorsBackward) {
-      TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
-    } else if (firstRun) {
-      TeleopDrivetrain.assignMotorPower(0, 0);
-      firstRun = false;
+      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.BACKWARD) {
+        TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
+      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.TURNING){
+        double power = BabyAuto.doabarrelroll(Gyroscope.GetCorrectedYaw());
+        TeleopDrivetrain.assignMotorPower(power, power);
+      }
+      
+    }
+
+    if (RobotMode.get() == ROBOT_MODE.IDLING){
+      TeleopDrivetrain.assignMotorPower( 0, 0);
+    }
+
+    if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION){
+      PIDDrivetrain.PIDDrivetrainUpdate();
+        
+    } else {
+      PIDDrivetrain.newPositiontohold = true;
+
+  
+    }
+  
+    if ((RobotMode.get() != ROBOT_MODE.BALANCING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){
+      Balance.pause = false;
+    } else {
+      Balance.balance(Gyroscope.GetCorrectPitch());
+      if (!Balance.pause) {
+        PIDDrivetrain.PIDDrivetrainUpdate();
       }
     }
+    
+
   }
 
-  public static void timedArm() {
+  
 
+  public static void timedArm() {
     mIntake.updatePeriodic();
     PIDElbow.PIDElbowUpdate();
   }
@@ -175,17 +172,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    mRobotMode = new RobotMode();
     myLogFile = new LogFile();
+
+    MainAutoFunctions.MainAutoFunctionsInit();
+    
+    RobotMode.RobotModeInit();
+    BabyAuto.BabyAutoInit();
 
     Pathing.IntiateServer();
 
-    isTestMode = false;
-
     CameraServer.startAutomaticCapture();
-
-    testTimer = new SoftwareTimer();
 
     Switch1 = new DigitalInput(5);
     Switch2 = new DigitalInput(6);
@@ -210,7 +206,7 @@ public class Robot extends TimedRobot {
 
     mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
-
+    
     armRateGroup = new Notifier(Robot::timedArm);
     armRateGroup.startPeriodic(0.05);
 
@@ -226,7 +222,12 @@ public class Robot extends TimedRobot {
 
     myLedStrip.setMode(frc.utilities.LedStripControl.LED_MODE.LED_OFF);
 
-    SmartDashboard.putString("Set Robot Mode: ", "***");
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
+    fieldPose = new FieldPose();
   }
 
   /**
@@ -242,15 +243,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
     myLocation.updatePosition();
     myLocation.updateTelemetry();
 
     pov = xboxController.getPOV();
 
-    SmartDashboard.putString("Robot Mode: ", RobotMode.getString(mRobotMode));
-
-    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
+    SmartDashboard.putNumber("Pitch", Gyroscope.GetCorrectPitch());
 
     autoselector = 0;
 
@@ -260,24 +258,20 @@ public class Robot extends TimedRobot {
       autoselector += 2;
     if (!Switch3.get())
       autoselector += 4;
-    SmartDashboard.putNumber("Auto Mode", autoselector);
+    SmartDashboard.putString("Auto: ", MainAutoFunctions.getString());
+    SmartDashboard.putString("Robot Mode: ", RobotMode.getString());
+    SmartDashboard.putString("Auto Mobility Mode: ", BabyAuto.getString());
 
     Pathing.SetSimOrinitation();
-
-    if (firstRunTimer4) {
-      testTimer.setTimer(1);
-      firstRunTimer4 = false;
-    }
-
-    if (testTimer.isExpired()) {
-      // System.out.println(PIDElbow.driveElbow.getAppliedOutput());
-      firstRunTimer4 = true;
-    }
-
   }
 
   @Override
   public void autonomousInit() {
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
 
     autoselector = 0;
 
@@ -289,35 +283,38 @@ public class Robot extends TimedRobot {
       autoselector += 4;
 
     if (autoselector == 0)
-      auto0 = true;
+      MainAutoFunctions.set(AUTOS.NO_BANANA);
     if (autoselector == 1)
-      auto1 = true;
+      MainAutoFunctions.set(AUTOS.SHOOT_BACKUP);
     if (autoselector == 2)
-      auto2 = true;
+      MainAutoFunctions.set(AUTOS.SHOOT);
+    if (autoselector == 3)
+      MainAutoFunctions.set(AUTOS.MOBILITY_BALANCE);
     if (autoselector == 4)
-      auto3 = true;
+      MainAutoFunctions.set(AUTOS.BALANCE);
     if (autoselector == 7)
-      auto4 = true;
+      MainAutoFunctions.set(AUTOS.SHOOT_BALANCE);
 
-    isTestMode = false;
     AutoScoringFunctions.AutoScoringFunctionsInit();
-    BabyAuto.BabyAutoInit();
-    isTeleop = false;
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (auto0) {
+
+
+    if (MainAutoFunctions.get() == AUTOS.NO_BANANA) {
       // do nothing
-    } else if (auto1) {
+    } else if (MainAutoFunctions.get() == AUTOS.SHOOT_BACKUP) {
       MainAutoFunctions.auto_shoot_backup();
-    } else if (auto2) {
+    } else if (MainAutoFunctions.get() == AUTOS.SHOOT) {
       MainAutoFunctions.auto_shoot();
-    } else if (auto3) {
+    } else if (MainAutoFunctions.get() == AUTOS.BALANCE) {
       MainAutoFunctions.auto_balance();
-    } else if (auto4) {
+    } else if (MainAutoFunctions.get() == AUTOS.SHOOT_BALANCE) {
       MainAutoFunctions.auto_shoot_balance();
+    } else if (MainAutoFunctions.get() == AUTOS.MOBILITY_BALANCE) {
+      MainAutoFunctions.auto_mobility_balance();
     }
 
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_AUTO);
@@ -326,11 +323,11 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    isTestMode = false;
-    initialPitch = Gyroscope.GetPitch();
-    isTeleop = true;
-    BabyAuto.balance = false;
-    Balance.pause = false;
+    if(firstRun){
+      Gyroscope.gyroscopeInit();
+      firstRun = false;
+    }
+
   }
 
   /** This function is called periodically during operator control. */
@@ -342,19 +339,22 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    isTestMode = false;
+    firstRun = true;
+
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+    firstRun = true;
+
     myLedStrip.updatePeriodic(LedStripControl.LED_MODE.LED_OFF);
   }
 
   /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
-    isTestMode = true;
+
   }
 
   /** This function is called periodically during test mode. */

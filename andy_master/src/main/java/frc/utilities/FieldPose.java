@@ -40,6 +40,10 @@ public class FieldPose {
         }
     }
 
+    public static double getRotationDegrees() {
+        return position.getRotation().getDegrees();
+    }
+
     public static void updatePosition() {
 
         photonPoseEstimator.setReferencePose(position);
