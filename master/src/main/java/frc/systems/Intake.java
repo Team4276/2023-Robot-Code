@@ -14,14 +14,6 @@ public class Intake {
 
     private static double deadband = 0.2;
 
-    public static intake intakeState = intake.OFF;
-
-    public enum intake{
-        OFF,
-        INTAKE,
-        OUTTAKE,
-    }
-
     public Intake(int port) {
         intakeDrive = new CANSparkMax(port, MotorType.kBrushless);
     }
@@ -32,12 +24,12 @@ public class Intake {
     }
 
     public void updatePeriodic() {
-        double speed = Robot.xboxController.getRightY();
+        double rightY = Robot.xboxController.getRightY();
 
-        if ((speed < -deadband)/* || (intakeState == intake.INTAKE)*/) {
+        if (rightY > deadband) {
             // Intake
             setSpeed(0.65);
-        } else if ((speed > deadband) /*|| (AutoScoringFunctions.usingIntake) || (intakeState == intake.OUTTAKE)*/) { // -1 for deadband in opposite
+        } else if ((rightY < (-1 * deadband)) || (AutoScoringFunctions.usingIntake)) { // -1 for deadband in opposite
                                                                                        // direction
             // Outtake
             setSpeed(-0.65);

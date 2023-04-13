@@ -15,8 +15,8 @@ public class RoboRioPorts {
 	public static final int CAN_DRIVE_L1 = 13;
 	public static final int CAN_DRIVE_L2 = 14;
 
-	public static final int CAN_SHOULDER_R = 15;
-	public static final int CAN_SHOULDER_L = 16;
+	public static final int CAN_SHOULDER_R = 16;
+	public static final int CAN_SHOULDER_L = 15;
 	public static final int CAN_ELBOW = 17;
 	public static final int CAN_INTAKE = 18;
 

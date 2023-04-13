@@ -9,7 +9,7 @@ public class AutoScoringFunctions {
 
     private static boolean firstRun = true;
     
-    private static final double INTAKERUNTIME = 0.25;
+    private static final double INTAKERUNTIME = 1;
 
     private static SoftwareTimer intakeTimer;
 
@@ -17,7 +17,7 @@ public class AutoScoringFunctions {
         intakeTimer = new SoftwareTimer();
     }
 
-    public static boolean scoreLow(){
+    public static void scoreLow(){
         if (firstRun) {
             intakeTimer.setTimer(INTAKERUNTIME);
             firstRun = false;
@@ -27,12 +27,8 @@ public class AutoScoringFunctions {
             usingIntake = false;
             taskIsFinished = true;
 
-            return true;
-
         } else {
             usingIntake = true;
-
-            return false;
         }
 
     }
