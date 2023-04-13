@@ -28,6 +28,7 @@ public class PIDElbow {
     private static SparkMaxAbsoluteEncoder driveElbowEncoder;
 
     private static SparkMaxLimitSwitch driveElbowReverseLimitSwitch;
+    private static SparkMaxLimitSwitch driveElbowForwardLimitSwitch;
 
     private static double deadband = 0.2;
 
@@ -90,8 +91,9 @@ public class PIDElbow {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
         driveElbowReverseLimitSwitch = driveElbow.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
-
         driveElbowReverseLimitSwitch.enableLimitSwitch(true);
+        driveElbowForwardLimitSwitch = driveElbow.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
+        driveElbowForwardLimitSwitch.enableLimitSwitch(true);
 
         driveElbowEncoder = driveElbow.getAbsoluteEncoder(Type.kDutyCycle);
 
