@@ -18,12 +18,9 @@ public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
     private static double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = 0.0;
-    private static double DPAD_UP_ELBOW_STOW = 0.0;
-    private static double DPAD_LEFT_ELBOW_EJECT_CUBE = 0.0;
-    private static double DPAD_DOWN_ELBOW_COLLECT = 0.2;
-
-    private static double SETPOINT_REVERSE_LIMIT = 0.2;
-    private static double SETPOINT_FORWARD_LIMIT = 0.5;
+    private static double DPAD_UP_ELBOW_FEEDER = 0.537;
+    private static double DPAD_LEFT_ELBOW_EJECT_CUBE = 0.174;
+    private static double DPAD_DOWN_ELBOW_CONE_COLLECT = 0.055;
 
     private static CANSparkMax driveElbow;
 
@@ -55,7 +52,7 @@ public class PIDElbow {
 
     public static double setPoint_Elbow = 0.0;
 
-    private static double elbowZero = 0;
+    private static double elbowZero = 0.312;
 
     private static Pos position = Pos.NONE;
 
@@ -139,28 +136,27 @@ public class PIDElbow {
     }
 
     public static void PIDElbowUpdate() {
-        if (Robot.xboxController.getLeftY() > deadband) {
+        double leftY = Robot.xboxController.getLeftY();
+        if (leftY > deadband) {
             if (driveElbowForwardLimitSwitch.isPressed()) {
                 // Joystick indicates move farther forward, but the forward limit switch is
                 // pressed
-                setPoint_Elbow = SETPOINT_FORWARD_LIMIT;
-                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
-                Timer.delay(0.5);
+                driveElbow.set(0);
             } else {
-                double speed = Robot.xboxController.getLeftY() * 500;
+                double speed = leftY * 500;
                 setPIDReference(speed, ControlType.kSmartVelocity);
                 setPoint_Elbow = driveElbowEncoder.getPosition();
             }
-            
-        } else if (Robot.xboxController.getLeftY() < deadband) {
+
+        } else if (leftY < deadband) {
             if (driveElbowReverseLimitSwitch.isPressed()) {
                 // Joystick indicates move farther reverse, but the reverse limit switch is
                 // pressed
-                setPoint_Elbow = SETPOINT_REVERSE_LIMIT;
+                setPoint_Elbow = DPAD_UP_ELBOW_FEEDER;
                 setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
                 Timer.delay(0.5);
             } else {
-                double speed = Robot.xboxController.getLeftY() * 500;
+                double speed = leftY * 500;
                 setPIDReference(speed, ControlType.kSmartVelocity);
                 setPoint_Elbow = driveElbowEncoder.getPosition();
             }
@@ -168,10 +164,10 @@ public class PIDElbow {
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
-                setPoint_Elbow = DPAD_UP_ELBOW_STOW + elbowZero;
+                setPoint_Elbow = DPAD_UP_ELBOW_FEEDER + elbowZero;
 
             } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT + elbowZero;
+                setPoint_Elbow = DPAD_DOWN_ELBOW_CONE_COLLECT + elbowZero;
 
             } else if (Xbox.POVright == Robot.pov) {
                 setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + elbowZero;
@@ -183,11 +179,17 @@ public class PIDElbow {
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
 
         } else if (Robot.xboxController.getAButton()) {
-                setZero();
+            setZero();
 
-        } else if(Math.abs(Robot.xboxController.getLeftY()) <= deadband) {
-            // When joystick command returnds to deadband, (and no DPAD command), hold current position 
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+        } else if (Math.abs(leftY) <= deadband) {
+            if (driveElbowReverseLimitSwitch.isPressed()) {
+                // At reverse limit we let gravity hold it 
+                driveElbow.set(0);
+            } else {
+                // When joystick command returnds to deadband, (and no DPAD command), hold
+                // current position
+                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            }
         }
 
         if (Robot.xboxController.getRightTriggerAxis() > deadband) {
@@ -214,11 +216,11 @@ public class PIDElbow {
             }
             if (Robot.xboxController.getYButton()) {
                 if (position == Pos.COLLECT) {
-                    DPAD_DOWN_ELBOW_COLLECT = getCorrectedPos();
+                    DPAD_DOWN_ELBOW_CONE_COLLECT = getCorrectedPos();
                 } else if (position == Pos.EJECT_CUBE) {
                     DPAD_LEFT_ELBOW_EJECT_CUBE = getCorrectedPos();
                 } else if (position == Pos.ELBOW_STOW) {
-                    DPAD_UP_ELBOW_STOW = getCorrectedPos();
+                    DPAD_UP_ELBOW_FEEDER = getCorrectedPos();
                 } else if (position == Pos.REACH_NEAR_CONE) {
                     DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = getCorrectedPos();
                 }
@@ -229,10 +231,10 @@ public class PIDElbow {
         SmartDashboard.putNumber("Corrected Elbow Encoder", getCorrectedPos());
         SmartDashboard.putString("Current Position Being Calibrated", getString());
         SmartDashboard.putNumber("Elbow Power", driveElbow.getAppliedOutput());
-        SmartDashboard.putNumber("DPAD_DOWN_ELBOW_COLLECT: ", DPAD_DOWN_ELBOW_COLLECT);
+        SmartDashboard.putNumber("DPAD_DOWN_ELBOW_COLLECT: ", DPAD_DOWN_ELBOW_CONE_COLLECT);
         SmartDashboard.putNumber("DPAD_LEFT_ELBOW_EJECT_CUBE: ", DPAD_LEFT_ELBOW_EJECT_CUBE);
         SmartDashboard.putNumber("DPAD_RIGHT_ELBOW_REACH_NEAR_CONE: ", DPAD_RIGHT_ELBOW_REACH_NEAR_CONE);
-        SmartDashboard.putNumber("DPAD_UP_ELBOW_STOW: ", DPAD_UP_ELBOW_STOW);
+        SmartDashboard.putNumber("DPAD_UP_ELBOW_STOW: ", DPAD_UP_ELBOW_FEEDER);
     }
 
 }
