@@ -21,6 +21,9 @@ public class PIDElbow {
     private static double DPAD_LEFT_ELBOW_EJECT_CUBE = 0.0;
     private static double DPAD_DOWN_ELBOW_COLLECT = 0.2;
 
+    private static double SETPOINT_REVERSE_LIMIT = 0.2;
+    private static double SETPOINT_FORWARD_LIMIT = 0.5;
+
     private static CANSparkMax driveElbow;
 
     private static SparkMaxPIDController driveElbowPidController;
@@ -57,34 +60,32 @@ public class PIDElbow {
 
     private static int currentPos = 0;
 
-    private enum Pos{
+    private enum Pos {
         NONE,
         REACH_NEAR_CONE,
         ELBOW_STOW,
         EJECT_CUBE,
         COLLECT
-
     }
 
-    private static String getString(){
+    private static String getString() {
 
-        switch(position.ordinal()){
+        switch (position.ordinal()) {
             case 0:
-              return "NONE";
+                return "NONE";
             case 1:
-              return "REACH_NEAR_CONE";
+                return "REACH_NEAR_CONE";
             case 2:
-              return "ELBOW_STOW";
+                return "ELBOW_STOW";
             case 3:
-              return "EJECT_CUBE";
+                return "EJECT_CUBE";
             case 4:
-              return "COLLECT";
-      
+                return "COLLECT";
+
             default:
-              break;
-          }
-          return "*****";
-        
+                break;
+        }
+        return "*****";
     }
 
     public PIDElbow(int port) {
@@ -120,7 +121,6 @@ public class PIDElbow {
             pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
             pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
-
         }
 
     }
@@ -129,84 +129,99 @@ public class PIDElbow {
         driveElbowPidController.setReference(setPoint_Elbow, controlType);
     }
 
-    private static void setZero(){
+    private static void setZero() {
         elbowZero = driveElbowEncoder.getPosition();
-
     }
 
-    private static double getCorrectedPos(){
+    private static double getCorrectedPos() {
         return driveElbowEncoder.getPosition() - elbowZero;
-
     }
 
     public static void PIDElbowUpdate() {
-        if ((Math.abs(Robot.xboxController.getLeftY()) > deadband)) {
-            double speed = Robot.xboxController.getLeftY() * 500;
-            setPIDReference(speed, ControlType.kSmartVelocity);
-
-            setPoint_Elbow = driveElbowEncoder.getPosition();
+        if (Robot.xboxController.getLeftY() > deadband) {
+            if (driveElbowForwardLimitSwitch.isPressed()) {
+                // Joystick indicates move farther forward, but the forward limit switch is
+                // pressed
+                setPoint_Elbow = SETPOINT_FORWARD_LIMIT;
+                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+            } else {
+                double speed = Robot.xboxController.getLeftY() * 500;
+                setPIDReference(speed, ControlType.kSmartVelocity);
+                setPoint_Elbow = driveElbowEncoder.getPosition();
+            }
+            
+        } else if (Robot.xboxController.getLeftY() < deadband) {
+            if (driveElbowReverseLimitSwitch.isPressed()) {
+                // Joystick indicates move farther reverse, but the reverse limit switch is
+                // pressed
+                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+                setPoint_Elbow = SETPOINT_REVERSE_LIMIT;
+            } else {
+                double speed = Robot.xboxController.getLeftY() * 500;
+                setPIDReference(speed, ControlType.kSmartVelocity);
+                setPoint_Elbow = driveElbowEncoder.getPosition();
+            }
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
-                    setPoint_Elbow = DPAD_UP_ELBOW_STOW + elbowZero;
+                setPoint_Elbow = DPAD_UP_ELBOW_STOW + elbowZero;
 
             } else if (Xbox.POVdown == Robot.pov) {
-                    setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT + elbowZero;
+                setPoint_Elbow = DPAD_DOWN_ELBOW_COLLECT + elbowZero;
 
             } else if (Xbox.POVright == Robot.pov) {
-                    setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + elbowZero;
+                setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + elbowZero;
 
             } else if (Xbox.POVleft == Robot.pov) {
-                    setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE + elbowZero;
+                setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE + elbowZero;
 
             }
-
-        } else if(Robot.xboxController.getAButton()){
-            setZero();
-
-        } else {
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+
+        } else if(Math.abs(Robot.xboxController.getLeftY()) <= deadband) {
+            // When joystick command returnds to deadband, (and no DPAD command), hold current position 
+            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+        
+        } else if (Robot.xboxController.getAButton()) {
+            setZero();
 
         }
 
-        
-
-        if (Robot.xboxController.getRightTriggerAxis() > deadband){
-            if (Robot.xboxController.getRightBumperReleased()){
+        if (Robot.xboxController.getRightTriggerAxis() > deadband) {
+            if (Robot.xboxController.getRightBumperReleased()) {
                 currentPos += 1;
-    
-                if (currentPos > 4){
+
+                if (currentPos > 4) {
                     currentPos = 0;
                 }
-    
+
                 position = position.values()[currentPos];
-    
+
             }
-            if (Robot.xboxController.getLeftBumperReleased()){
+            if (Robot.xboxController.getLeftBumperReleased()) {
                 currentPos -= 1;
-    
-                
-                if (currentPos < 0){
+
+                if (currentPos < 0) {
                     currentPos = 3;
 
                 }
-    
+
                 position = position.values()[currentPos];
-    
+
             }
-            if (Robot.xboxController.getYButton()){
-                if (position == Pos.COLLECT){
+            if (Robot.xboxController.getYButton()) {
+                if (position == Pos.COLLECT) {
                     DPAD_DOWN_ELBOW_COLLECT = getCorrectedPos();
-                } else if (position == Pos.EJECT_CUBE){
+                } else if (position == Pos.EJECT_CUBE) {
                     DPAD_LEFT_ELBOW_EJECT_CUBE = getCorrectedPos();
-                } else if (position == Pos.ELBOW_STOW){
+                } else if (position == Pos.ELBOW_STOW) {
                     DPAD_UP_ELBOW_STOW = getCorrectedPos();
-                } else if (position == Pos.REACH_NEAR_CONE){
+                } else if (position == Pos.REACH_NEAR_CONE) {
                     DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = getCorrectedPos();
                 }
             }
         }
-        
 
         SmartDashboard.putNumber("Raw Elbow Encoder:  ", driveElbowEncoder.getPosition());
         SmartDashboard.putNumber("Corrected Elbow Encoder", getCorrectedPos());
