@@ -30,11 +30,18 @@ public class FieldPose {
     private static PhotonCamera cam;
     private static PhotonPoseEstimator photonPoseEstimator;
 
-    public FieldPose() {
-        cam = new PhotonCamera("HD_Pro_Webcam_C920");
-        position = new Pose2d();
+    private static boolean isInitialized = false;
 
+    public FieldPose() {
+        init();
+    }
+
+    private static boolean init() {
+        cam = new PhotonCamera("HD_Pro_Webcam_C920");
+        position = new Pose2d();     
+        
         try {
+
             AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout
                     .loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
             Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
@@ -43,7 +50,9 @@ public class FieldPose {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public static double getRotationDegrees() {
@@ -52,12 +61,14 @@ public class FieldPose {
 
     public static void updatePosition() {
 
-        photonPoseEstimator.setReferencePose(position);
+        if(isInitialized) {
+            photonPoseEstimator.setReferencePose(position);
 
-        Optional<EstimatedRobotPose> pose = photonPoseEstimator.update();
-        isValidPosition = pose.isPresent();
-        if (isValidPosition) {
-            position = pose.get().estimatedPose.toPose2d();
+            Optional<EstimatedRobotPose> pose = photonPoseEstimator.update();
+            isValidPosition = pose.isPresent();
+            if (isValidPosition) {
+                position = pose.get().estimatedPose.toPose2d();
+            }
         }
     }
 

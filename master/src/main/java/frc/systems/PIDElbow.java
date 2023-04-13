@@ -8,6 +8,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Robot;
@@ -144,6 +145,7 @@ public class PIDElbow {
                 // pressed
                 setPoint_Elbow = SETPOINT_FORWARD_LIMIT;
                 setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+                Timer.delay(0.5);
             } else {
                 double speed = Robot.xboxController.getLeftY() * 500;
                 setPIDReference(speed, ControlType.kSmartVelocity);
@@ -154,8 +156,9 @@ public class PIDElbow {
             if (driveElbowReverseLimitSwitch.isPressed()) {
                 // Joystick indicates move farther reverse, but the reverse limit switch is
                 // pressed
-                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
                 setPoint_Elbow = SETPOINT_REVERSE_LIMIT;
+                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
+                Timer.delay(0.5);
             } else {
                 double speed = Robot.xboxController.getLeftY() * 500;
                 setPIDReference(speed, ControlType.kSmartVelocity);
@@ -179,13 +182,12 @@ public class PIDElbow {
             }
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
 
+        } else if (Robot.xboxController.getAButton()) {
+                setZero();
+
         } else if(Math.abs(Robot.xboxController.getLeftY()) <= deadband) {
             // When joystick command returnds to deadband, (and no DPAD command), hold current position 
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
-        
-        } else if (Robot.xboxController.getAButton()) {
-            setZero();
-
         }
 
         if (Robot.xboxController.getRightTriggerAxis() > deadband) {

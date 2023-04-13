@@ -11,9 +11,10 @@ public class Location4276 {
     // PhotonVision
     private static Vector3 v3PhotonVision;
     private static Vector3 v3PreviousPhotonVision;
-
     private static Vector3 v3Position;
     private static Vector3 v3PrevPosition;
+
+    private static FieldPose myFieldPose;
 
     private static double heading = 0.0;
     private static double speed = 0.0;
@@ -29,6 +30,8 @@ public class Location4276 {
         v3PreviousPhotonVision = new Vector3(0.0, 0.0, 0.0);
         v3Position = new Vector3(0.0, 0.0, 0.0);
         v3PrevPosition = new Vector3(0.0, 0.0, 0.0);
+
+        myFieldPose = new FieldPose();
 
         final double convertOneRevolutionToFeet = 0.1879;
         final double convertFeetToMeters = 0.3048;
