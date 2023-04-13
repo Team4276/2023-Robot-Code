@@ -25,7 +25,6 @@ import frc.systems.Intake;
 import frc.systems.PIDDrivetrain;
 import frc.systems.PIDElbow;
 import frc.systems.TeleopDrivetrain;
-import frc.utilities.FieldPose;
 import frc.utilities.Gyroscope;
 import frc.utilities.LedStripControl;
 import frc.utilities.Location4276;
@@ -54,7 +53,6 @@ public class Robot extends TimedRobot {
   public static FeederFinder mFeederFinder;
 
   public static NetworkTable ntLimelight;
-  public static FieldPose fieldPose;
 
   public static LedStripControl myLedStrip;
 
@@ -77,7 +75,7 @@ public class Robot extends TimedRobot {
   private static boolean firstRun;
 
   public static void timedDrive() {
-    if ((RobotMode.get() != ROBOT_MODE.AUTO_DRIVING) && (RobotMode.get() != ROBOT_MODE.AUTO_BALANCING)){ // Dont Reset Mode in Auto
+    if ((RobotMode.getString().substring(0, 3) != "AUTO")){ // Dont Reset Mode in Auto
       RobotMode.set(ROBOT_MODE.IDLING);
 
     }
@@ -126,9 +124,8 @@ public class Robot extends TimedRobot {
         TeleopDrivetrain.assignMotorPower(-1 * BabyAuto.MOTORPOWER, BabyAuto.MOTORPOWER);
       } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.BACKWARD) {
         TeleopDrivetrain.assignMotorPower(BabyAuto.MOTORPOWER, -1 * BabyAuto.MOTORPOWER);
-      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.TURNING){
-        double power = BabyAuto.doabarrelroll(Gyroscope.GetCorrectedYaw());
-        TeleopDrivetrain.assignMotorPower(power, power);
+      } else if (BabyAuto.get() == AUTO_MOBILITY_MODE.PICKUP){
+
       }
       
     }
@@ -137,7 +134,7 @@ public class Robot extends TimedRobot {
       TeleopDrivetrain.assignMotorPower( 0, 0);
     }
 
-    if (RobotMode.get() == ROBOT_MODE.HOLD_POSITION){
+    if ((RobotMode.get() == ROBOT_MODE.HOLD_POSITION) || (RobotMode.get() == ROBOT_MODE.AUTO_HOLDINGPOS)){
       PIDDrivetrain.PIDDrivetrainUpdate();
         
     } else {
@@ -227,7 +224,6 @@ public class Robot extends TimedRobot {
       firstRun = false;
     }
 
-    fieldPose = new FieldPose();
   }
 
   /**

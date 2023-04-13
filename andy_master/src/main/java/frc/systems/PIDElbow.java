@@ -1,6 +1,7 @@
 package frc.systems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -25,7 +26,7 @@ public class PIDElbow {
 
     private static SparkMaxPIDController driveElbowPidController;
 
-    private static SparkMaxAbsoluteEncoder driveElbowEncoder;
+    private static RelativeEncoder driveElbowEncoder;
 
     private static SparkMaxLimitSwitch driveElbowLimitSwitch;
 
@@ -37,8 +38,8 @@ public class PIDElbow {
     private static double[] kDarray = {0, 0, 0};
     private static double[] kIzarray = {0, 0, 0};
     private static double[] kFFarray = {0.000156, 0.000156, 0.000156};
-    private static double kMaxOutputarray = 1;
-    private static double kMinOutputarray = -1;
+    private static double kMaxOutputarray = 0.25;
+    private static double kMinOutputarray = -0.25;
     private static double maxVelarray = 80;
     private static double maxAccarray = 10;
     private static double minVelarray = 0;
@@ -52,7 +53,7 @@ public class PIDElbow {
 
     private static boolean firstRun = true;
 
-    private enum Pos{
+    public enum Pos{
         NONE,
         MID_CONE,
         STOW,
@@ -65,7 +66,7 @@ public class PIDElbow {
 
     }
 
-    private static String getString(){
+    public static String getString(){
 
         switch(position.ordinal()){
             case 0:
@@ -97,7 +98,7 @@ public class PIDElbow {
     public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
-        driveElbowEncoder = driveElbow.getAbsoluteEncoder(Type.kDutyCycle);
+        driveElbowEncoder = driveElbow.getEncoder();
 
         setPoint_Elbow = driveElbowEncoder.getPosition();
 
@@ -210,7 +211,7 @@ public class PIDElbow {
         }
 
         if (position == Pos.MANUAL){
-            double speed = Robot.xboxController.getLeftY() * 500;
+            double speed = Robot.xboxController.getLeftY() * 12;
             setPIDReference(speed, ControlType.kSmartVelocity, 0);
 
             setPoint_Elbow = driveElbowEncoder.getPosition();
@@ -225,7 +226,7 @@ public class PIDElbow {
         
         if (position == Pos.LIMIT){
             if (Robot.xboxController.getRightY() > deadband){
-                double speed = Robot.xboxController.getLeftY() * 500;
+                double speed = Robot.xboxController.getLeftY() * 12;
                 setPIDReference(speed, ControlType.kSmartVelocity, 0);
 
                 setPoint_Elbow = driveElbowEncoder.getPosition();
@@ -269,6 +270,7 @@ public class PIDElbow {
         SmartDashboard.putNumber("DPAD_LEFT_ELBOW_EJECT_CUBE: ", DPAD_LEFT_ELBOW_EJECT_CUBE);
         SmartDashboard.putNumber("DPAD_RIGHT_ELBOW_REACH_NEAR_CONE: ", DPAD_RIGHT_ELBOW_REACH_NEAR_CONE);
         SmartDashboard.putNumber("DPAD_UP_ELBOW_STOW: ", DPAD_UP_ELBOW_STOW);
+        SmartDashboard.putNumber("Setpoint elbow", setPoint_Elbow);
     }
 
 }

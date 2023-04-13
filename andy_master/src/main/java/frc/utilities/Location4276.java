@@ -99,7 +99,7 @@ public class Location4276 {
         // rotations
         final double convertRpmToFeet = 0.1879;
         final double convertFeetToMeters = 0.3048;
-        rpmSpeed *= convertRpmToFeet; // feet/min
+        rpmSpeed *= convertRpmToFeet;    // feet/min
         rpmSpeed *= convertFeetToMeters; // meters/min
         rpmSpeed /= 60.0; // meters/sec
 
@@ -169,22 +169,22 @@ public class Location4276 {
                                    // motionless
 
                 try {
-                    Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(distance));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(speed));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(heading));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(v3Position.x));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(v3Position.y));
-                    Robot.myLogFile.write(String.valueOf(","));
-                    Robot.myLogFile.write(String.valueOf(v3Position.z));
-                    Robot.myLogFile.write(String.valueOf("\r\n"));
+            Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(distance));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(speed));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(heading));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.x));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.y));
+            Robot.myLogFile.write(String.valueOf(","));
+            Robot.myLogFile.write(String.valueOf(v3Position.z));
+            Robot.myLogFile.write(String.valueOf("\r\n"));
                 } catch (Exception e) {
 
                 }

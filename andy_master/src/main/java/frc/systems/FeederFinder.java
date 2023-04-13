@@ -41,28 +41,28 @@ public class FeederFinder {
                 SmartDashboard.putNumber("APriltag14_X", v3ApriltagPositionInRobotRelativeCoordinates.x);
                 SmartDashboard.putNumber("APriltag14_Y", v3ApriltagPositionInRobotRelativeCoordinates.y);
 
-                        power_R = medPower;
-                        power_L = medPower;
+                power_R = medPower;
+                power_L = medPower;
 
                 if (v3ApriltagPositionInRobotRelativeCoordinates.x < lineFollowerDeadZone) {
-                        power_R += slowPower;
+                    power_R += slowPower;
                 } else if (v3ApriltagPositionInRobotRelativeCoordinates.x < (-1 * lineFollowerDeadZone)) {
                     power_L += slowPower;
-                    }
+                }
 
             } else {
                 // It is expected that the Limelight wil lose sight of the Apriltag as it gets
                 // close to the feeder
                 // If the driver continues to hold the button down drive straight forward slowly
                 // until the button is released
-                    power_R = slowPower;
-                    power_L = slowPower;
-                }
+                power_R = slowPower;
+                power_L = slowPower;
+            }
             power_R *= -1.0;
 
-                TeleopDrivetrain.assignMotorPower(power_R, power_L);
-            }
+            TeleopDrivetrain.assignMotorPower(power_R, power_L);
         }
+    }
 
     public static boolean checkLimelightForHumanPLayerBoard() {
 

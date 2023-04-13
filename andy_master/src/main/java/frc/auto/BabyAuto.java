@@ -1,31 +1,38 @@
 package frc.auto;
 
+import frc.systems.Intake;
+import frc.systems.PIDElbow;
+import frc.systems.TeleopDrivetrain;
+import frc.systems.Intake.intake;
+import frc.systems.PIDElbow.Pos;
+import frc.utilities.Gyroscope;
 import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.RobotMode.ROBOT_MODE;
-
-import edu.wpi.first.math.controller.PIDController;
 
 public class BabyAuto {
     private static final double LEFTMOBILITYTIME = 4.5; // time in seconds
     private static final double MIDDLEBALANCTIME2 = 2.5; // drive up onto platform
     public static final double MOTORPOWER = 0.20;
 
+    private static final double FASTZONEPOWER = 0.2;
+    private static final double SLOWZONE = 10;
+    private static final double SLOWZONEPOWER = 0.1;
     private static final double DEADZONE = 2;
     private static double desired_angle = 0;
 
     private static SoftwareTimer timer1;
     private static SoftwareTimer timer2;
+    private static SoftwareTimer timer3;
+    private static SoftwareTimer timer4;
 
     private static boolean firstRun1 = true;
     private static boolean firstRun2 = true;
     private static boolean firstRun3 = true;
+    private static boolean firstRun4 = true;
+    private static boolean firstRun5 = true;
+    private static boolean firstrun6 = true;
 
-    private static PIDController turnController;
-
-    private static double kP = 1;
-    private static double kI = 0;
-    private static double kD = 0;
 
     public static boolean taskIsFinished = false;
 
@@ -35,7 +42,7 @@ public class BabyAuto {
         FORWARD,
         BACKWARD,
         NOPOWER,
-        TURNING
+        PICKUP
     }
 
     public static AUTO_MOBILITY_MODE get() {
@@ -67,13 +74,11 @@ public class BabyAuto {
     public static void BabyAutoInit(){
         timer1 = new SoftwareTimer();
         timer2 = new SoftwareTimer();
-
-        turnController = new PIDController(kP, kI, kD);
+        timer3 = new SoftwareTimer();
+        timer4 = new SoftwareTimer();
 
         myAutoMobilityMode = AUTO_MOBILITY_MODE.NOPOWER;
 
-        
-        turnController.setPID(kP, kI, kD);
     }
 
     public static boolean ScoreMobility(){
@@ -133,23 +138,64 @@ public class BabyAuto {
         
     }
 
-    public static double doabarrelroll(double current_angle){
-        double power = 0;
-
+    public static boolean pickup(){
         if (firstRun3){
-            desired_angle = current_angle + 180;
-            if (desired_angle > 360){
-                desired_angle -= 360;
-            }
+            desired_angle = Gyroscope.GetCorrectedYaw() + 180;
             firstRun3 = false;
         }
 
-        if(Math.abs(current_angle) > DEADZONE){
-            power = turnController.calculate(current_angle, desired_angle);
+        if (Math.abs(desired_angle - Gyroscope.GetCorrectedYaw()) > SLOWZONE){
+            TeleopDrivetrain.assignMotorPower(FASTZONEPOWER, FASTZONEPOWER);
+            firstRun4 = true;
+            return false;
+        } else if (Math.abs(desired_angle - Gyroscope.GetCorrectedYaw()) > DEADZONE){
+            firstRun4 = true;
+            TeleopDrivetrain.assignMotorPower(SLOWZONEPOWER, SLOWZONEPOWER);
+            return false;
         } else {
-            firstRun3 = true;
+            TeleopDrivetrain.assignMotorPower(0, 0);
+            if (firstRun4){
+                if (collect()){
+                    firstRun3 = true;
+                    firstRun4 = false;
+                }
+                return false;
+
+            } else {
+                return true;
+            }
+
         }
 
-        return power;
+
+    }
+
+    public static boolean collect(){
+        if (firstRun5){
+            timer3.setTimer(0.5);
+        }
+        
+        if (timer3.isExpired()){
+            if (firstrun6){
+                timer4.setTimer(0.25);
+            
+            }
+
+            if (timer4.isExpired()){
+                Intake.intakeState = intake.OFF;
+                PIDElbow.position = Pos.STOW;
+            } else {
+                Intake.intakeState = intake.INTAKE;
+            }
+
+
+            firstRun5 = true;
+            return true;
+        } else {
+            PIDElbow.position = Pos.COLLECT;
+
+            return false;
+        }
+
     }
 }

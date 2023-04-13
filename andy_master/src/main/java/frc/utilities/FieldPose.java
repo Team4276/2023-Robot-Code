@@ -4,6 +4,12 @@ package frc.utilities;
 import java.io.IOException;
 import java.util.Optional;
 
+// if "import org.photonvision cannot be resolved"
+// Install PhotonLib using 'Manage Vendor Libraries' ONLINE install, (offline not available as of April 2023)
+//     https://maven.photonvision.org/repository/internal/org/photonvision/PhotonLib-json/1.0/PhotonLib-json-1.0.json 
+// Must build once while connected to outside Internet, then can disconnect
+// More detail here:  https://docs.photonvision.org/en/latest/docs/programming/photonlib/adding-vendordep.html 
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
