@@ -21,7 +21,7 @@ public class Location4276 {
     private static double posFixErrorCorrection = 0.0;
 
     private static double gyroCorrection = 0.0;
-    private static long positionUpdateTimeMillisecs;
+    private static double prevPosition = 0.0;
 
     public Location4276() {
 
@@ -29,6 +29,15 @@ public class Location4276 {
         v3PreviousPhotonVision = new Vector3(0.0, 0.0, 0.0);
         v3Position = new Vector3(0.0, 0.0, 0.0);
         v3PrevPosition = new Vector3(0.0, 0.0, 0.0);
+
+        final double convertOneRevolutionToFeet = 0.1879;
+        final double convertFeetToMeters = 0.3048;
+
+        double kNeoPositionConversionFactor = convertOneRevolutionToFeet;
+        kNeoPositionConversionFactor *= convertFeetToMeters;
+
+        BaseDrivetrain.flDriveX.getEncoder().setPositionConversionFactor(kNeoPositionConversionFactor);
+        BaseDrivetrain.frDriveX.getEncoder().setPositionConversionFactor(kNeoPositionConversionFactor);
     }
 
     public Pose2d getRobotPosition() {
@@ -46,13 +55,13 @@ public class Location4276 {
     }
 
     public static double getRawHeading() {
-        double retVal = Gyroscope.GetYaw();   // starts at zero, negative is CCW from top, 
-        retVal %= 360;                        // now in range -360 to +360
-        
-        if (retVal > 180){
+        double retVal = Gyroscope.GetYaw(); // starts at zero, negative is CCW from top,
+        retVal %= 360; // now in range -360 to +360
+
+        if (retVal > 180) {
             retVal -= 360;
         }
-        if (retVal < -180){
+        if (retVal < -180) {
             retVal += 360;
         }
         return retVal;
@@ -60,7 +69,7 @@ public class Location4276 {
 
     private static double getHeading() {
         double retVal = getRawHeading();
-        retVal += gyroCorrection;               
+        retVal += gyroCorrection;
         return retVal;
     }
 
@@ -73,25 +82,15 @@ public class Location4276 {
         // Find the lowest speed encoder (assume faster speed indicates slippage or
         // minor difference due to turning)
 
+        double FRencoderSpeed = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
+        double FLencoderSpeed = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
+
         double rpmSpeed = 10000000.0;
-
-        double BRencoder = BaseDrivetrain.brDriveX.getEncoder().getVelocity();
-        double BLencoder = BaseDrivetrain.blDriveX.getEncoder().getVelocity();
-        double FRencoder = BaseDrivetrain.flDriveX.getEncoder().getVelocity();
-        double FLencoder = BaseDrivetrain.frDriveX.getEncoder().getVelocity();
-
-        // 2023 robot can sense velocity directly from the SparkMAX controller
-        if (rpmSpeed > FRencoder) {
-            rpmSpeed = FRencoder;
+        if (rpmSpeed > FRencoderSpeed) {
+            rpmSpeed = FRencoderSpeed;
         }
-        if (rpmSpeed > (-1 * BRencoder)) {
-            rpmSpeed = (-1 * BRencoder);
-        }
-        if (rpmSpeed > (-1 * FLencoder)) {
-            rpmSpeed = (-1 * FLencoder);
-        }
-        if (rpmSpeed > BLencoder) {
-            rpmSpeed = BLencoder;
+        if (rpmSpeed > (-1 * FLencoderSpeed)) {
+            rpmSpeed = (-1 * FLencoderSpeed);
         }
 
         // Speed units are rpm at this point - need to convert to feet/sec:
@@ -99,10 +98,30 @@ public class Location4276 {
         // (100 rotations)/(8.5 gearbox redux) * (2pi*3.05in) = 225.5in, or 18.79ft/100
         // rotations
         final double convertRpmToFeet = 0.1879;
+        final double convertFeetToMeters = 0.3048;
         rpmSpeed *= convertRpmToFeet; // feet/min
-        rpmSpeed /= 60.0; // feet/sec
+        rpmSpeed *= convertFeetToMeters; // meters/min
+        rpmSpeed /= 60.0; // meters/sec
 
         return rpmSpeed;
+    }
+
+    public double getEncoderDistance(double prevPos) {
+        // Find the lowest speed encoder (assume faster speed indicates slippage or
+        // minor difference due to turning)
+
+        double FRencoderPosition = BaseDrivetrain.flDriveX.getEncoder().getPosition();
+        double FLencoderPosition = BaseDrivetrain.frDriveX.getEncoder().getPosition();
+
+        double pos = 10000000.0;
+        if (pos > FRencoderPosition) {
+            pos = FRencoderPosition;
+        }
+        if (pos > (-1 * FLencoderPosition)) {
+            pos = (-1 * FLencoderPosition);
+        }
+
+        return pos - prevPos;
     }
 
     public void updatePosition() {
@@ -123,53 +142,52 @@ public class Location4276 {
             SmartDashboard.putNumber("getRawHeading: ", getRawHeading());
             SmartDashboard.putNumber("FieldPose.getRotationDegrees: ", FieldPose.getRotationDegrees());
             SmartDashboard.putNumber("gyroCorrection: ", gyroCorrection);
+            SmartDashboard.putNumber("EncoderPosition: ", BaseDrivetrain.flDriveX.getEncoder().getPosition());
         }
 
         if (isNewPositionFix()) {
             posFixErrorCorrection = getDistanceTo(v3PhotonVision);
             setPositionFix();
 
+            prevPosition = getEncoderDistance(prevPosition);
+
         } else {
             // PhotonVision did not find any Apriltag
             posFixErrorCorrection = 0.0;
-        }
 
-        // Extrapolate current position from previous position
+            // Extrapolate current position from previous position
+            heading = getHeading();
+            distance = getEncoderDistance(prevPosition);
+            prevPosition = distance;
 
-        long prevTimeMillisecs = positionUpdateTimeMillisecs;
-        positionUpdateTimeMillisecs = java.lang.System.currentTimeMillis();
-        long deltaTimeMillisecs = (positionUpdateTimeMillisecs - prevTimeMillisecs);
+            v3PrevPosition.copy(v3Position);
 
-        heading = getHeading();
-        speed = getEncoderSpeed();
-        distance = speed * (deltaTimeMillisecs / 1000.0);
+            v3Position.x += distance * Math.sin(heading);
+            v3Position.y += distance * Math.cos(heading);
 
-        v3PrevPosition.copy(v3Position);
+            if (distance != 0.0) { // No point in filling the log with duplicate data, timestanp will show when
+                                   // motionless
 
-        v3Position.x += distance * Math.sin(heading);
-        v3Position.y += distance * Math.cos(heading);
+                try {
+                    Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(distance));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(speed));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(heading));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(v3Position.x));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(v3Position.y));
+                    Robot.myLogFile.write(String.valueOf(","));
+                    Robot.myLogFile.write(String.valueOf(v3Position.z));
+                    Robot.myLogFile.write(String.valueOf("\r\n"));
+                } catch (Exception e) {
 
-        if (getEncoderSpeed() != 0.0) { // No point in filling the log with duplicate data, timestanp will show periods
-
-            try {// of stillnes
-                Robot.myLogFile.write(String.valueOf(posFixErrorCorrection));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(System.currentTimeMillis()));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(distance));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(speed));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(heading));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(v3Position.x));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(v3Position.y));
-                Robot.myLogFile.write(String.valueOf(","));
-                Robot.myLogFile.write(String.valueOf(v3Position.z));
-                Robot.myLogFile.write(String.valueOf("\r\n"));
-            } catch (Exception e) {
-
+                }
             }
         }
     }
