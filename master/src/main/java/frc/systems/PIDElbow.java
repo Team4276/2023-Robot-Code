@@ -1,16 +1,14 @@
 package frc.systems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+import com.revrobotics.SparkMaxLimitSwitch;
+import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Robot;
 import frc.utilities.Xbox;
 
@@ -136,6 +134,7 @@ public class PIDElbow {
     }
 
     public static void PIDElbowUpdate() {
+
         double leftY = Robot.xboxController.getLeftY();
         if (leftY > deadband) {
             if (driveElbowForwardLimitSwitch.isPressed()) {
@@ -143,8 +142,8 @@ public class PIDElbow {
                 // pressed
                 driveElbow.set(0);
             } else {
-                double speed = leftY * 500;
-                setPIDReference(speed, ControlType.kSmartVelocity);
+                double power = Robot.xboxController.getLeftY() / 3.75;
+                driveElbow.set(power);
                 setPoint_Elbow = driveElbowEncoder.getPosition();
             }
 
@@ -152,15 +151,12 @@ public class PIDElbow {
             if (driveElbowReverseLimitSwitch.isPressed()) {
                 // Joystick indicates move farther reverse, but the reverse limit switch is
                 // pressed
-                setPoint_Elbow = DPAD_UP_ELBOW_FEEDER;
-                setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
-                Timer.delay(0.5);
+                driveElbow.set(0);
             } else {
-                double speed = leftY * 500;
-                setPIDReference(speed, ControlType.kSmartVelocity);
+                double power = Robot.xboxController.getLeftY() / 3.75;
+                driveElbow.set(power);
                 setPoint_Elbow = driveElbowEncoder.getPosition();
             }
-            setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
@@ -182,8 +178,9 @@ public class PIDElbow {
             setZero();
 
         } else if (Math.abs(leftY) <= deadband) {
-            if (driveElbowReverseLimitSwitch.isPressed()) {
-                // At reverse limit we let gravity hold it 
+            if ((driveElbowReverseLimitSwitch.isPressed())
+                    || (driveElbowForwardLimitSwitch.isPressed())) {
+                // At either limit we let gravity hold it
                 driveElbow.set(0);
             } else {
                 // When joystick command returnds to deadband, (and no DPAD command), hold
