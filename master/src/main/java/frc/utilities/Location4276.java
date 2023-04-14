@@ -81,7 +81,7 @@ public class Location4276 {
                 + Math.pow((v3Position.y - otherPos.y), 2));
     }
 
-    public double getEncoderSpeed() {
+    public static double getEncoderSpeed() {
         // Find the lowest speed encoder (assume faster speed indicates slippage or
         // minor difference due to turning)
 
@@ -199,6 +199,6 @@ public class Location4276 {
         SmartDashboard.putNumber("CurrentPos_X: ", v3Position.x);
         SmartDashboard.putNumber("CurrentPos_Y: ", v3Position.y);
         SmartDashboard.putNumber("Heading: ", heading);
-        SmartDashboard.putNumber("Speed: ", speed);
+        SmartDashboard.putNumber("Speed: ", getEncoderSpeed());
     }
 }

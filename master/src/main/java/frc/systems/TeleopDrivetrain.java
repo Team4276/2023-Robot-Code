@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.utilities.Location4276;
 import frc.utilities.LogJoystick;
 import frc.utilities.Toggler;
 
@@ -70,6 +71,7 @@ public class TeleopDrivetrain extends BaseDrivetrain {
                 }
                 if (Math.abs(Robot.rightJoystick.getZ()) > deadband) {
                     turn = 0.29 * Math.pow(Robot.rightJoystick.getZ(), 3 / 2);
+                    turn = (turn/2) + ((turn/2) * ((5.0 - Location4276.getEncoderSpeed())/5.0));
                 }
                 leftY = linear + turn;
                 rightY = -linear + turn;
