@@ -16,7 +16,7 @@ public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
     public static double DPAD_UP_EJECT_FRONT_HIGH = 0.241;
-    public static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.447;
+    public static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.484;
 
     private static CANSparkMax driveElbow;
 
