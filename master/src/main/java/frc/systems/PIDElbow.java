@@ -15,8 +15,8 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
-    private static double DPAD_UP_EJECT_FRONT_HIGH = 0.241;
-    private static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.447;
+    public static double DPAD_UP_EJECT_FRONT_HIGH = 0.241;
+    public static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.447;
 
     private static CANSparkMax driveElbow;
 
@@ -54,7 +54,7 @@ public class PIDElbow {
 
     private static int currentPos = 0;
 
-    private static boolean isJoystickActive = false;
+    private static boolean isJoystickActive = true;
 
     private enum Pos {
         NONE,

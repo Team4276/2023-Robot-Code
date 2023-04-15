@@ -15,7 +15,7 @@ public class Toggler {
 
 	public void updateMechanismStateLJoy() {
 		previousButtonStatus = currentButtonStatus;
-		currentButtonStatus = Robot.leftJoystick.getRawButton(button);
+		currentButtonStatus = Robot.rightJoystick.getRawButton(button);
 		if (currentButtonStatus == true) {
 			if (previousButtonStatus == false) {
 				if (state == true) {

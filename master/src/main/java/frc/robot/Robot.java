@@ -124,14 +124,11 @@ public class Robot extends TimedRobot {
       PIDDrivetrain.PIDDrivetrainUpdate();
 
     } else if (Robot.xboxController.getRawButton(Xbox.B) || (BabyAuto.balance)
-        || (Robot.leftJoystick.getRawButton(LogJoystick.B1))) {
+        || (Robot.rightJoystick.getRawButton(LogJoystick.B7))) {
       Balance.balance(Gyroscope.GetCorrectPitch(Gyroscope.GetPitch()));
       if (!Balance.pause) {
         PIDDrivetrain.PIDDrivetrainUpdate();
       }
-
-    } else if (Robot.rightJoystick.getRawButton(LogJoystick.B7)) {
-      FeederFinder.updatePeriodic();
     } else {
       if (isTeleop) {
         TeleopDrivetrain.assignMotorPower(0, 0);
@@ -277,6 +274,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
+    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_EJECT_BACK_MID;
+
     autoselector = 0;
 
     if (!Switch1.get())
@@ -329,6 +328,8 @@ public class Robot extends TimedRobot {
     isTeleop = true;
     BabyAuto.balance = false;
     Balance.pause = false;
+    
+    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_EJECT_BACK_MID;
   }
 
   /** This function is called periodically during operator control. */
