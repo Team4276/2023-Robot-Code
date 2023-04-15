@@ -48,7 +48,7 @@ public class PIDElbow {
 
     public static double setPoint_Elbow = 0.0;
 
-    private static double elbowZero = 0.312;
+    public static double elbowZero = 0.312;
 
     private static Pos position = Pos.NONE;
 
