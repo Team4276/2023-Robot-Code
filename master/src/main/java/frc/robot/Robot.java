@@ -33,7 +33,6 @@ import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
-import frc.systems.Elbow;
 
 public class Robot extends TimedRobot {
 
@@ -46,7 +45,7 @@ public class Robot extends TimedRobot {
   public static PIDDrivetrain mPIDDrivetrain;
 
   Notifier armRateGroup;
-  public static Elbow mElbow;
+  public static PIDElbow mElbow;
   public static Intake mIntake;
 
   public static FeederFinder mFeederFinder;
@@ -164,7 +163,7 @@ public class Robot extends TimedRobot {
   public static void timedArm() {
 
     mIntake.updatePeriodic();
-    Elbow.ElbowUpdate();
+    PIDElbow.PIDElbowUpdate();
   }
 
   /**
@@ -207,7 +206,7 @@ public class Robot extends TimedRobot {
     driveRateGroup = new Notifier(Robot::timedDrive);
     driveRateGroup.startPeriodic(0.05);
 
-    mElbow = new Elbow(RoboRioPorts.CAN_ELBOW);
+    mElbow = new PIDElbow(RoboRioPorts.CAN_ELBOW);
     mIntake = new Intake(RoboRioPorts.CAN_INTAKE);
 
     armRateGroup = new Notifier(Robot::timedArm);

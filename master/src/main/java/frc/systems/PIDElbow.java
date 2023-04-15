@@ -56,6 +56,8 @@ public class PIDElbow {
 
     private static int currentPos = 0;
 
+    private static boolean isJoystickActive = false;
+
     private enum Pos {
         NONE,
         REACH_NEAR_CONE,
@@ -137,6 +139,8 @@ public class PIDElbow {
 
         double leftY = Robot.xboxController.getLeftY();
         if (leftY > deadband) {
+            isJoystickActive = true;
+
             if (driveElbowForwardLimitSwitch.isPressed()) {
                 // Joystick indicates move farther forward, but the forward limit switch is
                 // pressed
@@ -144,10 +148,11 @@ public class PIDElbow {
             } else {
                 double power = Robot.xboxController.getLeftY() / 3.75;
                 driveElbow.set(power);
-                setPoint_Elbow = driveElbowEncoder.getPosition();
-            }
+              }
 
-        } else if (leftY < deadband) {
+        } else if (leftY < (-1*deadband)) {
+            isJoystickActive = true;
+
             if (driveElbowReverseLimitSwitch.isPressed()) {
                 // Joystick indicates move farther reverse, but the reverse limit switch is
                 // pressed
@@ -155,8 +160,7 @@ public class PIDElbow {
             } else {
                 double power = Robot.xboxController.getLeftY() / 3.75;
                 driveElbow.set(power);
-                setPoint_Elbow = driveElbowEncoder.getPosition();
-            }
+             }
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
@@ -178,6 +182,13 @@ public class PIDElbow {
             setZero();
 
         } else if (Math.abs(leftY) <= deadband) {
+
+            boolean isFirstTimeAfterJoystickReurnsToDeadband = isJoystickActive;
+            isJoystickActive = false;
+            if(isFirstTimeAfterJoystickReurnsToDeadband) {
+                setPoint_Elbow = driveElbowEncoder.getPosition();
+            }
+
             if ((driveElbowReverseLimitSwitch.isPressed())
                     || (driveElbowForwardLimitSwitch.isPressed())) {
                 // At either limit we let gravity hold it
