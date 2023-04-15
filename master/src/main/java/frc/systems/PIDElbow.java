@@ -15,10 +15,8 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
-    private static double DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = 0.0;
-    private static double DPAD_UP_ELBOW_FEEDER = 0.537;
-    private static double DPAD_LEFT_ELBOW_EJECT_CUBE = 0.174;
-    private static double DPAD_DOWN_ELBOW_CONE_COLLECT = 0.055;
+    private static double DPAD_UP_EJECT_FRONT_HIGH = 0.241;
+    private static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.447;
 
     private static CANSparkMax driveElbow;
 
@@ -60,10 +58,8 @@ public class PIDElbow {
 
     private enum Pos {
         NONE,
-        REACH_NEAR_CONE,
-        ELBOW_STOW,
-        EJECT_CUBE,
-        COLLECT
+        EJECT_FRONT_HIGH,
+        EJECT_BACK_MID,
     }
 
     private static String getString() {
@@ -72,13 +68,9 @@ public class PIDElbow {
             case 0:
                 return "NONE";
             case 1:
-                return "REACH_NEAR_CONE";
+                return "EJECT_FRONT_HIGH";
             case 2:
-                return "ELBOW_STOW";
-            case 3:
-                return "EJECT_CUBE";
-            case 4:
-                return "COLLECT";
+                return "EJECT_BACK_MID";
 
             default:
                 break;
@@ -160,22 +152,16 @@ public class PIDElbow {
             } else {
                 double power = Robot.xboxController.getLeftY() / 3.75;
                 driveElbow.set(power);
-             }
+            }
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
-                setPoint_Elbow = DPAD_UP_ELBOW_FEEDER + elbowZero;
+                setPoint_Elbow = DPAD_UP_EJECT_FRONT_HIGH + elbowZero;
 
             } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Elbow = DPAD_DOWN_ELBOW_CONE_COLLECT + elbowZero;
+                setPoint_Elbow = DPAD_DOWN_ELBOW_EJECT_BACK_MID + elbowZero;
 
-            } else if (Xbox.POVright == Robot.pov) {
-                setPoint_Elbow = DPAD_RIGHT_ELBOW_REACH_NEAR_CONE + elbowZero;
-
-            } else if (Xbox.POVleft == Robot.pov) {
-                setPoint_Elbow = DPAD_LEFT_ELBOW_EJECT_CUBE + elbowZero;
-
-            }
+            } 
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
 
         } else if (Robot.xboxController.getAButton()) {
@@ -223,14 +209,10 @@ public class PIDElbow {
 
             }
             if (Robot.xboxController.getYButton()) {
-                if (position == Pos.COLLECT) {
-                    DPAD_DOWN_ELBOW_CONE_COLLECT = getCorrectedPos();
-                } else if (position == Pos.EJECT_CUBE) {
-                    DPAD_LEFT_ELBOW_EJECT_CUBE = getCorrectedPos();
-                } else if (position == Pos.ELBOW_STOW) {
-                    DPAD_UP_ELBOW_FEEDER = getCorrectedPos();
-                } else if (position == Pos.REACH_NEAR_CONE) {
-                    DPAD_RIGHT_ELBOW_REACH_NEAR_CONE = getCorrectedPos();
+                if (position == Pos.EJECT_FRONT_HIGH) {
+                    DPAD_UP_EJECT_FRONT_HIGH = getCorrectedPos();
+                } else if (position == Pos.EJECT_BACK_MID) {
+                    DPAD_DOWN_ELBOW_EJECT_BACK_MID = getCorrectedPos();
                 }
             }
         }
@@ -239,10 +221,8 @@ public class PIDElbow {
         SmartDashboard.putNumber("Corrected Elbow Encoder", getCorrectedPos());
         SmartDashboard.putString("Current Position Being Calibrated", getString());
         SmartDashboard.putNumber("Elbow Power", driveElbow.getAppliedOutput());
-        SmartDashboard.putNumber("DPAD_DOWN_ELBOW_COLLECT: ", DPAD_DOWN_ELBOW_CONE_COLLECT);
-        SmartDashboard.putNumber("DPAD_LEFT_ELBOW_EJECT_CUBE: ", DPAD_LEFT_ELBOW_EJECT_CUBE);
-        SmartDashboard.putNumber("DPAD_RIGHT_ELBOW_REACH_NEAR_CONE: ", DPAD_RIGHT_ELBOW_REACH_NEAR_CONE);
-        SmartDashboard.putNumber("DPAD_UP_ELBOW_STOW: ", DPAD_UP_ELBOW_FEEDER);
+        SmartDashboard.putNumber("DPAD_DOWN_ELBOW_EJECT_BACK_MID: ", DPAD_DOWN_ELBOW_EJECT_BACK_MID);
+        SmartDashboard.putNumber("DPAD_UP_EJECT_FRONT_HIGH: ", DPAD_UP_EJECT_FRONT_HIGH);
     }
 
 }
