@@ -51,13 +51,17 @@ public class AutoScoringFunctions {
 
         if (armTimer2.isExpired()){
             usingIntake = true;
-            if (firstRun2){
-                PIDElbow.setPoint_Elbow = 0 + PIDElbow.elbowZero; // placeholder for stow
-                firstRun2 = false;
-            }
+
 
             if (intakeTimer.isExpired()){
                 usingIntake = false;
+                if (firstRun2){
+                    PIDElbow.setPoint_Elbow = 0 + PIDElbow.elbowZero; // placeholder for stow
+                    firstRun2 = false;
+                    taskIsFinished = true;
+                }
+            } else {
+                usingIntake = true;
             }
 
         }
