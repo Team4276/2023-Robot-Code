@@ -15,8 +15,9 @@ import frc.utilities.Xbox;
 public class PIDElbow {
 
     // Set points for DPAD -1.0 is in directopn of more extension
-    public static double DPAD_UP_EJECT_FRONT_HIGH = 0.241;
-    public static double DPAD_DOWN_ELBOW_EJECT_BACK_MID = 0.484;
+    public static double DPAD_UP_ELBOW_EJECT_BACK_MID = 0.484;
+    public static double DPAD_LEFT_EJECT_FRONT_MID = 0.177;
+    public static double DPAD_RIGHT_EJECT_FRONT_HIGH = 0.296;
 
     private static CANSparkMax driveElbow;
 
@@ -59,6 +60,7 @@ public class PIDElbow {
     private enum Pos {
         NONE,
         EJECT_FRONT_HIGH,
+        EJECT_FRONT_MID,
         EJECT_BACK_MID,
     }
 
@@ -156,10 +158,13 @@ public class PIDElbow {
 
         } else if (Robot.pov != -1) {
             if (Xbox.POVup == Robot.pov) {
-                setPoint_Elbow = DPAD_UP_EJECT_FRONT_HIGH + elbowZero;
+                setPoint_Elbow = DPAD_UP_ELBOW_EJECT_BACK_MID + elbowZero;
 
-            } else if (Xbox.POVdown == Robot.pov) {
-                setPoint_Elbow = DPAD_DOWN_ELBOW_EJECT_BACK_MID + elbowZero;
+            } else if (Xbox.POVright == Robot.pov) {
+                setPoint_Elbow = DPAD_RIGHT_EJECT_FRONT_HIGH + elbowZero;
+
+            } else if (Xbox.POVleft == Robot.pov) {
+                setPoint_Elbow = DPAD_LEFT_EJECT_FRONT_MID + elbowZero;
 
             } 
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
@@ -210,9 +215,11 @@ public class PIDElbow {
             }
             if (Robot.xboxController.getYButton()) {
                 if (position == Pos.EJECT_FRONT_HIGH) {
-                    DPAD_UP_EJECT_FRONT_HIGH = getCorrectedPos();
+                    DPAD_RIGHT_EJECT_FRONT_HIGH = getCorrectedPos();
+                } else if (position == Pos.EJECT_FRONT_MID) {
+                    DPAD_LEFT_EJECT_FRONT_MID = getCorrectedPos();
                 } else if (position == Pos.EJECT_BACK_MID) {
-                    DPAD_DOWN_ELBOW_EJECT_BACK_MID = getCorrectedPos();
+                    DPAD_UP_ELBOW_EJECT_BACK_MID = getCorrectedPos();
                 }
             }
         }
@@ -221,8 +228,9 @@ public class PIDElbow {
         SmartDashboard.putNumber("Corrected Elbow Encoder", getCorrectedPos());
         SmartDashboard.putString("Current Position Being Calibrated", getString());
         SmartDashboard.putNumber("Elbow Power", driveElbow.getAppliedOutput());
-        SmartDashboard.putNumber("DPAD_DOWN_ELBOW_EJECT_BACK_MID: ", DPAD_DOWN_ELBOW_EJECT_BACK_MID);
-        SmartDashboard.putNumber("DPAD_UP_EJECT_FRONT_HIGH: ", DPAD_UP_EJECT_FRONT_HIGH);
+        SmartDashboard.putNumber("DPAD_UP_ELBOW_EJECT_BACK_MID: ", DPAD_UP_ELBOW_EJECT_BACK_MID);
+        SmartDashboard.putNumber("DPAD_LEFT_EJECT_FRONT_MID: ", DPAD_LEFT_EJECT_FRONT_MID);
+        SmartDashboard.putNumber("DPAD_RIGHT_EJECT_FRONT_HIGH: ", DPAD_RIGHT_EJECT_FRONT_HIGH);
     }
 
 }

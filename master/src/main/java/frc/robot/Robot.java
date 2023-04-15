@@ -274,7 +274,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_EJECT_BACK_MID;
+    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_UP_ELBOW_EJECT_BACK_MID;
 
     autoselector = 0;
 
@@ -329,7 +329,7 @@ public class Robot extends TimedRobot {
     BabyAuto.balance = false;
     Balance.pause = false;
     
-    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_DOWN_ELBOW_EJECT_BACK_MID;
+    PIDElbow.setPoint_Elbow = PIDElbow.DPAD_UP_ELBOW_EJECT_BACK_MID;
   }
 
   /** This function is called periodically during operator control. */
