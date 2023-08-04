@@ -1,4 +1,4 @@
-/*package frc.robot;
+package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,4 +37,4 @@ public class Trajectories {
 
       }
    }
-}*/
+}
