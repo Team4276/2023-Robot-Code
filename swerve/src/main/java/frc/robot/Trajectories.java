@@ -14,10 +14,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.util.LinkedHashMap;
 
-
-
-
-
 public class Trajectories {
    public static ArrayList<Trajectory> trajectories = new ArrayList<Trajectory>();
 
@@ -82,29 +78,33 @@ public class Trajectories {
       } */
    }
 
-   private static String kPathLocation = "/home/lvuser/deploy/paths";
-   private static String kPathSuffix = ".pf1.csv";
-
    public static LinkedHashMap<String, Trajectory> loadPaths(){
-        LinkedHashMap<String, Trajectory> paths = new LinkedHashMap<String, Trajectory>();
+      LinkedHashMap<String, Trajectory> paths = new LinkedHashMap<String, Trajectory>();
 
-       // paths.put("HabToRocket_L", getTraj("HAB_To_FR_F"));
+      paths.put("blaab", getTraj("blaab"));
 
-        return paths;
+      return paths;
    }
-   /* 
+   
 
-    private static Trajectory getTraj(String name){
-      try{
-          
-          Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(kPathLocation);
-          Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+   private static Trajectory getTraj(String name){
+      try{ 
+         Path trajectoryPath = Filesystem.getDeployDirectory().toPath()
+            .resolve("/home/lvuser/deploy/paths/" + name + ".wpilib.json");
+         Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
 
-          return 
+         return trajectory;
 
       }catch(IOException e){
           System.out.println("!!!!!!!!!! IO Exception on Reading Traj !!!!!!!!!!");
           return null;
       }
-  } */
+   }
+
+   public static Trajectory getPath(String path_key){
+      LinkedHashMap<String, Trajectory> paths = loadPaths();
+      Trajectory path = paths.get(path_key);
+
+      return path;
+   }
 }
