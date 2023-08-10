@@ -81,7 +81,8 @@ public class Trajectories {
    public static LinkedHashMap<String, Trajectory> loadPaths(){
       LinkedHashMap<String, Trajectory> paths = new LinkedHashMap<String, Trajectory>();
 
-      paths.put("blaab", getTraj("blaab"));
+      paths.put("Test", getTraj("Test"));
+      paths.put("Test2", getTraj("Test2"));
 
       return paths;
    }
