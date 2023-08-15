@@ -56,7 +56,7 @@ public class AutoPicker {
     }
 
     private Command ShortTest() {
-        PathPlannerTrajectory path = PathPlanner.loadPath("Short Test", 3,3);
+        PathPlannerTrajectory path = PathPlanner.loadPath("Short test", 3,3);
 
         FollowPathWithEvents command = new FollowPathWithEvents(
             robotContainer.getAutonomousCommand(path), 
