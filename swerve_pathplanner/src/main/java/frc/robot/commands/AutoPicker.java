@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
@@ -29,6 +28,7 @@ public class AutoPicker {
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Bump 2 Piece", Bump2Piece());
+        chooser.addOption("Short Test", ShortTest());
 
         eventMap.put("intake", new PrintCommand("Intaking"));
 
@@ -41,6 +41,19 @@ public class AutoPicker {
 
     private Command Bump2Piece() {
         PathPlannerTrajectory path = PathPlanner.loadPath("Bump 2 Piece", 3,3);
+
+        FollowPathWithEvents command = new FollowPathWithEvents(
+            robotContainer.getAutonomousCommand(path), 
+            path.getMarkers(), 
+            eventMap);
+
+        return command;
+        
+
+    }
+
+    private Command ShortTest() {
+        PathPlannerTrajectory path = PathPlanner.loadPath("Short Test", 3,3);
 
         FollowPathWithEvents command = new FollowPathWithEvents(
             robotContainer.getAutonomousCommand(path), 
