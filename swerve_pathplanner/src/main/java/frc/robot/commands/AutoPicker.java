@@ -31,6 +31,7 @@ public class AutoPicker {
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Bump 2 Piece", Bump2Piece());
         chooser.addOption("Short Test", ShortTest());
+        chooser.addOption("No Rotate", NoRotate());
 
         eventMap.put("intake", new PrintCommand("Intaking"));
 
@@ -67,5 +68,19 @@ public class AutoPicker {
         
 
     }
+
+    private Command NoRotate() {
+        PathPlannerTrajectory path = PathPlanner.loadPath("No Rotate", 3,3);
+
+        FollowPathWithEvents command = new FollowPathWithEvents(
+            robotContainer.getAutonomousCommand(path), 
+            path.getMarkers(), 
+            eventMap);
+
+        return command;
+        
+
+    }
+
 
 }
