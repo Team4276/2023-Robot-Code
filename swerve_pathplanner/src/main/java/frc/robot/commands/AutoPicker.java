@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -23,15 +24,15 @@ public class AutoPicker {
     RobotContainer robotContainer;
 
     public AutoPicker(
-        DriveSubsystem driveSubsystem,
-        RobotContainer robotContainer){
+        DriveSubsystem driveSubsystem){
         this.driveSubsystem = driveSubsystem;
-        this.robotContainer = robotContainer;
 
         chooser.setDefaultOption("Do nothing", null);
-        chooser.addOption("Bump 2 Piece", Bump2Piece());
-        chooser.addOption("Short Test", ShortTest());
-        chooser.addOption("No Rotate", NoRotate());
+        chooser.addOption("Bump 2 Piece", followPathWithEvents("Bump 2 Piece"));
+        chooser.addOption("Short test", followPathWithEvents("Short test"));
+        chooser.addOption("No Rotate", followPathWithEvents("No Rotate"));
+        chooser.addOption("Straight", followPathWithEvents("Straight"));
+        chooser.addOption("WEEEE", followPathWithEvents("WEEEE"));
 
         eventMap.put("intake", new PrintCommand("Intaking"));
 
@@ -43,44 +44,21 @@ public class AutoPicker {
         return chooser.getSelected();
     }
 
-    private Command Bump2Piece() {
-        PathPlannerTrajectory path = PathPlanner.loadPath("Bump 2 Piece", 3,3);
+    private Command followPathWithEvents(String name){
+        PathPlannerTrajectory path = PathPlanner.loadPath(name, 
+            Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+            Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         FollowPathWithEvents command = new FollowPathWithEvents(
-            robotContainer.getAutonomousCommand(path), 
+            driveSubsystem.followPathCommand(path), 
             path.getMarkers(), 
             eventMap);
 
         return command;
-        
 
     }
 
-    private Command ShortTest() {
-        PathPlannerTrajectory path = PathPlanner.loadPath("Short test", 3,3);
-
-        FollowPathWithEvents command = new FollowPathWithEvents(
-            robotContainer.getAutonomousCommand(path), 
-            path.getMarkers(), 
-            eventMap);
-
-        return command;
-        
-
-    }
-
-    private Command NoRotate() {
-        PathPlannerTrajectory path = PathPlanner.loadPath("No Rotate", 3,3);
-
-        FollowPathWithEvents command = new FollowPathWithEvents(
-            robotContainer.getAutonomousCommand(path), 
-            path.getMarkers(), 
-            eventMap);
-
-        return command;
-        
-
-    }
+   
 
 
 }

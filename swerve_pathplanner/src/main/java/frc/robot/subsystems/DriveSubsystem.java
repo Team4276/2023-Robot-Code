@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,8 +19,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -92,6 +100,8 @@ public class DriveSubsystem extends SubsystemBase {
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
+
+  
 
   /**
    * Resets the odometry to the specified pose.
@@ -242,5 +252,28 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  public Command followPathCommand(PathPlannerTrajectory path) {
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> {
+        this.resetOdometry(path.getInitialHolonomicPose());
+      }),
+        new PPSwerveControllerCommand(
+        path, 
+        this::getPose, 
+        DriveConstants.kDriveKinematics, 
+        new PIDController(Constants.AutoConstants.kPXController, 0, 0), 
+        new PIDController(Constants.AutoConstants.kPYController, 0, 0), 
+        new PIDController(Constants.AutoConstants.kPThetaController, 0, 0),
+        this::setModuleStates, 
+        false,
+        this),
+      new InstantCommand(() -> {
+        this.drive(0, 0, 0, false, false);
+      })
+    );
+
+      
   }
 }

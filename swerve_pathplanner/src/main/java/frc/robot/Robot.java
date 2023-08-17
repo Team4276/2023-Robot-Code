@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,13 +25,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
-  private AutoPicker m_autoPicker;
-
-  private DriveSubsystem m_DriveSubsystem;
-
   
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -47,9 +38,6 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     Trajectories.loadPaths();
-
-    m_autoPicker = new AutoPicker(m_DriveSubsystem, m_robotContainer);
-
   
     
   }
@@ -86,7 +74,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = AutoPicker.chooser.getSelected();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",

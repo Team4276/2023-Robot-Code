@@ -5,25 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
-import edu.wpi.first.math.controller.HolonomicDriveController;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -37,6 +26,8 @@ public class RobotContainer {
 
     // The driver's controller
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+    private final AutoPicker chooser = new AutoPicker(m_robotDrive);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -79,30 +70,8 @@ public class RobotContainer {
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand(PathPlannerTrajectory path) {
-        var thetaController = new ProfiledPIDController(
-                AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    public Command getAutonomousCommand() {
+        return chooser.getAutoCommand();
 
-        PPSwerveControllerCommand swerveControllerCommandh = new PPSwerveControllerCommand(
-                path, 
-                m_robotDrive::getPose, 
-                DriveConstants.kDriveKinematics, 
-                new PIDController(1, 0, 0), 
-                new PIDController(1, 0, 0), 
-                new PIDController(1, 0, 0),
-                m_robotDrive::setModuleStates, 
-                true,
-                m_robotDrive);
-
-
-        // Run path following command, then stop at the end.
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                m_robotDrive.resetOdometry(path.getInitialPose());
-            }
-            
-            ), swerveControllerCommandh.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false)));
-    }
-
+        }
 }
