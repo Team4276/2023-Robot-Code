@@ -10,18 +10,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoPicker {
-    public static SendableChooser<Command> chooser = new SendableChooser<Command>();
+    SendableChooser<Command> chooser = new SendableChooser<Command>();
 
     HashMap<String, Command> eventMap = new HashMap<>();
     
     DriveSubsystem driveSubsystem;
-    RobotContainer robotContainer;
 
     public AutoPicker(
         DriveSubsystem driveSubsystem){
