@@ -18,9 +18,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.utils.Gyroscope;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,7 +52,10 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+  public final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+  // Gyro with simple 'get' commands
+  public final Gyroscope m_bgyro = new Gyroscope(m_gyro);
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -72,8 +77,15 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
+  public SendableChooser<Double> driveMode = new SendableChooser<Double>();
+
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    driveMode.setDefaultOption("Default", DriveConstants.kMaxSpeedMetersPerSecond);
+    driveMode.addOption("Demo", DriveConstants.kMaxSpeedMetersPerSecondDemo);
+
+    SmartDashboard.putData("Drive Mode: ", driveMode);
+
   }
 
   @Override
@@ -88,8 +100,7 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
-    SmartDashboard.putNumber("Robot X", getPose().getX());
-    SmartDashboard.putNumber("Robot Y", getPose().getY());
+
   }
 
   /**
@@ -130,7 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    * @param rateLimit     Whether to enable rate limiting for smoother control.
    */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit, double maxSpeed) {
     double xSpeedCommanded;
     double ySpeedCommanded;
 
@@ -181,8 +192,8 @@ public class DriveSubsystem extends SubsystemBase {
       }
 
       // Convert the commanded speeds into the correct units for the drivetrain
-      double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-      double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
+      double xSpeedDelivered = xSpeedCommanded * maxSpeed;
+      double ySpeedDelivered = ySpeedCommanded * maxSpeed;
       double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
@@ -190,7 +201,7 @@ public class DriveSubsystem extends SubsystemBase {
               ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_gyro.getAngle()))
               : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
       SwerveDriveKinematics.desaturateWheelSpeeds(
-          swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+          swerveModuleStates, maxSpeed);
       m_frontLeft.setDesiredState(swerveModuleStates[0]);
       m_frontRight.setDesiredState(swerveModuleStates[1]);
       m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -270,7 +281,7 @@ public class DriveSubsystem extends SubsystemBase {
         false,
         this),
       new InstantCommand(() -> {
-        this.drive(0, 0, 0, false, false);
+        this.drive(0, 0, 0, false, false, 0);
       })
     );
 

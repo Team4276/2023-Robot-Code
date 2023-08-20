@@ -6,13 +6,16 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoPicker;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.utils.BetterController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -22,12 +25,17 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
     // The robot's subsystems
-    private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+    private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+    private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
+    private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 
     // The driver's controller
-    XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    XboxController m_driverCon = new XboxController(OIConstants.kDriverControllerPort);
+    XboxController m_opCon = new XboxController(OIConstants.kSubsystemControllerPort);
 
-    private final AutoPicker chooser = new AutoPicker(m_robotDrive);
+    private final BetterController m_bopCon = new BetterController(m_opCon);
+
+    private final AutoPicker chooser = new AutoPicker(m_driveSubsystem);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -37,16 +45,29 @@ public class RobotContainer {
         configureButtonBindings();
 
         // Configure default commands
-        m_robotDrive.setDefaultCommand(
+        m_driveSubsystem.setDefaultCommand(
                 // The left stick controls translation of the robot.
                 // Turning is controlled by the X axis of the right stick.
                 new RunCommand(
-                        () -> m_robotDrive.drive(
-                                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                                true, true),
-                        m_robotDrive));
+                        () -> m_driveSubsystem.drive(
+                                -MathUtil.applyDeadband(m_driverCon.getLeftY(), OIConstants.kJoystickDeadband),
+                                -MathUtil.applyDeadband(m_driverCon.getLeftX(), OIConstants.kJoystickDeadband),
+                                -MathUtil.applyDeadband(m_driverCon.getRightX(), OIConstants.kJoystickDeadband),
+                                true, true, m_driveSubsystem.driveMode.getSelected()),
+                        m_driveSubsystem));
+
+        m_ArmSubsystem.setDefaultCommand(
+                new RunCommand(
+                        () -> m_ArmSubsystem.elbowTemp(), 
+                        m_ArmSubsystem)
+
+        );
+
+        m_IntakeSubsystem.setDefaultCommand(
+                new RunCommand(
+                        () -> m_IntakeSubsystem.idle(), 
+                        m_IntakeSubsystem)
+        );
     }
 
     /**
@@ -59,10 +80,26 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        new JoystickButton(m_driverController, Button.kR1.value)
+        new Trigger(m_driverCon::getRightBumper)
                 .whileTrue(new RunCommand(
-                        () -> m_robotDrive.setX(),
-                        m_robotDrive));
+                        () -> m_driveSubsystem.setX(),
+                        m_driveSubsystem));
+
+        new Trigger(m_opCon::getBButton)
+                .whileTrue(new RunCommand(
+                        () -> m_ArmSubsystem.setElbowVelCmd(m_opCon.getLeftY()),
+                        m_ArmSubsystem));
+
+        new Trigger(m_bopCon::getLeftTriggerPressed)
+                .whileTrue(new RunCommand(
+                        () -> m_IntakeSubsystem.in(),
+                        m_IntakeSubsystem));
+
+        new Trigger(m_bopCon::getRightTriggerPressed)
+                .whileTrue(new RunCommand(
+                        () -> m_IntakeSubsystem.out(),
+                        m_IntakeSubsystem));
+
     }
 
     /**

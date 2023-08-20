@@ -6,10 +6,15 @@ import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants;
+import frc.robot.Constants.ArmSubsystemConstants;
 
 public class ArmSubsystem extends SubsystemBase {
     public final CANSparkMax elbowMotor;
@@ -41,7 +46,7 @@ public class ArmSubsystem extends SubsystemBase {
     private static double elbowZero = 0;
 
     public ArmSubsystem(){
-        elbowMotor = new CANSparkMax(Constants.ArmSubsystemConstants.elbowMotorCanId, MotorType.kBrushless);
+        elbowMotor = new CANSparkMax(ArmSubsystemConstants.elbowMotorCanId, MotorType.kBrushless);
 
         elbowReverseLimitSwitch = elbowMotor.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
         elbowForwardLimitSwitch = elbowMotor.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
@@ -74,6 +79,8 @@ public class ArmSubsystem extends SubsystemBase {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
 
+        this.register();
+
     }
 
     private boolean checkForwardLimitSwitch(){
@@ -84,7 +91,11 @@ public class ArmSubsystem extends SubsystemBase {
         return elbowReverseLimitSwitch.isPressed();
     }
 
-    private void setZero() {
+    private void setForwardZero() {
+        elbowZero = elbowEncoder.getPosition();
+    }
+
+    private void setReverseZero() {
         elbowZero = elbowEncoder.getPosition();
     }
 
@@ -92,21 +103,68 @@ public class ArmSubsystem extends SubsystemBase {
         return elbowEncoder.getPosition() - elbowZero;
     }
 
-    public void setElbowPos(){
+    private void setElbowPos(double pos){
+        elbowPidController.setReference(pos + elbowZero, ControlType.kSmartMotion);
 
     }
+
+    private void setElbowVel(double vel){
+        elbowPidController.setReference(vel, ControlType.kSmartVelocity);
+    }
+
+    public Command setElbowVelCmd(double vel){
+        Command command;
+
+        if(vel > 0){
+            if(checkForwardLimitSwitch()){
+                command = new PrintCommand("Don't give Ethan PTSD");
+            } else {
+                command = new InstantCommand(() -> {setElbowVel(vel);});
+            }
+
+        } else {
+            if(checkReverseLimitSwitch()){
+                command = new PrintCommand("Don't give Ethan PTSD");
+            } else {
+                command = new InstantCommand(() -> {setElbowVel(vel);});
+            }
+
+        }
+
+        return command;
+
+    }
+
+    public Command elbowTemp(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.tempPos); });
+
+    }
+
+    public Command stow(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.stow); });
+    }
+
+    
 
     @Override
     public void periodic() {
     // This method will be called once per scheduler run
     // Resets the angle based on the limit switch
-    if(checkForwardLimitSwitch()){
-        elbowMotor.set(0);
+    if(checkForwardLimitSwitch() && checkReverseLimitSwitch()){
+        // Physical Obstruction
+
+    } else if(checkForwardLimitSwitch()){
+        setForwardZero();
+
 
     } else if(checkReverseLimitSwitch()){
-        elbowMotor.set(0);
+        setReverseZero();
 
     }
+
+    SmartDashboard.putNumber("Corrected Elbow Pos: ", getCorrectedPos());
+
+
   }
 
 
