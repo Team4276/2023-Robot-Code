@@ -11,18 +11,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class AutoPicker {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
 
     HashMap<String, Command> eventMap = new HashMap<>();
+
     
-    DriveSubsystem driveSubsystem;
+    private DriveSubsystem driveSubsystem;
+    private IntakeSubsystem intakeSubsystem;
+    private ArmSubsystem armSubsystem;
 
     public AutoPicker(
-        DriveSubsystem driveSubsystem){
+        DriveSubsystem driveSubsystem,
+        IntakeSubsystem intakeSubsystem,
+        ArmSubsystem armSubsystem){
         this.driveSubsystem = driveSubsystem;
+        this.intakeSubsystem = intakeSubsystem;
+        this.armSubsystem = armSubsystem;
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Bump 2 Piece", followPathWithEvents("Bump 2 Piece"));
@@ -31,7 +40,9 @@ public class AutoPicker {
         chooser.addOption("Straight", followPathWithEvents("Straight"));
         chooser.addOption("WEEEE", followPathWithEvents("WEEEE"));
 
-        eventMap.put("intake", new PrintCommand("Intaking"));
+        eventMap.put("intake", intakeSubsystem.in());
+        eventMap.put("outtake", intakeSubsystem.out());
+        eventMap.put("balance", new Balance(driveSubsystem, armSubsystem, intakeSubsystem));
 
         SmartDashboard.putData("Auto Choices: ", chooser);
 
