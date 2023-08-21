@@ -32,13 +32,23 @@ public class Balance extends CommandBase {
 
     @Override
     public void execute() {
-        if(driveSubsystem.m_bgyro.GetRoll() > 3){
+        if(driveSubsystem.m_bgyro.GetRoll() > 12){
             driveSubsystem.drive(0.1, 0, 0, 
                 true, true, 
                 DriveConstants.kMaxSpeedMetersPerSecond);
 
-        } else if (driveSubsystem.m_bgyro.GetRoll() < -3){
+        } else if (driveSubsystem.m_bgyro.GetRoll() < -12){
+            driveSubsystem.drive(-0.1, 0, 0, 
+                true, true, 
+                DriveConstants.kMaxSpeedMetersPerSecond);
+        } else {
+            driveSubsystem.drive(0, 0, 0, 
+                false, false, 
+                DriveConstants.kMaxSpeedMetersPerSecond);
 
+            driveSubsystem.setX();
+
+            this.end(false);
         }
     
     }
