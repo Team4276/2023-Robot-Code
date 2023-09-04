@@ -17,21 +17,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command out(){
-        return new InstantCommand(() -> {
-            intake.set(-0.85);
-        });
+        return new InstantCommand(() -> { intake.set(-0.85);});
     }
 
     public Command in(){
-        return new InstantCommand(() -> {
-            intake.set(0.85);
-        });
+        return new InstantCommand(() -> { intake.set(0.85);});
     }
 
     public Command idle(){
-        return new InstantCommand(() -> {
-            intake.set(0.05);
-        });
+        return new InstantCommand(() -> { intake.set(0.05);});
     }
     
 }

@@ -6,14 +6,15 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimeLightSubsystem;
 
 public class AutoPicker {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
@@ -22,16 +23,14 @@ public class AutoPicker {
 
     
     private DriveSubsystem driveSubsystem;
-    private IntakeSubsystem intakeSubsystem;
-    private ArmSubsystem armSubsystem;
 
     public AutoPicker(
         DriveSubsystem driveSubsystem,
         IntakeSubsystem intakeSubsystem,
-        ArmSubsystem armSubsystem){
+        ArmSubsystem armSubsystem,
+        LimeLightSubsystem limeLightSubsystem,
+        XboxController xboxController){
         this.driveSubsystem = driveSubsystem;
-        this.intakeSubsystem = intakeSubsystem;
-        this.armSubsystem = armSubsystem;
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Bump 2 Piece", followPathWithEvents("Bump 2 Piece"));
@@ -40,9 +39,14 @@ public class AutoPicker {
         chooser.addOption("Straight", followPathWithEvents("Straight"));
         chooser.addOption("WEEEE", followPathWithEvents("WEEEE"));
 
-        eventMap.put("intake", intakeSubsystem.in());
-        eventMap.put("outtake", intakeSubsystem.out());
         eventMap.put("balance", new Balance(driveSubsystem, armSubsystem, intakeSubsystem));
+        eventMap.put("scoreConeHigh", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+        eventMap.put("scoreConeMid", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+        eventMap.put("scoreConeLow", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+        eventMap.put("scoreCubeHigh", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+        eventMap.put("scoreCubeMid", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+        eventMap.put("scoreCubeLow", new ScoreConeHigh(armSubsystem, intakeSubsystem, driveSubsystem, limeLightSubsystem, xboxController, false));
+
 
         SmartDashboard.putData("Auto Choices: ", chooser);
 

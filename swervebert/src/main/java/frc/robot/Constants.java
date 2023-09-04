@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -149,11 +150,40 @@ public final class Constants {
     public static final double armForwardLimit = 0;
     public static final double armReverseLimit = 0.52;
 
-    public static final double tempPos = 0;
     public static final double stow = 0.52;
 
+    public static final double scoreConeHigh = 0;
+    public static final double scoreConeMid = 0;
+    public static final double scoreConeLow = 0;
+    public static final double scoreCubeHigh = 0;
+    public static final double scoreCubeMid = 0;
+    public static final double scoreCubeLow = 0;
+
+    public static final double intakeConeGround = 0;
+    public static final double intakeConeFeed = 0;
+    public static final double intakeConeDouble = 0;
+    public static final double intakeCubeGround = 0;
+    public static final double intakeCubeFeed = 0;
+    public static final double intakeCubeDouble = 0;
 
     public static final double intakeMotorCanId = 6;
+
+  }
+
+  public static final class PositionConstants{
+    public static final Pose2d scoreConeHigh = new Pose2d(0, 0, null);
+    public static final Pose2d scoreConeMid = null;
+    public static final Pose2d scoreConeLow = null;
+    public static final Pose2d scoreCubeHigh = null;
+    public static final Pose2d scoreCubeMid = null;
+    public static final Pose2d scoreCubeLow = null;
+
+    public static final Pose2d intakeConeGround = null;
+    public static final Pose2d intakeConeFeed = null;
+    public static final Pose2d intakeConeDouble = null;
+    public static final Pose2d intakeCubeGround = null;
+    public static final Pose2d intakeCubeFeed = null;
+    public static final Pose2d intakeCubeDouble = null;
 
   }
 

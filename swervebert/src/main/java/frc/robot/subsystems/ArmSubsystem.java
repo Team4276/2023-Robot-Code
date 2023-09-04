@@ -11,10 +11,10 @@ import com.revrobotics.CANSparkMax.ControlType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ArmSubsystemConstants;
+import frc.robot.Constants.OIConstants;
 
 public class ArmSubsystem extends SubsystemBase {
     public final CANSparkMax elbowMotor;
@@ -44,6 +44,12 @@ public class ArmSubsystem extends SubsystemBase {
      private static double allowedErr = 0;
 
     private static double elbowZero = 0;
+
+    private double holdPos = 0;
+
+    private double currSetpoint = 0;
+
+    private final double DEADZONE = 0.05;
 
     public ArmSubsystem(){
         elbowMotor = new CANSparkMax(ArmSubsystemConstants.elbowMotorCanId, MotorType.kBrushless);
@@ -104,7 +110,9 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     private void setElbowPos(double pos){
-        elbowPidController.setReference(pos + elbowZero, ControlType.kSmartMotion);
+        currSetpoint = pos + elbowZero;
+
+        elbowPidController.setReference(currSetpoint, ControlType.kSmartMotion);
 
     }
 
@@ -112,31 +120,38 @@ public class ArmSubsystem extends SubsystemBase {
         elbowPidController.setReference(vel, ControlType.kSmartVelocity);
     }
 
+    /** Janky cmd for manual arm movement do not use it as an example */
     public Command setElbowVelCmd(double vel){
         Command command;
 
-        if(vel > 0){
+        if(vel > OIConstants.kJoystickDeadband){
             if(checkForwardLimitSwitch()){
-                command = new PrintCommand("Don't give Ethan PTSD");
+                command = new InstantCommand(() -> {setElbowVel(0);});
+
             } else {
                 command = new InstantCommand(() -> {setElbowVel(vel);});
+            }
+
+        } else if(vel < -OIConstants.kJoystickDeadband) {
+            if(checkReverseLimitSwitch()){
+                command = new InstantCommand(() -> {setElbowVel(0);});
+
+            } else {
+                command = new InstantCommand(() -> {setElbowVel(vel);});
+
             }
 
         } else {
-            if(checkReverseLimitSwitch()){
-                command = new PrintCommand("Don't give Ethan PTSD");
-            } else {
-                command = new InstantCommand(() -> {setElbowVel(vel);});
-            }
+            command = new InstantCommand(() -> {setElbowPos(holdPos);});
+            
+        }
 
+        // Dont want to rewrite stuff
+        if(Math.abs(vel) < OIConstants.kJoystickDeadband){
+            holdPos = getCorrectedPos();
         }
 
         return command;
-
-    }
-
-    public Command elbowTemp(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.tempPos); });
 
     }
 
@@ -144,6 +159,62 @@ public class ArmSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.stow); });
     }
 
+    public Command ScoreConeHigh(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeHigh); });
+    }
+
+    public Command ScoreConeMid(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeMid); });
+    }
+
+    public Command ScoreConeLow(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeLow); });
+    }
+
+    public Command ScoreCubeHigh(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeHigh); });
+    }
+
+    public Command ScoreCubeMid(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeMid); });
+    }
+
+    public Command ScoreCubeLow(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeLow); });
+    }
+
+    public Command IntakeConeGround(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeGround); });
+    }
+
+    public Command IntakeConeFeeder(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeFeed); });
+    }
+
+    public Command IntakeConeDouble(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeDouble); });
+    }
+
+    public Command IntakeCubeGround(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeGround); });
+    }
+
+    public Command IntakeCubeFeeder(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeFeed); });
+    }
+
+    public Command IntakeCubeDouble(){
+        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeDouble); });
+    }
+
+    /** Checks whether it is close to the setpoint */
+    public boolean isStable(){
+        if(Math.abs(getCorrectedPos() - currSetpoint) < DEADZONE){
+            return true;
+        } else {
+            return false;
+        }
+    }
     
 
     @Override

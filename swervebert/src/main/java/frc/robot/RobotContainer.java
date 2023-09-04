@@ -11,8 +11,10 @@ import frc.robot.commands.AutoPicker;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimeLightSubsystem;
 import frc.utils.BetterController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -28,6 +30,7 @@ public class RobotContainer {
     private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
     private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
     private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+    private final LimeLightSubsystem m_LightSubsystem = new LimeLightSubsystem();
 
     // The driver's controller
     XboxController m_driverCon = new XboxController(OIConstants.kDriverControllerPort);
@@ -35,7 +38,7 @@ public class RobotContainer {
 
     private final BetterController m_bopCon = new BetterController(m_opCon);
 
-    private final AutoPicker chooser = new AutoPicker(m_driveSubsystem);
+    private final AutoPicker chooser = new AutoPicker(m_driveSubsystem, m_IntakeSubsystem, m_ArmSubsystem, m_LightSubsystem, m_opCon);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -58,7 +61,7 @@ public class RobotContainer {
 
         m_ArmSubsystem.setDefaultCommand(
                 new RunCommand(
-                        () -> m_ArmSubsystem.elbowTemp(), 
+                        () -> m_ArmSubsystem.stow(), 
                         m_ArmSubsystem)
 
         );

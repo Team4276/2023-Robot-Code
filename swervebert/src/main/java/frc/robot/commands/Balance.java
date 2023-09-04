@@ -46,8 +46,6 @@ public class Balance extends CommandBase {
                 false, false, 
                 DriveConstants.kMaxSpeedMetersPerSecond);
 
-            driveSubsystem.setX();
-
             this.end(false);
         }
     
@@ -55,6 +53,7 @@ public class Balance extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        driveSubsystem.setX();
     
     }
     
