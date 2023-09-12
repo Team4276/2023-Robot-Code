@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -43,6 +44,7 @@ import frc.utilities.RoboRioPorts;
 import frc.utilities.RobotMode;
 import frc.utilities.SoftwareTimer;
 import frc.utilities.Xbox;
+import frc.utilities.FieldPose;
 
 import frc.auto.AutoScoringFunctions;
 import frc.auto.BabyAuto;
@@ -294,7 +296,7 @@ public class Robot extends TimedRobot  {
    */
   @Override
   public void robotPeriodic() {
-    try{
+    /*try{
       if (Robot.rightJoystick.getRawButton(LogJoystick.B7)){
     FollowPath.Follow();
       } else if (Robot.rightJoystick.getRawButton(LogJoystick.B8)){
@@ -304,8 +306,12 @@ public class Robot extends TimedRobot  {
   } 
     catch(Exception e){
       DriverStation.reportWarning("unknown error on attempting to follow path", false);
+    }*/
+    
+    try{FieldPose.ExampleGlobalMeasurementSensor();}
+    catch(NoSuchElementException e){
+      DriverStation.reportWarning("Waiting for postion estimate", false);
     }
-
     pov = xboxController.getPOV();
     myLocation.updatePosition();
     myLocation.updateTelemetry();

@@ -3,6 +3,7 @@ package frc.utilities;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
 import frc.robot.Robot;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Gyroscope {
     public static final ADIS16470_IMU imu = new ADIS16470_IMU();
@@ -22,6 +23,10 @@ public class Gyroscope {
 
     static public double GetPitch() {
         return imu.getYComplementaryAngle();
+    }
+
+    static public Rotation2d getRotation2d() {
+        return new Rotation2d(GetYaw());
     }
 
     static public double GetCorrectPitch(double currentPitch) {

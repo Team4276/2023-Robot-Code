@@ -1,5 +1,4 @@
 package frc.systems;
-import java.io.FileWriter;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.utilities.Vector3;
