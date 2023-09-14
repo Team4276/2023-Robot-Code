@@ -20,6 +20,7 @@ public class AutoPicker {
     
     DriveSubsystem driveSubsystem;
 
+
     public AutoPicker(
         DriveSubsystem driveSubsystem){
         this.driveSubsystem = driveSubsystem;
@@ -30,8 +31,10 @@ public class AutoPicker {
         chooser.addOption("No Rotate", followPathWithEvents("No Rotate"));
         chooser.addOption("Straight", followPathWithEvents("Straight"));
         chooser.addOption("WEEEE", followPathWithEvents("WEEEE"));
+        chooser.addOption("spin", followPathWithEvents("spin"));
 
         eventMap.put("intake", new PrintCommand("Intaking"));
+        //eventMap.put("spin", new SpinnyWEWEE(driveSubsystem, gyro));
 
         SmartDashboard.putData("Auto Choices: ", chooser);
 
