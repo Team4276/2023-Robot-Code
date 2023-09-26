@@ -144,6 +144,12 @@ public final class Constants {
     public static final double kFreeSpeedRpm = 5676;
   }
 
+  public static final class IntakeSubsystemConstants {
+    public static final double kIntakeSpeed = 0.85;
+    public static final double kOuttakeSpeed = 0.-85;
+    public static final double kIdleSpeed = 0.05;
+  }
+
   public static final class ArmSubsystemConstants {
     public static final int elbowMotorCanId = 5;
 

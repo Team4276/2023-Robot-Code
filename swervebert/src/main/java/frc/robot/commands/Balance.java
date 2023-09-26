@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.ArmSubsystemConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -26,7 +27,7 @@ public class Balance extends CommandBase {
         armSubsystem.getCurrentCommand().end(true);
         intakeSubsystem.getCurrentCommand().end(true);
 
-        armSubsystem.stow();
+        armSubsystem.set(ArmSubsystemConstants.stow);
         intakeSubsystem.idle();
     }
 

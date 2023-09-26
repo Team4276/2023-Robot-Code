@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.ArmSubsystemConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoPicker;
 import frc.robot.subsystems.ArmSubsystem;
@@ -14,7 +15,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.utils.BetterController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -61,7 +61,7 @@ public class RobotContainer {
 
         m_ArmSubsystem.setDefaultCommand(
                 new RunCommand(
-                        () -> m_ArmSubsystem.stow(), 
+                        () -> m_ArmSubsystem.set(ArmSubsystemConstants.stow), 
                         m_ArmSubsystem)
 
         );

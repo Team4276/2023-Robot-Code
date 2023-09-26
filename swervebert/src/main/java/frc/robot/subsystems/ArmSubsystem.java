@@ -155,56 +155,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     }
 
-    public Command stow(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.stow); });
-    }
-
-    public Command ScoreConeHigh(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeHigh); });
-    }
-
-    public Command ScoreConeMid(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeMid); });
-    }
-
-    public Command ScoreConeLow(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreConeLow); });
-    }
-
-    public Command ScoreCubeHigh(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeHigh); });
-    }
-
-    public Command ScoreCubeMid(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeMid); });
-    }
-
-    public Command ScoreCubeLow(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.scoreCubeLow); });
-    }
-
-    public Command IntakeConeGround(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeGround); });
-    }
-
-    public Command IntakeConeFeeder(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeFeed); });
-    }
-
-    public Command IntakeConeDouble(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeDouble); });
-    }
-
-    public Command IntakeCubeGround(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeGround); });
-    }
-
-    public Command IntakeCubeFeeder(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeFeed); });
-    }
-
-    public Command IntakeCubeDouble(){
-        return new InstantCommand(() -> {setElbowPos(ArmSubsystemConstants.intakeConeDouble); });
+    public Command set(double setPoint){
+        return new InstantCommand(() -> {setElbowPos(setPoint);});
     }
 
     /** Checks whether it is close to the setpoint */
