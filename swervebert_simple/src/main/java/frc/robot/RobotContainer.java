@@ -27,7 +27,9 @@ public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
     // The driver's controller
-    XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    public XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+    public XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
 
     private final AutoPicker chooser = new AutoPicker(m_robotDrive);
 

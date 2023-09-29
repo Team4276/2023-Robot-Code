@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ElbowConstants;
+import frc.robot.subsystems.PIDElbow;
 
 
 
@@ -20,6 +23,10 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+  private static PIDElbow pidElbow;
+
+  Notifier armRateGroup;
   
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -32,7 +39,16 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
+    pidElbow = new PIDElbow(ElbowConstants.ElbowID, m_robotContainer.m_driverController);
+
+    armRateGroup = new Notifier(Robot::timedArm);
+    armRateGroup.startPeriodic(0.05);
+
     
+  }
+
+  public static void timedArm(){
+    pidElbow.PIDElbowUpdate();
   }
 
   /**
