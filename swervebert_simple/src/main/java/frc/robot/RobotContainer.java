@@ -8,10 +8,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
-import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoPicker;
-import frc.robot.commands.SpinnyWEWEE;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PIDElbow;
 import frc.utils.BetterXboxController;
@@ -47,7 +45,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        pidElbow = new PIDElbow(ElbowConstants.ElbowID);
+        pidElbow = new PIDElbow();
 
         armRateGroup = new Notifier(RobotContainer::timedArm);
         armRateGroup.startPeriodic(0.05);
@@ -84,10 +82,6 @@ public class RobotContainer {
                 .whileTrue(new RunCommand(
                         () -> m_robotDrive.setX(),
                         m_robotDrive));
-        
-
-        new JoystickButton(m_driverController, Button.kL1.value)
-                .whileTrue(new SpinnyWEWEE(m_robotDrive));
 
         new JoystickButton(m_opController, Button.kCross.value)
                 .onTrue(new InstantCommand(() -> {PIDElbow.setZero();}));

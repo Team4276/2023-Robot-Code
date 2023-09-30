@@ -9,6 +9,7 @@ import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.ElbowConstants;
 
 public class PIDElbow {
 
@@ -76,8 +77,8 @@ public class PIDElbow {
         return "*****";
     }
 
-    public PIDElbow(int port) {
-        driveElbow = new CANSparkMax(port, MotorType.kBrushless);
+    public PIDElbow() {
+        driveElbow = new CANSparkMax(ElbowConstants.ElbowID, MotorType.kBrushless);
 
         driveElbowReverseLimitSwitch = driveElbow.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
         driveElbowReverseLimitSwitch.enableLimitSwitch(true);
@@ -191,6 +192,8 @@ public class PIDElbow {
         SmartDashboard.putNumber("DPAD_UP_ELBOW_EJECT_BACK_MID: ", DPAD_UP_ELBOW_EJECT_BACK_MID);
         SmartDashboard.putNumber("DPAD_LEFT_EJECT_FRONT_MID: ", DPAD_LEFT_EJECT_FRONT_MID);
         SmartDashboard.putNumber("DPAD_RIGHT_EJECT_FRONT_HIGH: ", DPAD_RIGHT_EJECT_FRONT_HIGH);
+        SmartDashboard.putBoolean("Intake Limit Switch", driveElbowReverseLimitSwitch.isPressed());
+        SmartDashboard.putBoolean("Stow Limit Switch", driveElbowForwardLimitSwitch.isPressed());
     }
 
 }

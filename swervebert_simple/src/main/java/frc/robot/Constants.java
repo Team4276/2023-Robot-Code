@@ -141,7 +141,7 @@ public final class Constants {
     public static final double kFreeSpeedRpm = 5676;
   }
 
-  public static final class ElbowConstants { //TODO: update elbow id
-    public static final int ElbowID = 0;
+  public static final class ElbowConstants {
+    public static final int ElbowID = 17;
   }
 }
