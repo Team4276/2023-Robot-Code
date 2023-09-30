@@ -144,4 +144,8 @@ public final class Constants {
   public static final class ElbowConstants {
     public static final int ElbowID = 17;
   }
+
+  public static final class IntakeConstants {
+    public static final int IntakeID = 18;
+  }
 }

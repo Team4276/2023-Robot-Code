@@ -30,4 +30,21 @@ public class BetterXboxController {
 
         return pov;
     }
+
+    public boolean getLT(){
+        if (xboxController.getLeftTriggerAxis() > 0.1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean getRT(){
+        if (xboxController.getRightTriggerAxis() > 0.1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

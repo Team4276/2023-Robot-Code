@@ -8,15 +8,18 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PIDElbow;
 import frc.utils.BetterXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -39,6 +42,8 @@ public class RobotContainer {
 
     private static PIDElbow pidElbow;
 
+    private static Intake m_intake = new Intake(IntakeConstants.IntakeID);
+
     Notifier armRateGroup;
 
     /**
@@ -46,6 +51,7 @@ public class RobotContainer {
      */
     public RobotContainer() {
         pidElbow = new PIDElbow();
+
 
         armRateGroup = new Notifier(RobotContainer::timedArm);
         armRateGroup.startPeriodic(0.05);
@@ -64,6 +70,10 @@ public class RobotContainer {
                                 -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
                                 true, true),
                         m_robotDrive));
+
+        m_intake.setDefaultCommand(
+                new RunCommand(() -> m_intake.idle(),m_intake)
+        );
 
         
     }
@@ -85,7 +95,14 @@ public class RobotContainer {
 
         new JoystickButton(m_opController, Button.kCross.value)
                 .onTrue(new InstantCommand(() -> {PIDElbow.setZero();}));
-    }
+
+        new Trigger(m_BetterXboxController::getLT)
+                .whileTrue(new RunCommand(() -> m_intake.intake(), m_intake));
+
+        new Trigger(m_BetterXboxController::getRT)
+                .whileTrue(new RunCommand(() -> m_intake.outtake(), m_intake));
+
+        }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
