@@ -5,14 +5,18 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoPicker;
 import frc.robot.commands.SpinnyWEWEE;
-//import frc.robot.commands.SpinnyWEWEE;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.PIDElbow;
+import frc.utils.BetterXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -27,16 +31,27 @@ public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
     // The driver's controller
-    public XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
-    public XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
+    private static final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
+
+    private static final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
     private final AutoPicker chooser = new AutoPicker(m_robotDrive);
+
+    private static PIDElbow pidElbow;
+
+    Notifier armRateGroup;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        pidElbow = new PIDElbow(ElbowConstants.ElbowID);
+
+        armRateGroup = new Notifier(RobotContainer::timedArm);
+        armRateGroup.startPeriodic(0.05);
+
         // Configure the button bindings
         configureButtonBindings();
 
@@ -51,6 +66,8 @@ public class RobotContainer {
                                 -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
                                 true, true),
                         m_robotDrive));
+
+        
     }
 
     /**
@@ -71,6 +88,9 @@ public class RobotContainer {
 
         new JoystickButton(m_driverController, Button.kL1.value)
                 .whileTrue(new SpinnyWEWEE(m_robotDrive));
+
+        new JoystickButton(m_opController, Button.kCross.value)
+                .onTrue(new InstantCommand(() -> {PIDElbow.setZero();}));
     }
 
     /**
@@ -81,5 +101,9 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return chooser.getAutoCommand();
 
+        }
+
+        public static void timedArm(){
+                pidElbow.PIDElbowUpdate(m_opController.getLeftY(), m_BetterXboxController.getPOV());
         }
 }

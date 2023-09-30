@@ -8,9 +8,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.utils.BetterXboxController;
 
 public class PIDElbow {
 
@@ -55,10 +53,6 @@ public class PIDElbow {
 
     private static boolean isJoystickActive = true;
 
-    private XboxController xboxController;
-
-    private BetterXboxController betterXboxController = new BetterXboxController(xboxController);
-
     private enum Pos {
         NONE,
         EJECT_FRONT_HIGH,
@@ -82,7 +76,7 @@ public class PIDElbow {
         return "*****";
     }
 
-    public PIDElbow(int port, XboxController xboxController) {
+    public PIDElbow(int port) {
         driveElbow = new CANSparkMax(port, MotorType.kBrushless);
 
         driveElbowReverseLimitSwitch = driveElbow.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyOpen);
@@ -117,15 +111,13 @@ public class PIDElbow {
             pidController.setSmartMotionAllowedClosedLoopError(allowedErr, smartMotionSlot);
         }
 
-        this.xboxController = xboxController;
-
     }
 
     private static void setPIDReference(double setPoint_Elbow, ControlType controlType) {
         driveElbowPidController.setReference(setPoint_Elbow, controlType);
     }
 
-    private static void setZero() {
+    public static void setZero() {
         elbowZero = driveElbowEncoder.getPosition();
     }
 
@@ -133,9 +125,7 @@ public class PIDElbow {
         return driveElbowEncoder.getPosition() - elbowZero;
     }
 
-    public void PIDElbowUpdate() {
-
-        double leftY = xboxController.getLeftY();
+    public void PIDElbowUpdate(double leftY, int POV) {
         if (leftY > deadband) {
             isJoystickActive = true;
 
@@ -144,7 +134,7 @@ public class PIDElbow {
                 // pressed
                 driveElbow.set(0);
             } else {
-                double power = xboxController.getLeftY() / 3.75;
+                double power = leftY / 3.75;
                 driveElbow.set(power);
               }
 
@@ -156,25 +146,22 @@ public class PIDElbow {
                 // pressed
                 driveElbow.set(0);
             } else {
-                double power = xboxController.getLeftY() / 3.75;
+                double power = leftY / 3.75;
                 driveElbow.set(power);
             }
 
-        } else if (betterXboxController.getPOV() != 0) {
-            if (betterXboxController.getPOV() == 1) {
+        } else if (POV != 0) {
+            if (POV == 1) {
                 setPoint_Elbow = DPAD_UP_ELBOW_EJECT_BACK_MID + elbowZero;
 
-            } else if (betterXboxController.getPOV() == 2) {
+            } else if (POV == 2) {
                 setPoint_Elbow = DPAD_RIGHT_EJECT_FRONT_HIGH + elbowZero;
 
-            } else if (betterXboxController.getPOV() == 4) {
+            } else if (POV == 4) {
                 setPoint_Elbow = DPAD_LEFT_EJECT_FRONT_MID + elbowZero;
 
             } 
             setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
-
-        } else if (xboxController.getAButton()) {
-            setZero();
 
         } else if (Math.abs(leftY) <= deadband) {
 
@@ -194,6 +181,7 @@ public class PIDElbow {
                 setPIDReference(setPoint_Elbow, ControlType.kSmartMotion);
             }
         }
+
 
 
         SmartDashboard.putNumber("Raw Elbow Encoder:  ", driveElbowEncoder.getPosition());
