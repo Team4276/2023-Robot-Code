@@ -1,9 +1,10 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.utils.SoftwareTimer;
 
-public class Balance {
+public class Balance extends CommandBase {
     private double DEAD_ZONE = 3;
     public boolean pause = false;
     private final double CHECKTIME = 2;
@@ -19,7 +20,7 @@ public class Balance {
         this.driveSubsystem = driveSubsystem;
     }
 
-    public void balance(double pitch) {
+    public Balance(double pitch) {
         if (pause) {
             if (firstRun) {
                 checkTimer.setTimer(CHECKTIME);
@@ -37,7 +38,7 @@ public class Balance {
             if (Math.abs(pitch) > DEAD_ZONE) {
 
                 // TODO: orient it to the balance;
-                driveSubsystem.drive(0, 0.1, 0, false, false);
+                driveSubsystem.drive(-0.1, 0, 0, false, true);
                 
             } else {
                 pause = true;

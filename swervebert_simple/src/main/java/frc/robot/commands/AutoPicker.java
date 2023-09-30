@@ -58,6 +58,9 @@ public class AutoPicker {
 
     }
 
+    //TODO: Rework the paths to be segmented like 254
+    //TODO: look into auto architecture
+
    
 
 
