@@ -14,13 +14,13 @@ public class Balance extends CommandBase {
 
     DriveSubsystem driveSubsystem;
 
-    public void balanceinit(DriveSubsystem driveSubsystem) {
+    public Balance(DriveSubsystem driveSubsystem) {
         checkTimer = new SoftwareTimer();
 
         this.driveSubsystem = driveSubsystem;
-    }
+    } 
 
-    public Balance(double pitch) {
+    public void autoBalance() {
         if (pause) {
             if (firstRun) {
                 checkTimer.setTimer(CHECKTIME);
@@ -35,7 +35,7 @@ public class Balance extends CommandBase {
             }
 
         } else {
-            if (Math.abs(pitch) > DEAD_ZONE) {
+            if (Math.abs(driveSubsystem.getPitch()) > DEAD_ZONE) {
 
                 // TODO: orient it to the balance;
                 driveSubsystem.drive(-0.1, 0, 0, false, true);

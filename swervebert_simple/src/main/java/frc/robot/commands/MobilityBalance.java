@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -11,6 +12,8 @@ public class MobilityBalance extends SequentialCommandGroup{
     public MobilityBalance(DriveSubsystem driveSubsystem){
         addRequirements(driveSubsystem);
 
+        Balance balance = new Balance(driveSubsystem);
+
         addCommands(
             new ParallelCommandGroup(
                 new RunCommand(
@@ -18,7 +21,7 @@ public class MobilityBalance extends SequentialCommandGroup{
                     driveSubsystem),
                 new WaitCommand(3)
             ),
-            new RunCommand(() -> new Balance(driveSubsystem.getPitch()), driveSubsystem)
+            new RunCommand(() -> balance.autoBalance(), driveSubsystem)
 
 
         );
