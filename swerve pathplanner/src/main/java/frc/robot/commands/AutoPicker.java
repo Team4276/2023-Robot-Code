@@ -36,7 +36,7 @@ public class AutoPicker {
         eventMap.put("intake", new PrintCommand("Intaking"));
         //eventMap.put("spin", new SpinnyWEWEE(driveSubsystem, gyro));
 
-        SmartDashboard.putData("Auto Choices: ", chooser);
+        SmartDashboard.putData("Auto Tests: ", chooser);
 
     }
 

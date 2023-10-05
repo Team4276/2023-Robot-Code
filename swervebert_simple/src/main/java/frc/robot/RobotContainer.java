@@ -38,7 +38,7 @@ public class RobotContainer {
 
     private static final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
-    private final AutoPicker chooser = new AutoPicker(m_robotDrive);
+    private final AutoPicker chooser;
 
     private static PIDElbow pidElbow;
 
@@ -51,6 +51,8 @@ public class RobotContainer {
      */
     public RobotContainer() {
         pidElbow = new PIDElbow();
+
+        chooser = new AutoPicker(m_robotDrive);
 
 
         armRateGroup = new Notifier(RobotContainer::timedArm);
