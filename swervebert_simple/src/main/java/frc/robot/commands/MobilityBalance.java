@@ -11,17 +11,24 @@ public class MobilityBalance extends SequentialCommandGroup{
     public MobilityBalance(DriveSubsystem driveSubsystem){
         addRequirements(driveSubsystem);
 
-        Balance balance = new Balance(driveSubsystem);
+        OldBalance oldBalance = new OldBalance(driveSubsystem);
+
+        //TODO: test direction for non field relative commands calibrate the speed over charge station-p
 
         addCommands(
             new ParallelCommandGroup(
                 new RunCommand(
-                    () -> driveSubsystem.drive(0.2, 0, 0, false, true),
+                    () -> driveSubsystem.drive(0.2, 0, 0, false, false),
                     driveSubsystem),
                 new WaitCommand(3)
             ),
-            new RunCommand(() -> balance.autoBalance(), driveSubsystem)
-
+            new ParallelCommandGroup(
+                new RunCommand(
+                    () -> driveSubsystem.drive(-0.2, 0, 0, false, false),
+                    driveSubsystem),
+                new WaitCommand(1)
+            ),
+            new RunCommand(() -> oldBalance.balance())
 
         );
     }
