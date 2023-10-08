@@ -32,11 +32,10 @@ public class AutoPicker {
         this.pidElbow = pidElbow;
         this.intake = intake;
 
+        eventMap.put("intake", new PrintCommand("Intaking"));
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption(null, getAutoCommand());
-
-        eventMap.put("intake", new PrintCommand("Intaking"));
 
         SmartDashboard.putData("Auto Test: ", chooser);
 
@@ -46,22 +45,23 @@ public class AutoPicker {
         return chooser.getSelected();
     }
 
-    private Command followPathWithEvents(String name){
+    public Command followPathWithEvents(String name){
         PathPlannerTrajectory path = PathPlanner.loadPath(name, 
             Constants.AutoConstants.kMaxSpeedMetersPerSecond,
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-
+    
         FollowPathWithEvents command = new FollowPathWithEvents(
             driveSubsystem.followPathCommand(path), 
             path.getMarkers(), 
             eventMap);
-
+    
         return command;
-
-    }
+    
+      }
 
     //TODO: Rework the paths to be segmented like 254
     //TODO: look into auto architecture
+    //TODO: give heading control to the code
 
    
 
