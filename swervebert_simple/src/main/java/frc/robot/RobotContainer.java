@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AutoPicker;
+import frc.robot.auto.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PIDElbow;
@@ -52,7 +52,7 @@ public class RobotContainer {
     public RobotContainer() {
         pidElbow = new PIDElbow();
 
-        chooser = new AutoPicker(m_robotDrive);
+        chooser = new AutoPicker(m_robotDrive, pidElbow, m_intake);
 
 
         armRateGroup = new Notifier(RobotContainer::timedArm);

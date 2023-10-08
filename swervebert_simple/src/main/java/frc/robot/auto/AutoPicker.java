@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.auto;
 
 import java.util.HashMap;
 
@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.PIDElbow;
 
 public class AutoPicker {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
@@ -19,22 +21,22 @@ public class AutoPicker {
     HashMap<String, Command> eventMap = new HashMap<>();
     
     DriveSubsystem driveSubsystem;
-
+    PIDElbow pidElbow;
+    Intake intake;
 
     public AutoPicker(
-        DriveSubsystem driveSubsystem){
+        DriveSubsystem driveSubsystem,
+        PIDElbow pidElbow,
+        Intake intake){
         this.driveSubsystem = driveSubsystem;
+        this.pidElbow = pidElbow;
+        this.intake = intake;
+
 
         chooser.setDefaultOption("Do nothing", null);
-        chooser.addOption("Bump 2 Piece", followPathWithEvents("Bump 2 Piece"));
-        chooser.addOption("Short test", followPathWithEvents("Short test"));
-        chooser.addOption("No Rotate", followPathWithEvents("No Rotate"));
-        chooser.addOption("Straight", followPathWithEvents("Straight"));
-        chooser.addOption("WEEEE", followPathWithEvents("WEEEE"));
-        chooser.addOption("spin", followPathWithEvents("spin"));
+        chooser.addOption(null, getAutoCommand());
 
         eventMap.put("intake", new PrintCommand("Intaking"));
-        //eventMap.put("spin", new SpinnyWEWEE(driveSubsystem, gyro));
 
         SmartDashboard.putData("Auto Test: ", chooser);
 
