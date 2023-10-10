@@ -4,8 +4,6 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.utils.PID;
 import frc.utils.SoftwareTimer;
 
-//TODO: fix this crap
-
 public class OldBalance {
     private static double DEAD_ZONE = 3;
     public static boolean pause = false;
@@ -43,8 +41,17 @@ public class OldBalance {
 
         } else {
             if (Math.abs(pitch) > DEAD_ZONE) {
+                double speed = -PID.getOutput(pitch, 0) / 4;
 
-                driveSubsystem.drive(0, -PID.getOutput(pitch, 0) / 4, 0, false, false);
+                if (speed > 0.5){
+                    speed = 0.5;
+                }
+
+                if (speed < -0.5){
+                    speed = -0.5;
+                }
+
+                driveSubsystem.drive(0, speed, 0, false, false);
             } else {
                 pause = true;
             }

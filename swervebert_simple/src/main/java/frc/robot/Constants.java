@@ -143,6 +143,22 @@ public final class Constants {
 
   public static final class ElbowConstants {
     public static final int ElbowID = 17;
+
+    //TODO: fill these values
+    public static final double elbowZeroDefault = 0;
+    public static final double elbowArcLength = 0;
+
+    public static final double kP = 0.5;
+    public static final double kI = 0;
+    public static final double kD = 0;
+
+    //TODO: fill these values
+    public static final double setPointStow = 0;
+    public static final double setPointIntake = 0;
+    public static final double setPointManual = 0;
+    public static final double setPointLow = 0;
+    public static final double setPointMid = 0;
+    public static final double setPointHigh = 0;
   }
 
   public static final class IntakeConstants {

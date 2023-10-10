@@ -13,6 +13,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.NewElbow;
 import frc.robot.subsystems.PIDElbow;
 import frc.utils.BetterXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,7 +41,9 @@ public class RobotContainer {
 
     private final AutoPicker chooser;
 
-    private static PIDElbow pidElbow;
+    //private static PIDElbow pidElbow;
+
+    private NewElbow newElbow = NewElbow.getInstance();
 
     private static Intake m_intake = new Intake(IntakeConstants.IntakeID);
 
@@ -50,13 +53,12 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        pidElbow = new PIDElbow();
+        //pidElbow = new PIDElbow();
 
-        chooser = new AutoPicker(m_robotDrive, pidElbow, m_intake);
+        chooser = new AutoPicker(m_robotDrive, newElbow, m_intake);
 
-
-        armRateGroup = new Notifier(RobotContainer::timedArm);
-        armRateGroup.startPeriodic(0.05);
+        //armRateGroup = new Notifier(RobotContainer::timedArm);
+        //armRateGroup.startPeriodic(0.05);
 
         // Configure the button bindings
         configureButtonBindings();
@@ -75,6 +77,10 @@ public class RobotContainer {
 
         m_intake.setDefaultCommand(
                 new RunCommand(() -> m_intake.idle(),m_intake)
+        );
+
+        newElbow.setDefaultCommand(
+                new RunCommand(() -> newElbow.update(), newElbow)
         );
 
         
@@ -104,6 +110,26 @@ public class RobotContainer {
         new Trigger(m_BetterXboxController::getRT)
                 .whileTrue(new RunCommand(() -> m_intake.outtake(), m_intake));
 
+        new Trigger(m_BetterXboxController::isPOVUPPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.Stow()));
+        
+        new Trigger(m_BetterXboxController::isPOVRIGHTPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.ScoreHigh()));
+
+        new Trigger(m_BetterXboxController::isPOVDOWNPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.Intake()));
+
+        new Trigger(m_BetterXboxController::isPOVLEFTPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.ScoreMid()));
+
+        new Trigger(m_BetterXboxController::leftYIsPushed).whileTrue(
+                new RunCommand(() -> newElbow.manual(m_opController.getLeftY()), newElbow)
+        );
+
+        new Trigger(m_opController::getAButton).whileTrue(
+                new InstantCommand(() -> newElbow.setZero())
+        );
+
         }
 
     /**
@@ -116,7 +142,7 @@ public class RobotContainer {
 
         }
 
-        public static void timedArm(){
-                pidElbow.PIDElbowUpdate(m_opController.getLeftY(), m_BetterXboxController.getPOV());
-        }
+        //public static void timedArm(){
+        //        pidElbow.PIDElbowUpdate(m_opController.getLeftY(), m_BetterXboxController.getPOV());
+        //}
 }

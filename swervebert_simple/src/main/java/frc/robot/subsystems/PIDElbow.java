@@ -54,8 +54,6 @@ public class PIDElbow {
 
     private static boolean isJoystickActive = true;
 
-    //TODO: fix everything
-
     private enum Pos {
         NONE,
         EJECT_FRONT_HIGH,

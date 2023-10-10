@@ -31,6 +31,38 @@ public class BetterXboxController {
         return pov;
     }
 
+    public boolean isPOVUPPressed(){
+        if (getPOV() == 1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isPOVRIGHTPressed(){
+        if (getPOV() == 2){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isPOVDOWNPressed(){
+        if (getPOV() == 3){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isPOVLEFTPressed(){
+        if (getPOV() == 4){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean getLT(){
         if (xboxController.getLeftTriggerAxis() > 0.1){
             return true;
@@ -41,6 +73,14 @@ public class BetterXboxController {
 
     public boolean getRT(){
         if (xboxController.getRightTriggerAxis() > 0.1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean leftYIsPushed(){
+        if (Math.abs(xboxController.getLeftY()) > 0.1){
             return true;
         } else {
             return false;
