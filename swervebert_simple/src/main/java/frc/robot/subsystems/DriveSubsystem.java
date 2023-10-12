@@ -72,8 +72,17 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
+  private static DriveSubsystem mInstance;
+    public static DriveSubsystem getInstance(){
+      if(mInstance == null){
+        mInstance = new DriveSubsystem();
+      }
+  
+      return mInstance;
+    }
+
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
+  private DriveSubsystem() {
   }
 
   @Override

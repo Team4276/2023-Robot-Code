@@ -1,13 +1,13 @@
 package frc.utils;
 
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.OIConstants;
 
 public class BetterXboxController {
     
     XboxController xboxController;
 
     public BetterXboxController(XboxController xboxController){
-
         this.xboxController = xboxController;
     }
 
@@ -80,7 +80,7 @@ public class BetterXboxController {
     }
 
     public boolean leftYIsPushed(){
-        if (Math.abs(xboxController.getLeftY()) > 0.1){
+        if (Math.abs(xboxController.getLeftY()) > OIConstants.kDriveDeadband){
             return true;
         } else {
             return false;

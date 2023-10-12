@@ -152,6 +152,10 @@ public final class Constants {
     public static final double kI = 0;
     public static final double kD = 0;
 
+    public static final double manualCoefficient = 0.5;
+
+    public static final double maxPower = 0.5;
+
     //TODO: fill these values
     public static final double setPointStow = 0.546;
     public static final double setPointIntake = 0;
@@ -163,5 +167,9 @@ public final class Constants {
 
   public static final class IntakeConstants {
     public static final int IntakeID = 18;
+
+    public static final double intakeSpeed = 0.8;
+    public static final double outtakeSpeed = -0.85;
+    public static final double idleSpeed = 0.05;
   }
 }

@@ -4,29 +4,33 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
+    private static CANSparkMax intakeMotor;
 
-    private static CANSparkMax intakeDrive;
+    private static Intake mInstance = null;
+    public static Intake getInstance(){
+        if(mInstance == null){
+            mInstance = new Intake();
+        }
 
-    public Intake(int port) {
-        intakeDrive = new CANSparkMax(port, MotorType.kBrushless);
+        return mInstance;
     }
 
-    // Speed inrange -1.0 to +1.0
-    public void setSpeed(double speed) {
-        intakeDrive.set(speed);
+    private Intake() {
+        intakeMotor = new CANSparkMax(IntakeConstants.IntakeID, MotorType.kBrushless);
     }
 
     public void intake(){
-        setSpeed(0.8);
+        intakeMotor.set(IntakeConstants.intakeSpeed);
     }
 
     public void outtake(){
-        setSpeed(-0.85);
+        intakeMotor.set(IntakeConstants.outtakeSpeed);
     }
 
     public void idle(){
-        setSpeed(0.05);
+        intakeMotor.set(IntakeConstants.idleSpeed);
     }
 }

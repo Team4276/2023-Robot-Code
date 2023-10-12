@@ -5,10 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
@@ -30,32 +28,29 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
     // The robot's subsystems
-    private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+    private final DriveSubsystem m_robotDrive = DriveSubsystem.getInstance();
+
+    private final NewElbow newElbow = NewElbow.getInstance();
+
+    private final Intake m_intake = Intake.getInstance();
+
+    //private static PIDElbow pidElbow;
 
     // The driver's controller
     private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
-    private static final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
+    private final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
+    private final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
-    private static final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
+    private final AutoPicker chooser = new AutoPicker(m_robotDrive, newElbow, m_intake);
 
-    private final AutoPicker chooser;
-
-    //private static PIDElbow pidElbow;
-
-    private NewElbow newElbow = NewElbow.getInstance();
-
-    private static Intake m_intake = new Intake(IntakeConstants.IntakeID);
-
-    Notifier armRateGroup;
+    //Notifier armRateGroup;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         //pidElbow = new PIDElbow();
-
-        chooser = new AutoPicker(m_robotDrive, newElbow, m_intake);
 
         //armRateGroup = new Notifier(RobotContainer::timedArm);
         //armRateGroup.startPeriodic(0.05);

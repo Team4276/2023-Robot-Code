@@ -6,6 +6,7 @@ import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,14 +47,14 @@ public class NewElbow extends SubsystemBase {
         setPoint = encoder.getPosition();
     }
 
-    private static NewElbow m_NewElbow = null; 
+    private static NewElbow mInstance = null; 
 
     public static NewElbow getInstance(){
-        if (m_NewElbow == null){
-            m_NewElbow = new NewElbow();
+        if (mInstance == null){
+            mInstance = new NewElbow();
         }
 
-        return m_NewElbow;
+        return mInstance;
     }
 
     public void setZero(){
@@ -64,7 +65,7 @@ public class NewElbow extends SubsystemBase {
         if (limitSwitchCheck()){
             update();
         } else {
-            SmartDashboard.putNumber("Elbow Power:", speed);
+            SmartDashboard.putNumber("Elbow Power:", speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient);
 
             setPoint = encoder.getPosition();
         }
@@ -73,27 +74,17 @@ public class NewElbow extends SubsystemBase {
     public void update() {
         limitSwitchCheck();
 
-
-
         double speed;
 
-        speed = pidController.calculate(encoder.getPosition(), setPoint);
-
-        if (speed > 0.5){
-            speed = 0.5;
-        }
-
-        if (speed < -0.5){
-            speed = -0.5;
-        }
+        speed = MathUtil.clamp(
+            pidController.calculate(encoder.getPosition(), setPoint),
+            -ElbowConstants.maxPower, ElbowConstants.maxPower);
 
         SmartDashboard.putNumber("Elbow Power: ", speed);
     }
 
     private boolean limitSwitchCheck(){
         if (forwardLimitSwitch.isPressed()){
-            //TODO: check which is forwardlimit which is reverselimit
-            //TODO: if stow limit switch is forward, swap the setPoint statements below
             setPoint = ElbowConstants.setPointStow + zero;
             return true;
         } else if (reverseLimitSwitch.isPressed()){
