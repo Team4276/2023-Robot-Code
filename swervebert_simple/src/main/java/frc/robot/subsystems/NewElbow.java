@@ -28,8 +28,8 @@ public class NewElbow extends SubsystemBase {
     private NewElbow(){
         motor = new CANSparkMax(ElbowConstants.ElbowID, MotorType.kBrushless);
 
-        forwardLimitSwitch = motor.getForwardLimitSwitch(Type.kNormallyClosed);
-        reverseLimitSwitch = motor.getReverseLimitSwitch(Type.kNormallyClosed);
+        forwardLimitSwitch = motor.getForwardLimitSwitch(Type.kNormallyOpen);
+        reverseLimitSwitch = motor.getReverseLimitSwitch(Type.kNormallyOpen);
 
         forwardLimitSwitch.enableLimitSwitch(true);
         reverseLimitSwitch.enableLimitSwitch(true);
@@ -73,9 +73,11 @@ public class NewElbow extends SubsystemBase {
     public void update() {
         limitSwitchCheck();
 
+
+
         double speed;
 
-        speed = pidController.calculate(encoder.getPosition() / 360, setPoint / 360);
+        speed = pidController.calculate(encoder.getPosition(), setPoint);
 
         if (speed > 0.5){
             speed = 0.5;
@@ -105,6 +107,11 @@ public class NewElbow extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elbow Encoder: ", encoder.getPosition() - zero);
+        SmartDashboard.putNumber("Elbow Set Point: ", setPoint - zero);
+        SmartDashboard.putNumber("Elbow Zero: ", zero);
+
+        SmartDashboard.putBoolean("Forward Limit: ", forwardLimitSwitch.isPressed());
+        SmartDashboard.putBoolean("Reverse Limit: ", reverseLimitSwitch.isPressed());
     }
 
     public void Stow(){
