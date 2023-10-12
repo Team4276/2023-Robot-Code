@@ -6,15 +6,16 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.ArmSubsystemConstants;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AutoPicker;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.auto.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LimeLightSubsystem;
-import frc.utils.BetterController;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.NewElbow;
+import frc.robot.subsystems.PIDElbow;
+import frc.utils.BetterXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -27,50 +28,57 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
     // The robot's subsystems
-    private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-    private final ArmSubsystem m_ArmSubsystem = new ArmSubsystem();
-    private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-    private final LimeLightSubsystem m_LightSubsystem = new LimeLightSubsystem();
+    private final DriveSubsystem m_robotDrive = DriveSubsystem.getInstance();
+
+    private final NewElbow newElbow = NewElbow.getInstance();
+
+    private final Intake m_intake = Intake.getInstance();
+
+    //private static PIDElbow pidElbow;
 
     // The driver's controller
-    XboxController m_driverCon = new XboxController(OIConstants.kDriverControllerPort);
-    XboxController m_opCon = new XboxController(OIConstants.kSubsystemControllerPort);
+    private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
-    private final BetterController m_bopCon = new BetterController(m_opCon);
+    private final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
+    private final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
-    private final AutoPicker chooser = new AutoPicker(m_driveSubsystem, m_IntakeSubsystem, m_ArmSubsystem, m_LightSubsystem, m_opCon);
+    private final AutoPicker chooser = new AutoPicker();
+
+    //Notifier armRateGroup;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        //pidElbow = new PIDElbow();
+
+        //armRateGroup = new Notifier(RobotContainer::timedArm);
+        //armRateGroup.startPeriodic(0.05);
+
         // Configure the button bindings
         configureButtonBindings();
 
         // Configure default commands
-        m_driveSubsystem.setDefaultCommand(
+        m_robotDrive.setDefaultCommand(
                 // The left stick controls translation of the robot.
                 // Turning is controlled by the X axis of the right stick.
                 new RunCommand(
-                        () -> m_driveSubsystem.drive(
-                                -MathUtil.applyDeadband(m_driverCon.getLeftY(), OIConstants.kJoystickDeadband),
-                                -MathUtil.applyDeadband(m_driverCon.getLeftX(), OIConstants.kJoystickDeadband),
-                                -MathUtil.applyDeadband(m_driverCon.getRightX(), OIConstants.kJoystickDeadband),
-                                true, true, m_driveSubsystem.driveMode.getSelected()),
-                        m_driveSubsystem));
+                        () -> m_robotDrive.drive(
+                                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                                true, false),
+                        m_robotDrive));
 
-        m_ArmSubsystem.setDefaultCommand(
-                new RunCommand(
-                        () -> m_ArmSubsystem.set(ArmSubsystemConstants.stow), 
-                        m_ArmSubsystem)
-
+        m_intake.setDefaultCommand(
+                new RunCommand(() -> m_intake.idle(),m_intake)
         );
 
-        m_IntakeSubsystem.setDefaultCommand(
-                new RunCommand(
-                        () -> m_IntakeSubsystem.idle(), 
-                        m_IntakeSubsystem)
+        newElbow.setDefaultCommand(
+                new RunCommand(() -> newElbow.update(), newElbow)
         );
+
+        
     }
 
     /**
@@ -83,27 +91,41 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        new Trigger(m_driverCon::getRightBumper)
+        new JoystickButton(m_driverController, Button.kR1.value)
                 .whileTrue(new RunCommand(
-                        () -> m_driveSubsystem.setX(),
-                        m_driveSubsystem));
+                        () -> m_robotDrive.setX(),
+                        m_robotDrive));
 
-        new Trigger(m_opCon::getBButton)
-                .whileTrue(new RunCommand(
-                        () -> m_ArmSubsystem.setElbowVelCmd(m_opCon.getLeftY()),
-                        m_ArmSubsystem));
+        new JoystickButton(m_opController, Button.kCross.value)
+                .onTrue(new InstantCommand(() -> {PIDElbow.setZero();}));
 
-        new Trigger(m_bopCon::getLeftTriggerPressed)
-                .whileTrue(new RunCommand(
-                        () -> m_IntakeSubsystem.in(),
-                        m_IntakeSubsystem));
+        new Trigger(m_BetterXboxController::getLT)
+                .whileTrue(new RunCommand(() -> m_intake.intake(), m_intake));
 
-        new Trigger(m_bopCon::getRightTriggerPressed)
-                .whileTrue(new RunCommand(
-                        () -> m_IntakeSubsystem.out(),
-                        m_IntakeSubsystem));
+        new Trigger(m_BetterXboxController::getRT)
+                .whileTrue(new RunCommand(() -> m_intake.outtake(), m_intake));
 
-    }
+        new Trigger(m_BetterXboxController::isPOVUPPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.Stow()));
+        
+        new Trigger(m_BetterXboxController::isPOVRIGHTPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.ScoreHigh()));
+
+        new Trigger(m_BetterXboxController::isPOVDOWNPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.Intake()));
+
+        new Trigger(m_BetterXboxController::isPOVLEFTPressed)
+                .whileTrue(new InstantCommand(() -> newElbow.ScoreMid()));
+
+        new Trigger(m_BetterXboxController::leftYIsPushed).whileTrue(
+                new RunCommand(() -> newElbow.manual(m_opController.getLeftY()), newElbow)
+        );
+
+        new Trigger(m_opController::getAButton).whileTrue(
+                new InstantCommand(() -> newElbow.setZero())
+        );
+
+        }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -114,4 +136,8 @@ public class RobotContainer {
         return chooser.getAutoCommand();
 
         }
+
+        //public static void timedArm(){
+        //        pidElbow.PIDElbowUpdate(m_opController.getLeftY(), m_BetterXboxController.getPOV());
+        //}
 }

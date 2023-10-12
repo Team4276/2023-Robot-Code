@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -28,8 +27,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
-    public static final double kMaxSpeedMetersPerSecondDemo = 1.5;
+    public static final double kMaxSpeedMetersPerSecond = 2;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     public static final double kDirectionSlewRate = 1.2; // radians per second
@@ -37,9 +35,9 @@ public final class Constants {
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(21.5);
+    public static final double kTrackWidth = Units.inchesToMeters(25);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(21.5);
+    public static final double kWheelBase = Units.inchesToMeters(25);
     // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -120,9 +118,8 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final int kSubsystemControllerPort = 1;
-    public static final double kJoystickDeadband = 0.1;
-    public static final double kTriggerDeadband = 0.05;
+    public static final int kopControllerPort = 1;
+    public static final double kDriveDeadband = 0.1;
   }
 
   public static final class AutoConstants {
@@ -144,54 +141,35 @@ public final class Constants {
     public static final double kFreeSpeedRpm = 5676;
   }
 
-  public static final class IntakeSubsystemConstants {
-    public static final double kIntakeSpeed = 0.85;
-    public static final double kOuttakeSpeed = 0.-85;
-    public static final double kIdleSpeed = 0.05;
+  public static final class ElbowConstants {
+    public static final int ElbowID = 17;
+
+    //TODO: fill these values
+    public static final double elbowZeroDefault = 0.022331;
+    public static final double elbowArcLength = 0.5639;
+
+    public static final double kP = 0.5;
+    public static final double kI = 0;
+    public static final double kD = 0;
+
+    public static final double manualCoefficient = 0.5;
+
+    public static final double maxPower = 0.5;
+
+    //TODO: fill these values
+    public static final double setPointStow = 0.546;
+    public static final double setPointIntake = 0;
+    public static final double setPointManual = 0;
+    public static final double setPointLow = 0;
+    public static final double setPointMid = 0;
+    public static final double setPointHigh = 0;
   }
 
-  public static final class ArmSubsystemConstants {
-    public static final int elbowMotorCanId = 5;
+  public static final class IntakeConstants {
+    public static final int IntakeID = 18;
 
-    public static final double armForwardLimit = 0;
-    public static final double armReverseLimit = 0.52;
-
-    public static final double stow = 0.52;
-
-    public static final double scoreConeHigh = 0;
-    public static final double scoreConeMid = 0;
-    public static final double scoreConeLow = 0;
-    public static final double scoreCubeHigh = 0;
-    public static final double scoreCubeMid = 0;
-    public static final double scoreCubeLow = 0;
-
-    public static final double intakeConeGround = 0;
-    public static final double intakeConeFeed = 0;
-    public static final double intakeConeDouble = 0;
-    public static final double intakeCubeGround = 0;
-    public static final double intakeCubeFeed = 0;
-    public static final double intakeCubeDouble = 0;
-
-    public static final double intakeMotorCanId = 6;
-
+    public static final double intakeSpeed = 0.8;
+    public static final double outtakeSpeed = -0.85;
+    public static final double idleSpeed = 0.05;
   }
-
-  public static final class PositionConstants{
-    public static final Pose2d scoreConeHigh = new Pose2d(0, 0, null);
-    public static final Pose2d scoreConeMid = null;
-    public static final Pose2d scoreConeLow = null;
-    public static final Pose2d scoreCubeHigh = null;
-    public static final Pose2d scoreCubeMid = null;
-    public static final Pose2d scoreCubeLow = null;
-
-    public static final Pose2d intakeConeGround = null;
-    public static final Pose2d intakeConeFeed = null;
-    public static final Pose2d intakeConeDouble = null;
-    public static final Pose2d intakeCubeGround = null;
-    public static final Pose2d intakeCubeFeed = null;
-    public static final Pose2d intakeCubeDouble = null;
-
-  }
-
-
 }
