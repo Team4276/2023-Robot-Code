@@ -42,7 +42,7 @@ public class RobotContainer {
     private final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
     private final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
-    private final AutoPicker chooser = new AutoPicker(m_robotDrive, newElbow, m_intake);
+    private final AutoPicker chooser = new AutoPicker();
 
     //Notifier armRateGroup;
 

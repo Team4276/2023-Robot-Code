@@ -1,6 +1,9 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
+
 import frc.robot.subsystems.DriveSubsystem;
+
 import frc.utils.PID;
 import frc.utils.SoftwareTimer;
 
@@ -41,15 +44,7 @@ public class OldBalance {
 
         } else {
             if (Math.abs(pitch) > DEAD_ZONE) {
-                double speed = -PID.getOutput(pitch, 0) / 4;
-
-                if (speed > 0.5){
-                    speed = 0.5;
-                }
-
-                if (speed < -0.5){
-                    speed = -0.5;
-                }
+                double speed = -MathUtil.clamp(PID.getOutput(pitch, 0) / 4, -0.5, 0.5);
 
                 driveSubsystem.drive(0, speed, 0, false, false);
             } else {

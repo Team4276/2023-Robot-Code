@@ -8,8 +8,11 @@ import frc.robot.commands.OldBalance;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class MobilityBalance extends SequentialCommandGroup{
+    private DriveSubsystem driveSubsystem;
 
-    public MobilityBalance(DriveSubsystem driveSubsystem){
+    public MobilityBalance(){
+        driveSubsystem = DriveSubsystem.getInstance();
+
         addRequirements(driveSubsystem);
 
         OldBalance oldBalance = new OldBalance(driveSubsystem);
