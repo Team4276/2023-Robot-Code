@@ -21,8 +21,6 @@ public class MobilityBalance extends SequentialCommandGroup{
 
         OldBalance oldBalance = new OldBalance(mDriveSubsystem);
 
-        //TODO: test direction for non field relative commands calibrate the speed over charge station-p
-
         addCommands(
             mNewElbow.ScoreHigh(),
             new WaitCommand(1),

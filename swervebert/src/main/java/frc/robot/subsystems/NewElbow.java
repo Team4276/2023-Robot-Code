@@ -50,7 +50,6 @@ public class NewElbow extends SubsystemBase {
     }
 
     private static NewElbow mInstance = null; 
-
     public static NewElbow getInstance(){
         if (mInstance == null){
             mInstance = new NewElbow();
@@ -63,44 +62,57 @@ public class NewElbow extends SubsystemBase {
         zero = encoder.getPosition();
     }
 
+    // Forward on Controller Returns Negative
+    // Left on Controller Returns Negative
     public void manual(double speed){
-        if (limitSwitchCheck()){
-            update();
-        } else {
-            SmartDashboard.putNumber("Elbow Power:", speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient);
+        speed = limitSwitchCheck(speed);
+        
+        motor.set(speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient * ElbowConstants.motorCoefficient);
 
-            setPoint = encoder.getPosition();
-        }
+        setPoint = encoder.getPosition() - zero; // Store last encoder value to hold position
     }
 
     public void update() {
-        limitSwitchCheck();
-
         double speed;
 
         speed = MathUtil.clamp(
-            pidController.calculate(encoder.getPosition(), setPoint),
-            -ElbowConstants.maxPower, ElbowConstants.maxPower);
+            pidController.calculate(encoder.getPosition(), setPoint + zero),
+            -ElbowConstants.maxPower, ElbowConstants.maxPower)
+            * ElbowConstants.motorCoefficient;
 
-        SmartDashboard.putNumber("Elbow Power: ", speed);
+        speed = limitSwitchCheck(speed);
+
+        if(ElbowConstants.isSafe){
+            motor.set(speed);
+        } else {
+            SmartDashboard.putNumber("Elbow Power: ", speed);
+        }
     }
 
-    private boolean limitSwitchCheck(){
+    private double limitSwitchCheck(double speed){
         if (forwardLimitSwitch.isPressed()){
-            setPoint = ElbowConstants.setPointStow + zero;
-            return true;
-        } else if (reverseLimitSwitch.isPressed()){
-            setPoint = ElbowConstants.setPointIntake + zero;
-            return true;
-        } else {
-            return false;
+            zero = encoder.getPosition() - ElbowConstants.elbowArcLength;
+
+            if (speed > 0){
+                speed = 0;
+            }
+        } 
+        
+        if (reverseLimitSwitch.isPressed()){
+            setZero();
+
+            if (speed < 0){
+                speed = 0;
+            }
         }
+
+        return speed;
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elbow Encoder: ", encoder.getPosition() - zero);
-        SmartDashboard.putNumber("Elbow Set Point: ", setPoint - zero);
+        SmartDashboard.putNumber("Elbow Setpoint: ", setPoint - zero);
         SmartDashboard.putNumber("Elbow Zero: ", zero);
 
         SmartDashboard.putBoolean("Forward Limit: ", forwardLimitSwitch.isPressed());
@@ -108,24 +120,24 @@ public class NewElbow extends SubsystemBase {
     }
 
     public Command Stow(){
-        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointStow + zero;});
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointStow;});
 
     }
 
     public Command Intake(){
-        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointIntake + zero;});
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointIntake;});
     }
 
     public Command ScoreHigh(){
-        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointHigh + zero;});
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointHigh;});
     }
 
     public Command ScoreMid(){
-        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointMid + zero;});
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointMid;});
     }
 
     public Command ScoreLow(){
-        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointLow + zero;});
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointLow;});
     }
 
 }

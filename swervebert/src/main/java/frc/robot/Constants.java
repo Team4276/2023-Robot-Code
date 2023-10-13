@@ -144,17 +144,23 @@ public final class Constants {
   public static final class ElbowConstants {
     public static final int ElbowID = 17;
 
-    //TODO: fill these values
     public static final double elbowZeroDefault = 0.022331;
     public static final double elbowArcLength = 0.5639;
 
+    //TODO: Calibrate these
     public static final double kP = 0.5;
     public static final double kI = 0;
     public static final double kD = 0;
 
     public static final double manualCoefficient = 0.5;
 
+    //TODO: if pushing forward on controller doesn't make the arm go into intake position then turn it negative
+    public static final double motorCoefficient = 1;
+
     public static final double maxPower = 0.5;
+
+    //TODO: Set true once manual arm moves predictably
+    public static final boolean isSafe = false;
 
     //TODO: fill these values
     public static final double setPointStow = 0.546;
