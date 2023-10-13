@@ -14,9 +14,11 @@ public class followPathWithEvents{
     HashMap<String, Command> eventMap = new HashMap<>();
 
     public followPathWithEvents(){
-        eventMap.put("intake", null);
-        eventMap.put("balance", null);
-        eventMap.put("", null);
+        eventMap.put("Intake", null);
+        eventMap.put("Balance", null);
+        eventMap.put("Score High", null);
+        eventMap.put("Score Mid", null);
+        eventMap.put("Score Low", null);
     
     }
 
