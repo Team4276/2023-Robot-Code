@@ -15,10 +15,12 @@ public class followPathWithEvents{
 
     public followPathWithEvents(){
         eventMap.put("intake", null);
+        eventMap.put("balance", null);
+        eventMap.put("", null);
     
     }
 
-    public Command followPPEvents(String name, DriveSubsystem driveSubsystem){
+    public Command followPPPEvents(String name, DriveSubsystem driveSubsystem){
         PathPlannerTrajectory path = PathPlanner.loadPath(name, 
             Constants.AutoConstants.kMaxSpeedMetersPerSecond,
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -27,7 +29,6 @@ public class followPathWithEvents{
             driveSubsystem.followPathCommand(path), 
             path.getMarkers(), 
             eventMap);
-
     
         return command;
     

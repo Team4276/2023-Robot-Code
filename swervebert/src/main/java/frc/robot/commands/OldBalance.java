@@ -46,7 +46,7 @@ public class OldBalance {
             if (Math.abs(pitch) > DEAD_ZONE) {
                 double speed = -MathUtil.clamp(PID.getOutput(pitch, 0) / 4, -0.5, 0.5);
 
-                driveSubsystem.drive(0, speed, 0, false, false);
+                driveSubsystem.drive(speed, 0, 0, false, false);
             } else {
                 pause = true;
             }

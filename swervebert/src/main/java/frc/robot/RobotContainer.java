@@ -106,16 +106,16 @@ public class RobotContainer {
                 .whileTrue(new RunCommand(() -> m_intake.outtake(), m_intake));
 
         new Trigger(m_BetterXboxController::isPOVUPPressed)
-                .whileTrue(new InstantCommand(() -> newElbow.Stow()));
+                .whileTrue(newElbow.Stow());
         
         new Trigger(m_BetterXboxController::isPOVRIGHTPressed)
-                .whileTrue(new InstantCommand(() -> newElbow.ScoreHigh()));
+                .whileTrue(newElbow.ScoreHigh());
 
         new Trigger(m_BetterXboxController::isPOVDOWNPressed)
-                .whileTrue(new InstantCommand(() -> newElbow.Intake()));
+                .whileTrue(newElbow.Intake());
 
         new Trigger(m_BetterXboxController::isPOVLEFTPressed)
-                .whileTrue(new InstantCommand(() -> newElbow.ScoreMid()));
+                .whileTrue(newElbow.ScoreMid());
 
         new Trigger(m_BetterXboxController::leftYIsPushed).whileTrue(
                 new RunCommand(() -> newElbow.manual(m_opController.getLeftY()), newElbow)

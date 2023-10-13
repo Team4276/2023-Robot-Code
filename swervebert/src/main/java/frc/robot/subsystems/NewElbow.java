@@ -9,6 +9,8 @@ import com.revrobotics.SparkMaxLimitSwitch.Type;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElbowConstants;
 
@@ -105,24 +107,25 @@ public class NewElbow extends SubsystemBase {
         SmartDashboard.putBoolean("Reverse Limit: ", reverseLimitSwitch.isPressed());
     }
 
-    public void Stow(){
-        setPoint = ElbowConstants.setPointStow + zero;
+    public Command Stow(){
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointStow + zero;});
+
     }
 
-    public void Intake(){
-        setPoint = ElbowConstants.setPointIntake + zero;
+    public Command Intake(){
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointIntake + zero;});
     }
 
-    public void ScoreHigh(){
-        setPoint = ElbowConstants.setPointHigh + zero;
+    public Command ScoreHigh(){
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointHigh + zero;});
     }
 
-    public void ScoreMid(){
-        setPoint = ElbowConstants.setPointMid + zero;
+    public Command ScoreMid(){
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointMid + zero;});
     }
 
-    public void ScoreLow(){
-        setPoint = ElbowConstants.setPointLow + zero;
+    public Command ScoreLow(){
+        return new InstantCommand(() -> {setPoint = ElbowConstants.setPointLow + zero;});
     }
 
 }

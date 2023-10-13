@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.modes.MobilityBalance;
+import frc.robot.auto.modes.SSMobility;
 
 public class AutoPicker {
     SendableChooser<Command> chooser = new SendableChooser<Command>();
@@ -12,6 +13,7 @@ public class AutoPicker {
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Mobility Balance", new MobilityBalance());
+        chooser.addOption("SSMobility", new SSMobility());
 
         SmartDashboard.putData("Auto Test: ", chooser);
 
