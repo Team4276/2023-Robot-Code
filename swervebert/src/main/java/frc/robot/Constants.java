@@ -165,10 +165,9 @@ public final class Constants {
     //TODO: fill these values
     public static final double setPointStow = 0.546;
     public static final double setPointIntake = 0;
-    public static final double setPointManual = 0;
     public static final double setPointLow = 0;
     public static final double setPointMid = 0;
-    public static final double setPointHigh = 0;
+    public static final double setPointHigh = 0.3;
   }
 
   public static final class IntakeConstants {
