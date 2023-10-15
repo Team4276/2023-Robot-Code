@@ -72,6 +72,9 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
+  private double maxSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
+  private double maxAttainableSpeed = DriveConstants.kMaxAttainableSpeed;
+
   private static DriveSubsystem mInstance;
     public static DriveSubsystem getInstance(){
       if(mInstance == null){
@@ -190,8 +193,8 @@ public class DriveSubsystem extends SubsystemBase {
       }
 
       // Convert the commanded speeds into the correct units for the drivetrain
-      double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-      double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
+      double xSpeedDelivered = xSpeedCommanded * maxAttainableSpeed;
+      double ySpeedDelivered = ySpeedCommanded * maxAttainableSpeed;
       double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
@@ -199,7 +202,7 @@ public class DriveSubsystem extends SubsystemBase {
               ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_gyro.getAngle()))
               : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
       SwerveDriveKinematics.desaturateWheelSpeeds(
-          swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+          swerveModuleStates, maxSpeed);
       m_frontLeft.setDesiredState(swerveModuleStates[0]);
       m_frontRight.setDesiredState(swerveModuleStates[1]);
       m_rearLeft.setDesiredState(swerveModuleStates[2]);
@@ -225,7 +228,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        desiredStates, maxSpeed);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
@@ -288,6 +291,26 @@ public class DriveSubsystem extends SubsystemBase {
 
   public double getPitch(){
     return m_gyro.getYComplementaryAngle();
+  }
+
+  public void shiftSpeedUp(){
+    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecond){
+      maxSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
+    }
+
+    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeed){
+      maxAttainableSpeed = DriveConstants.kMaxAttainableSpeed;
+    }
+  }
+
+  public void shiftSpeedDown(){
+    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecondB){
+      maxSpeed = DriveConstants.kMaxSpeedMetersPerSecondB;
+    }
+
+    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeedB){
+      maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
+    }
   }
 
 }

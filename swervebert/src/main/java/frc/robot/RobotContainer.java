@@ -125,6 +125,12 @@ public class RobotContainer {
                 new InstantCommand(() -> newElbow.setZero())
         );
 
+        new Trigger(m_driverController::getLeftBumper)
+                .onTrue(new InstantCommand(() -> m_robotDrive.shiftSpeedDown()));
+
+        new Trigger(m_driverController::getRightBumper)
+                .onTrue(new InstantCommand(() -> m_robotDrive.shiftSpeedUp()));
+
         }
 
     /**
