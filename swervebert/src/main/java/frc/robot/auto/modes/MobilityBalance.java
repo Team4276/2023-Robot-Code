@@ -25,7 +25,7 @@ public class MobilityBalance extends SequentialCommandGroup{
             mNewElbow.ScoreHigh(),
             new WaitCommand(1),
             new ParallelCommandGroup(
-                mIntake.outtake(),
+                new RunCommand(() -> mIntake.outtake()),
                 new WaitCommand(0.2)),
             mNewElbow.Stow(),
             new ParallelCommandGroup(

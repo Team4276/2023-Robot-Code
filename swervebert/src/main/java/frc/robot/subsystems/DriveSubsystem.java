@@ -72,8 +72,8 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
-  private double maxSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
-  private double maxAttainableSpeed = DriveConstants.kMaxAttainableSpeed;
+  private double maxSpeed = DriveConstants.kMaxSpeedMetersPerSecondB;
+  private double maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
 
   private static DriveSubsystem mInstance;
     public static DriveSubsystem getInstance(){

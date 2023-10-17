@@ -24,15 +24,15 @@ public class Intake extends SubsystemBase {
         intakeMotor = new CANSparkMax(IntakeConstants.IntakeID, MotorType.kBrushless);
     }
 
-    public Command intake(){
-        return new InstantCommand(() -> {intakeMotor.set(IntakeConstants.intakeSpeed);}); 
+    public void intake(){
+        intakeMotor.set(IntakeConstants.intakeSpeed); 
     }
 
-    public Command outtake(){
-        return new InstantCommand(() -> {intakeMotor.set(IntakeConstants.outtakeSpeed);}); 
+    public void outtake(){
+        intakeMotor.set(IntakeConstants.outtakeSpeed); 
     }
 
-    public Command idle(){
-        return new InstantCommand(() -> {intakeMotor.set(IntakeConstants.idleSpeed);}); 
+    public void idle(){
+        intakeMotor.set(IntakeConstants.idleSpeed);
     }
 }

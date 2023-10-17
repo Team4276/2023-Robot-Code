@@ -12,7 +12,6 @@ import frc.robot.auto.AutoPicker;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NewElbow;
-import frc.robot.subsystems.PIDElbow;
 import frc.utils.BetterXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -34,8 +33,6 @@ public class RobotContainer {
 
     private final Intake m_intake = Intake.getInstance();
 
-    //private static PIDElbow pidElbow;
-
     // The driver's controller
     private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
@@ -44,17 +41,10 @@ public class RobotContainer {
 
     private final AutoPicker chooser = new AutoPicker();
 
-    //Notifier armRateGroup;
-
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        //pidElbow = new PIDElbow();
-
-        //armRateGroup = new Notifier(RobotContainer::timedArm);
-        //armRateGroup.startPeriodic(0.05);
-
         // Configure the button bindings
         configureButtonBindings();
 
@@ -71,7 +61,7 @@ public class RobotContainer {
                         m_robotDrive));
 
         m_intake.setDefaultCommand(
-                new RunCommand(() -> m_intake.idle(),m_intake)
+                new RunCommand(() -> m_intake.idle(), m_intake)
         );
 
         newElbow.setDefaultCommand(
@@ -96,9 +86,6 @@ public class RobotContainer {
                         () -> m_robotDrive.setX(),
                         m_robotDrive));
 
-        new JoystickButton(m_opController, Button.kCross.value)
-                .onTrue(new InstantCommand(() -> {PIDElbow.setZero();}));
-
         new Trigger(m_BetterXboxController::getLT)
                 .whileTrue(new RunCommand(() -> m_intake.intake(), m_intake));
 
@@ -121,7 +108,7 @@ public class RobotContainer {
                 new RunCommand(() -> newElbow.manual(m_opController.getLeftY()), newElbow)
         );
 
-        new Trigger(m_opController::getAButton).whileTrue(
+        new Trigger(m_opController::getAButton).onTrue(
                 new InstantCommand(() -> newElbow.setZero())
         );
 
@@ -142,8 +129,4 @@ public class RobotContainer {
         return chooser.getAutoCommand();
 
         }
-
-        //public static void timedArm(){
-        //        pidElbow.PIDElbowUpdate(m_opController.getLeftY(), m_BetterXboxController.getPOV());
-        //}
 }

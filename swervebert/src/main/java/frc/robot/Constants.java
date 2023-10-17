@@ -153,8 +153,8 @@ public final class Constants {
     public static final double elbowArcLength = 0.5639;
 
     //TODO: Calibrate these
-    public static final double kP = 0.5;
-    public static final double kI = 0;
+    public static final double kP = 1.5;
+    public static final double kI = 1;
     public static final double kD = 0;
 
     public static final double manualCoefficient = 0.5;
@@ -164,12 +164,9 @@ public final class Constants {
 
     public static final double maxPower = 0.5;
 
-    //TODO: Set true once manual arm moves predictably
-    public static final boolean isSafe = false;
-
     //TODO: fill these values
     public static final double setPointStow = 0.546;
-    public static final double setPointIntake = 0;
+    public static final double setPointIntake = 0.025;
     public static final double setPointLow = 0;
     public static final double setPointMid = 0;
     public static final double setPointHigh = 0.3;
