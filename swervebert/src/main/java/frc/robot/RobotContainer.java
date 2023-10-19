@@ -39,12 +39,14 @@ public class RobotContainer {
     private final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
     private final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
 
-    private final AutoPicker chooser = new AutoPicker();
+    private final AutoPicker chooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        chooser = new AutoPicker();
+
         // Configure the button bindings
         configureButtonBindings();
 

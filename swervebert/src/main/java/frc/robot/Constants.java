@@ -128,10 +128,10 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 2;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+    public static final double kMaxSpeedMetersPerSecond = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2 * Math.PI;
 
     public static final double kPXController = 1;
     public static final double kPYController = 1;
@@ -149,18 +149,24 @@ public final class Constants {
   public static final class ElbowConstants {
     public static final int ElbowID = 17;
 
-    public static final double elbowZeroDefault = 0.022331;
+    public static final double elbowZeroDefault = 0.0;
     public static final double elbowArcLength = 0.5639;
+    public static final double elbowGroundOffset = 0;
+
+    // (free RPM / 60 seconds per minute) * gear reduction
+    public static final double powerToRevsConversion = (5676 / 60) * 1;
 
     //TODO: Calibrate these
-    public static final double kP = 1.5;
+    public static final double kP = 1;
     public static final double kI = 1;
     public static final double kD = 0;
 
-    public static final double manualCoefficient = 0.5;
+    public static final double kS = 0;
+    public static final double kG = 1.09;
+    public static final double kV = 0.94;
+    public static final double kA = 0.05;
 
-    //TODO: if pushing forward on controller doesn't make the arm go into intake position then turn it negative
-    public static final double motorCoefficient = 1;
+    public static final double manualCoefficient = 0.5;
 
     public static final double maxPower = 0.5;
 

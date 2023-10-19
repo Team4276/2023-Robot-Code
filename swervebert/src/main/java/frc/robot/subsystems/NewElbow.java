@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +29,8 @@ public class NewElbow extends SubsystemBase {
 
     private double zero;
 
+    private ArmFeedforward armFeedforward;
+
     private NewElbow(){
         motor = new CANSparkMax(ElbowConstants.ElbowID, MotorType.kBrushless);
 
@@ -45,6 +48,14 @@ public class NewElbow extends SubsystemBase {
             ElbowConstants.kP, 
             ElbowConstants.kI, 
             ElbowConstants.kD);
+
+        pidController.enableContinuousInput(0, 1);
+
+        armFeedforward = new ArmFeedforward(
+            ElbowConstants.kS, 
+            ElbowConstants.kG, 
+            ElbowConstants.kV, 
+            ElbowConstants.kA);
 
         setPoint = encoder.getPosition();
     }
@@ -67,20 +78,31 @@ public class NewElbow extends SubsystemBase {
     public void manual(double speed){
         speed = limitSwitchCheck(speed);
         
-        motor.set(speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient * ElbowConstants.motorCoefficient);
+        motor.set(speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient);
+
+        setPoint = encoder.getPosition() - zero;
     }
 
     public void update() {
         double speed;
 
-        speed = MathUtil.clamp(
-            pidController.calculate(encoder.getPosition(), setPoint + zero),
-            -ElbowConstants.maxPower, ElbowConstants.maxPower)
-            * ElbowConstants.motorCoefficient;
+        speed = pidController.calculate(encoder.getPosition(), setPoint + zero);
+
+        //speed = armFF(speed);
 
         speed = limitSwitchCheck(speed);
 
+        speed = MathUtil.clamp(speed, -ElbowConstants.maxPower, ElbowConstants.maxPower);
+
         motor.set(speed);
+    }
+
+    private double armFF(double speed){
+        speed += armFeedforward.calculate(
+            setPoint + zero + ElbowConstants.elbowGroundOffset,
+            speed * ElbowConstants.powerToRevsConversion);
+
+        return speed;
     }
 
     private double limitSwitchCheck(double speed){

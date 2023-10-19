@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.auto.commands;
 
 import edu.wpi.first.math.MathUtil;
 
@@ -44,9 +44,7 @@ public class OldBalance {
 
         } else {
             if (Math.abs(pitch) > DEAD_ZONE) {
-                double speed = MathUtil.clamp(PID.getOutput(pitch, 0) / 4, -0.5, 0.5);
-
-                //TODO: Reset pitch?
+                double speed = MathUtil.clamp(pitch * 0.01, -0.5, 0.5);
 
                 driveSubsystem.drive(speed, 0, 0, false, false);
             } else {
