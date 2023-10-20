@@ -40,13 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import static org.opencv.imgcodecs.Imgcodecs.imwrite;
-import org.opencv.videoio.VideoWriter;
+
 
 public final class CTestMonitor {
 
@@ -56,13 +50,9 @@ public final class CTestMonitor {
     int m_nMaxFileNumber;
     String m_sBaseFileName;
     String m_sLogFolder;
-    String m_sLogVideoFolder;
-    VideoWriter m_outVideo;
-    Boolean m_isVideoRecording = false;
     Boolean m_isPrintEnabled = false;
     Boolean m_isMonitorEnabled = true;
-    MatOfByte compressionBuffer;
-
+ 
     public CTestMonitor() {
         init();
     }
@@ -88,14 +78,7 @@ public final class CTestMonitor {
         m_sLogFolder = "/home/";
         m_sLogFolder += HOME_NAME;
         m_sLogFolder += "/log";
-        m_sLogVideoFolder = "/home/";
-        m_sLogVideoFolder += HOME_NAME;
-        m_sLogVideoFolder += "/logVideo";
         m_nNextFile = getNextFileNumber(m_sLogFolder);
-    }
-
-    public void initVideo(int framesPerSec, int height, int width, int codec) {
-        m_isVideoRecording = false; //enableVideoCollection(true, framesPerSec, height, width, codec);
     }
 
     public String numberToText(int n) {
@@ -232,45 +215,6 @@ public final class CTestMonitor {
             }
         }
         return true;
-    }
-
-    public Boolean enableVideoCollection(Boolean bEnable, int framesPerSec, int height, int width, int codec) {
-        int nColor = 1;
-        Size mySize = new Size(width, height);
-        String sFilePath = getNextFilePath(m_sLogVideoFolder);
-        sFilePath += ".avi";
-
-        //make output video file  
-        m_outVideo.open(sFilePath, codec, framesPerSec, mySize);
-        return m_outVideo.isOpened();
-    }
-
-    public void saveVideoFrame(Mat frame) {
-        if (m_isMonitorEnabled && m_isVideoRecording) {
-            m_outVideo.write(frame);
-        }
-    }
-
-    public Boolean saveFrameToJpeg(Mat frame) {
-        if (m_isMonitorEnabled) {
-            try {
-                MatOfInt myQualityParams = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 90);
-                int bufferSize = frame.channels() * frame.cols() * frame.rows();
-                byte[] outputBuffer = new byte[bufferSize];
-                compressionBuffer = new MatOfByte(outputBuffer);
-                deleteFileByNumberIfExists(m_nNextFile, m_sLogFolder);
-                String sFilePath = getNextFilePath(m_sLogFolder);
-                sFilePath += ".jpg";
-                if (Imgcodecs.imwrite(sFilePath, frame, myQualityParams)) {
-                    return true;
-                } else {
-                    dbgMsg_s("CTestMonitor:  Write failed");
-                }
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        }
-        return false;
     }
 
     public long getTicks() {
