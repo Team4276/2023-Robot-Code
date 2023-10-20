@@ -41,10 +41,9 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public final class CTestMonitor {
 
-    final String HOME_NAME = "pi";
+    final String HOME_NAME = "roboRIO";
 
     int m_nNextFile;
     int m_nMaxFileNumber;
@@ -52,7 +51,7 @@ public final class CTestMonitor {
     String m_sLogFolder;
     Boolean m_isPrintEnabled = false;
     Boolean m_isMonitorEnabled = true;
- 
+
     public CTestMonitor() {
         init();
     }

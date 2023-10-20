@@ -26,9 +26,9 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
-import frc.utils.logPos;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -84,6 +84,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   private static PhotonCamera cam;
   private static PhotonPoseEstimator photonPoseEstimator;
+
+  private static int iCountLogging = 0;
 
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -192,8 +194,12 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("diff_PV_Y_meters", diff.getY());
     SmartDashboard.putNumber("diff_PV_Rotation_Degrees", diff.getRotation().getDegrees());
 
-    String msg = String.format("%f,%f,%f\n", diff.getX(), diff.getY(), diff.getRotation().getDegrees());
-    logPos.logString(msg);
+    iCountLogging++;
+    if ((iCountLogging % 250) == 0) { // Log about every 5 seconds
+      String msg = String.format("%d,%f,%f,%f\n", Robot.m_testMonitor.getTicks(), diff.getX(), diff.getY(),
+          diff.getRotation().getDegrees());
+      Robot.m_testMonitor.logWrite(msg);
+    }
   }
 
   /**
@@ -386,7 +392,8 @@ public class DriveSubsystem extends SubsystemBase {
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
           this.resetOdometry(path.getInitialHolonomicPose());
-          // this.resetOdometry_PV(path.getInitialHolonomicPose());  // Lets see if vision updated position doesn't need this
+          // this.resetOdometry_PV(path.getInitialHolonomicPose()); // Lets see if vision
+          // updated position doesn't need this
         }),
         new PPSwerveControllerCommand(
             path,
