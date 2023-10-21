@@ -12,17 +12,14 @@ public class OldBalance {
     private static final double CHECKTIME = 2;
     private static SoftwareTimer checkTimer;
 
-    DriveSubsystem driveSubsystem;
+    private DriveSubsystem driveSubsystem;
 
     private static boolean firstRun = true;
 
-    // must be oriented to face the charge station
-    //TODO: change it to go sideways?
+    public OldBalance(){
+        driveSubsystem = DriveSubsystem.getInstance();
 
-    public OldBalance(DriveSubsystem driveSubsystem){
         checkTimer = new SoftwareTimer();
-
-        this.driveSubsystem = driveSubsystem;
     }
 
     public void balance() {

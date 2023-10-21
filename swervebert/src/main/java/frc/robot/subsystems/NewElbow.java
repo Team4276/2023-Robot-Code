@@ -128,6 +128,10 @@ public class NewElbow extends SubsystemBase {
         return speed;
     }
 
+    public boolean isStable(){
+        return pidController.atSetpoint();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elbow Encoder: ", encoder.getPosition());

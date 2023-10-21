@@ -3,23 +3,37 @@ package frc.robot.auto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.auto.commands.ScoreHighCommand;
+import frc.robot.auto.commands.ScoreLowBackCommand;
+import frc.robot.auto.commands.ScoreMidCommand;
 import frc.robot.auto.modes.LSMobility;
-import frc.robot.auto.modes.LSPickup1;
+import frc.robot.auto.modes.LSScore2Bal;
+import frc.robot.auto.modes.LSScore3;
 import frc.robot.auto.modes.MobilityBalance;
-import frc.robot.auto.modes.OUTTAKE;
 import frc.robot.auto.modes.SSMobility;
-import frc.robot.auto.modes.ScoreHigh;
+import frc.robot.auto.modes.SSScore2Bal;
+import frc.robot.auto.modes.SSScore3;
 
 public class AutoPicker {
-    SendableChooser<Command> chooser = new SendableChooser<Command>();
+    SendableChooser<Command> chooser;
+
+    public followPathWithEvents followPathWithEvents;
 
     public AutoPicker(){
+        chooser = new SendableChooser<Command>();
+        followPathWithEvents = new followPathWithEvents();
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Mobility Balance", new MobilityBalance());
-        chooser.addOption("SSMobility", new SSMobility());
+        chooser.addOption("ScoreHighCommand", new ScoreHighCommand());
+        chooser.addOption("ScoreMidCommand", new ScoreMidCommand());
+        chooser.addOption("ScoreLowBackCommand", new ScoreLowBackCommand());
         chooser.addOption("LSMobility", new LSMobility());
-        chooser.addOption("OUTTAKE", new OUTTAKE());
+        chooser.addOption("LSScore2Bal", new LSScore2Bal());
+        chooser.addOption("LSScore3", new LSScore3());
+        chooser.addOption("SSMobility", new SSMobility());
+        chooser.addOption("SSScore2Bal", new SSScore2Bal());
+        chooser.addOption("SSScore3", new SSScore3());
 
         SmartDashboard.putData("Autos: ", chooser);
 
@@ -30,8 +44,6 @@ public class AutoPicker {
     }
 
 
-
-    //TODO: Rework the paths to be segmented like 254
     //TODO: look into auto architecture
     //TODO: give heading control to the code
 
