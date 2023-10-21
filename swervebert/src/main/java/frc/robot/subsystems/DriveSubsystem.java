@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -20,6 +21,7 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -72,17 +74,28 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
+  SwerveDriveOdometry m_odometry_PV = new SwerveDriveOdometry(
+      DriveConstants.kDriveKinematics,
+      Rotation2d.fromDegrees(m_gyro.getAngle()),
+      new SwerveModulePosition[] {
+          m_frontLeft.getPosition(),
+          m_frontRight.getPosition(),
+          m_rearLeft.getPosition(),
+          m_rearRight.getPosition()
+      });
+
   private double maxSpeed = DriveConstants.kMaxSpeedMetersPerSecondB;
   private double maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
 
   private static DriveSubsystem mInstance;
-    public static DriveSubsystem getInstance(){
-      if(mInstance == null){
-        mInstance = new DriveSubsystem();
-      }
-  
-      return mInstance;
+
+  public static DriveSubsystem getInstance() {
+    if (mInstance == null) {
+      mInstance = new DriveSubsystem();
     }
+
+    return mInstance;
+  }
 
   /** Creates a new DriveSubsystem. */
   private DriveSubsystem() {
@@ -102,6 +115,24 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Robot X", getPose().getX());
     SmartDashboard.putNumber("Robot Y", getPose().getY());
+
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      m_odometry_PV.update(
+          Rotation2d.fromDegrees(m_gyro.getAngle()),
+          new SwerveModulePosition[] {
+              m_frontLeft.getPosition(),
+              m_frontRight.getPosition(),
+              m_rearLeft.getPosition(),
+              m_rearRight.getPosition()
+          });
+
+          double distance = m_odometry_PV.getPoseMeters().getTranslation().getDistance(m_odometry_PV.getPoseMeters().getTranslation());
+          double diffHeading = m_odometry_PV.getPoseMeters().getRotation().getDegrees()- m_odometry.getPoseMeters().getRotation().getDegrees();
+          String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(),  distance, diffHeading);        
+          Robot.m_testMonitor.logWrite(msg);
+    }
+    SmartDashboard.putNumber("Robot X", getPose().getX());
+    SmartDashboard.putNumber("Robot Y", getPose().getY());
   }
 
   /**
@@ -112,8 +143,6 @@ public class DriveSubsystem extends SubsystemBase {
   public Pose2d getPose() {
     return m_odometry.getPoseMeters();
   }
-
-  
 
   /**
    * Resets the odometry to the specified pose.
@@ -151,24 +180,24 @@ public class DriveSubsystem extends SubsystemBase {
       double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
       double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
 
-      // Calculate the direction slew rate based on an estimate of the lateral acceleration
+      // Calculate the direction slew rate based on an estimate of the lateral
+      // acceleration
       double directionSlewRate;
       if (m_currentTranslationMag != 0.0) {
         directionSlewRate = Math.abs(DriveConstants.kDirectionSlewRate / m_currentTranslationMag);
       } else {
-        directionSlewRate = 500.0; //some high number that means the slew rate is effectively instantaneous
+        directionSlewRate = 500.0; // some high number that means the slew rate is effectively instantaneous
       }
-        
 
       double currentTime = WPIUtilJNI.now() * 1e-6;
       double elapsedTime = currentTime - m_prevTime;
       double angleDif = SwerveUtils.AngleDifference(inputTranslationDir, m_currentTranslationDir);
-      if (angleDif < 0.45*Math.PI) {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime);
+      if (angleDif < 0.45 * Math.PI) {
+        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir,
+            directionSlewRate * elapsedTime);
         m_currentTranslationMag = m_magLimiter.calculate(inputTranslationMag);
-      }
-      else if (angleDif > 0.85*Math.PI) {
-        if (m_currentTranslationMag > 1e-4) { //some small number to avoid floating-point errors with equality checking
+      } else if (angleDif > 0.85 * Math.PI) {
+        if (m_currentTranslationMag > 1e-4) { // some small number to avoid floating-point errors with equality checking
           // keep currentTranslationDir unchanged
           m_currentTranslationMag = m_magLimiter.calculate(0.0);
         } else {
@@ -176,39 +205,39 @@ public class DriveSubsystem extends SubsystemBase {
           m_currentTranslationMag = m_magLimiter.calculate(inputTranslationMag);
         }
       } else {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime);
+        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir,
+            directionSlewRate * elapsedTime);
         m_currentTranslationMag = m_magLimiter.calculate(0.0);
       }
       m_prevTime = currentTime;
-        
+
       xSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
       ySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
       m_currentRotation = m_rotLimiter.calculate(rot);
 
+    } else {
+      xSpeedCommanded = xSpeed;
+      ySpeedCommanded = ySpeed;
+      m_currentRotation = rot;
+    }
 
-      } else {
-        xSpeedCommanded = xSpeed;
-        ySpeedCommanded = ySpeed;
-        m_currentRotation = rot;
-      }
+    // Convert the commanded speeds into the correct units for the drivetrain
+    double xSpeedDelivered = xSpeedCommanded * maxAttainableSpeed;
+    double ySpeedDelivered = ySpeedCommanded * maxAttainableSpeed;
+    double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
-      // Convert the commanded speeds into the correct units for the drivetrain
-      double xSpeedDelivered = xSpeedCommanded * maxAttainableSpeed;
-      double ySpeedDelivered = ySpeedCommanded * maxAttainableSpeed;
-      double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+        fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                Rotation2d.fromDegrees(m_gyro.getAngle()))
+            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates, maxSpeed);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
 
-      var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-          fieldRelative
-              ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(m_gyro.getAngle()))
-              : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-      SwerveDriveKinematics.desaturateWheelSpeeds(
-          swerveModuleStates, maxSpeed);
-      m_frontLeft.setDesiredState(swerveModuleStates[0]);
-      m_frontRight.setDesiredState(swerveModuleStates[1]);
-      m_rearLeft.setDesiredState(swerveModuleStates[2]);
-      m_rearRight.setDesiredState(swerveModuleStates[3]);
-    
-    
   }
 
   /**
@@ -267,48 +296,49 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Command followPathCommand(PathPlannerTrajectory path) {
-    return new SequentialCommandGroup(
-      new InstantCommand(() -> {
-        this.resetOdometry(path.getInitialHolonomicPose());
-      }),
-        new PPSwerveControllerCommand(
-        path, 
-        this::getPose, 
-        DriveConstants.kDriveKinematics, 
-        new PIDController(Constants.AutoConstants.kPXController, 0, 0), 
-        new PIDController(Constants.AutoConstants.kPYController, 0, 0), 
-        new PIDController(Constants.AutoConstants.kPThetaController, 0, 0),
-        this::setModuleStates, 
-        false,
-        this),
-      new InstantCommand(() -> {
-        this.drive(0, 0, 0, false, false);
-      })
-    );
 
-      
+    String msg = new String("Reset Odometry from holonomic pose\n");
+    Robot.m_testMonitor.logWrite(msg);
+
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          this.resetOdometry(path.getInitialHolonomicPose());
+        }),
+        new PPSwerveControllerCommand(
+            path,
+            this::getPose,
+            DriveConstants.kDriveKinematics,
+            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+            new PIDController(Constants.AutoConstants.kPThetaController, 0, 0),
+            this::setModuleStates,
+            false,
+            this),
+        new InstantCommand(() -> {
+          this.drive(0, 0, 0, false, false);
+        }));
   }
 
-  public double getPitch(){
+  public double getPitch() {
     return m_gyro.getYComplementaryAngle();
   }
 
-  public void shiftSpeedUp(){
-    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecond){
+  public void shiftSpeedUp() {
+    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecond) {
       maxSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
     }
 
-    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeed){
+    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeed) {
       maxAttainableSpeed = DriveConstants.kMaxAttainableSpeed;
     }
   }
 
-  public void shiftSpeedDown(){
-    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecondB){
+  public void shiftSpeedDown() {
+    if (maxSpeed != DriveConstants.kMaxSpeedMetersPerSecondB) {
       maxSpeed = DriveConstants.kMaxSpeedMetersPerSecondB;
     }
 
-    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeedB){
+    if (maxAttainableSpeed != DriveConstants.kMaxAttainableSpeedB) {
       maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
     }
   }

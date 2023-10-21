@@ -31,12 +31,9 @@ package frc.utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -51,7 +48,7 @@ public final class CTestMonitor {
     String m_sBaseFileName;
     String m_sLogFolder;
     Boolean m_isPrintEnabled = false;
-    Boolean m_isMonitorEnabled = true;
+    Boolean m_isMonitorEnabled = false;
 
     public CTestMonitor() {
         init();
@@ -79,6 +76,10 @@ public final class CTestMonitor {
         m_sLogFolder += HOME_NAME;
         m_sLogFolder += "/log";
         m_nNextFile = getNextFileNumber(m_sLogFolder);
+    }
+
+    public boolean isTestMonitorEnabled() {
+        return m_isMonitorEnabled;
     }
 
     public String numberToText(int n) {
