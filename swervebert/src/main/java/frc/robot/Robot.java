@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -51,8 +52,7 @@ public class Robot extends TimedRobot {
     allianceChooser.addOption("Blue", Alliance.Blue);
     allianceChooser.addOption("Red", Alliance.Red);
 
-
-    
+    CameraServer.startAutomaticCapture();
   }
 
 
