@@ -110,10 +110,6 @@ public class RobotContainer {
                 new RunCommand(() -> newElbow.manual(m_opController.getLeftY()), newElbow)
         );
 
-        new Trigger(m_opController::getAButton).onTrue(
-                new InstantCommand(() -> newElbow.setZero())
-        );
-
         new Trigger(m_driverController::getLeftBumper)
                 .onTrue(new InstantCommand(() -> m_robotDrive.shiftSpeedDown()));
 

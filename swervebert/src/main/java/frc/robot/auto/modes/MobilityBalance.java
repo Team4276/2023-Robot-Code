@@ -27,7 +27,7 @@ public class MobilityBalance extends SequentialCommandGroup{
         OldBalance oldBalance = new OldBalance(mDriveSubsystem);
 
         addCommands(
-            followPathWithEvents.followPPPEvents(path, mDriveSubsystem),
+            followPathWithEvents.followPPPEvents(path, mDriveSubsystem,1),
             new RunCommand(() -> oldBalance.balance())
 
         );

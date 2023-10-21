@@ -30,7 +30,7 @@ public class LSPickup1 extends SequentialCommandGroup {
                 new RunCommand(() -> mIntake.outtake()),
                 new WaitCommand(0.2)),
             mNewElbow.Stow(),
-            followPathWithEvents.followPPPEvents(path, mDriveSubsystem),
+            followPathWithEvents.followPPPEvents(path, mDriveSubsystem, 3.5),
             mNewElbow.ScoreHigh(),
             new WaitCommand(1),
             new ParallelCommandGroup(

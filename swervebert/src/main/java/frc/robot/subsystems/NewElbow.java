@@ -25,11 +25,9 @@ public class NewElbow extends SubsystemBase {
 
     private final PIDController pidController;
 
+    private final ArmFeedforward armFeedforward;
+
     private double setPoint;
-
-    private double zero;
-
-    private ArmFeedforward armFeedforward;
 
     private NewElbow(){
         motor = new CANSparkMax(ElbowConstants.ElbowID, MotorType.kBrushless);
@@ -42,14 +40,14 @@ public class NewElbow extends SubsystemBase {
 
         encoder = motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 
-        zero = ElbowConstants.elbowZeroDefault;
-
         pidController = new PIDController(
             ElbowConstants.kP, 
             ElbowConstants.kI, 
             ElbowConstants.kD);
 
         pidController.enableContinuousInput(0, 1);
+        
+        pidController.setIntegratorRange(-ElbowConstants.kIRange, ElbowConstants.kIRange);
 
         armFeedforward = new ArmFeedforward(
             ElbowConstants.kS, 
@@ -69,10 +67,6 @@ public class NewElbow extends SubsystemBase {
         return mInstance;
     }
 
-    public void setZero(){
-        zero = encoder.getPosition();
-    }
-
     // Forward on Controller Returns Negative
     // Left on Controller Returns Negative
     public void manual(double speed){
@@ -80,13 +74,13 @@ public class NewElbow extends SubsystemBase {
         
         motor.set(speed * ElbowConstants.maxPower * ElbowConstants.manualCoefficient);
 
-        setPoint = encoder.getPosition() - zero;
+        setPoint = encoder.getPosition();
     }
 
     public void update() {
         double speed;
 
-        speed = pidController.calculate(encoder.getPosition(), setPoint + zero);
+        speed = pidController.calculate(encoder.getPosition(), setPoint);
 
         //speed = armFF(speed);
 
@@ -98,9 +92,14 @@ public class NewElbow extends SubsystemBase {
     }
 
     private double armFF(double speed){
+        double position = setPoint + ElbowConstants.elbowGroundOffset;
+        if (position > 1){
+            position -= 1;
+        }
+
         speed += armFeedforward.calculate(
-            setPoint + zero + ElbowConstants.elbowGroundOffset,
-            speed * ElbowConstants.powerToRevsConversion);
+            2 * Math.PI * position,
+            speed * ElbowConstants.powerToRadsConversion);
 
         return speed;
     }
@@ -123,9 +122,8 @@ public class NewElbow extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Elbow Encoder: ", encoder.getPosition() - zero);
+        SmartDashboard.putNumber("Elbow Encoder: ", encoder.getPosition());
         SmartDashboard.putNumber("Elbow Setpoint: ", setPoint);
-        SmartDashboard.putNumber("Elbow Zero: ", zero);
 
         SmartDashboard.putBoolean("Forward Limit: ", forwardLimitSwitch.isPressed());
         SmartDashboard.putBoolean("Reverse Limit: ", reverseLimitSwitch.isPressed());

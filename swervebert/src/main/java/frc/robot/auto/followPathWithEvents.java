@@ -21,9 +21,9 @@ public class followPathWithEvents{
     
     }
 
-    public Command followPPPEvents(String name, DriveSubsystem driveSubsystem){
+    public Command followPPPEvents(String name, DriveSubsystem driveSubsystem, double maxSpeed){
         PathPlannerTrajectory path = PathPlanner.loadPath(name, 
-            Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+            maxSpeed,
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     
         FollowPathWithEvents command = new FollowPathWithEvents(
