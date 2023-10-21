@@ -39,13 +39,13 @@ public class MobilityBalance extends SequentialCommandGroup{
             new WaitUntilCommand(() -> mNewElbow.isStable()),
             new ParallelCommandGroup(
                 new InstantCommand(() -> mIntake.outtake()),
-                new WaitCommand(0.2)
+                new WaitCommand(0.4)
             ),
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable())
 ,
-            followPathWithEvents.followPPPEvents(path, mDriveSubsystem,1),
+            followPathWithEvents.followPPPEvents(path, mDriveSubsystem,1.2),
             new RunCommand(() -> oldBalance.balance())
 
         );

@@ -27,7 +27,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.7059;
+    public static final double kMaxSpeedMetersPerSecond = 5;
     public static final double kMaxAttainableSpeed = kMaxSpeedMetersPerSecond * 0.85;
 
     public static final double kMaxSpeedMetersPerSecondB = 2.3529;
@@ -173,7 +173,106 @@ public final class Constants {
     public static final double setPointIntake = 0.025;
     public static final double setPointLow = 0.025;
     public static final double setPointMid = 0.21;
-    public static final double setPointHigh = 0.27;
+    public static final double setPointHigh = 0.27
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ;
   }
 
   public static final class IntakeConstants {
