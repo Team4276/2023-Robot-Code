@@ -17,11 +17,10 @@ import frc.robot.auto.modes.SSScore3;
 public class AutoPicker {
     SendableChooser<Command> chooser;
 
-    public followPathWithEvents followPathWithEvents;
+    public followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
     public AutoPicker(){
         chooser = new SendableChooser<Command>();
-        followPathWithEvents = new followPathWithEvents();
 
         chooser.setDefaultOption("Do nothing", null);
         chooser.addOption("Mobility Balance", new MobilityBalance());
@@ -35,7 +34,7 @@ public class AutoPicker {
         chooser.addOption("SSScore2Bal", new SSScore2Bal());
         chooser.addOption("SSScore3", new SSScore3());
 
-        SmartDashboard.putData("Autos: ", chooser);
+        SmartDashboard.putData("Auto: ", chooser);
 
     }
 

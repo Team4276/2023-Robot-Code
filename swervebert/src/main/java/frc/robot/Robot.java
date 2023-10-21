@@ -45,7 +45,9 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    allianceChooser.setDefaultOption("No Alliance", null);
+
+    allianceChooser = new SendableChooser<Alliance>();
+    allianceChooser.setDefaultOption("No Alliance", Alliance.Invalid);
     allianceChooser.addOption("Blue", Alliance.Blue);
     allianceChooser.addOption("Red", Alliance.Red);
 
