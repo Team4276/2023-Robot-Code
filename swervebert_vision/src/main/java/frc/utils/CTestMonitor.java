@@ -33,6 +33,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -43,7 +44,7 @@ import java.util.logging.Logger;
 
 public final class CTestMonitor {
 
-    final String HOME_NAME = "roboRIO";
+    final String HOME_NAME = "admin";
 
     int m_nNextFile;
     int m_nMaxFileNumber;
@@ -200,16 +201,21 @@ public final class CTestMonitor {
         }
         if (m_isMonitorEnabled) {
             OutputStreamWriter sw;
+            String path = getLogFilePath();
+
             try {
-                sw = new OutputStreamWriter(new FileOutputStream(getLogFilePath()));
-                Writer writer = new BufferedWriter(sw);
-                try {
-                    writer.write(sLine);
-                } catch (IOException ex) {
-                    Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                FileOutputStream out = new FileOutputStream(getLogFilePath());
-            } catch (FileNotFoundException ex) {
+                // Creates a FileWriter
+                FileWriter file = new FileWriter(path);
+
+                // Creates a BufferedWriter
+                BufferedWriter output = new BufferedWriter(file);
+
+                // Writes the string to the file
+                output.write(sLine);
+
+                // Closes the writer
+                output.close();
+            } catch (IOException ex) {
                 Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
