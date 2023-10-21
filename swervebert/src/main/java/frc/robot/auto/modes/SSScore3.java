@@ -6,13 +6,13 @@ import frc.robot.auto.commands.ScoreHighCommand;
 import frc.robot.auto.commands.ScoreMidCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class LSScore3 extends SequentialCommandGroup {
+public class SSScore3 extends SequentialCommandGroup {
     private DriveSubsystem mDriveSubsystem;
 
-    private String path1 = "LSScorePickup1";
-    private String path2 = "LSScorePickup2";
+    private String path1 = "SSScorePickup1";
+    private String path2 = "SSScorePickup2";
 
-    public LSScore3(){
+    public SSScore3(){
         mDriveSubsystem = DriveSubsystem.getInstance();
 
         addCommands(
