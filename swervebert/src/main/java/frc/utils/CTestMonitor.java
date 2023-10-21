@@ -41,9 +41,9 @@ import java.util.logging.Logger;
 public final class CTestMonitor {
 
     Boolean m_isPrintEnabled = false;
-    Boolean m_isMonitorEnabled = true;
+    Boolean m_isMonitorEnabled = false;
     int m_nMaxNumberOfFiles = 10;
-    int m_nMaxFileSize = 5*1024*1024;  // 5 MegaBytes;
+    int m_nMaxFileSize = 5 * 1024 * 1024; // 5 MegaBytes;
 
     final String HOME_NAME = "admin";
 
@@ -51,6 +51,8 @@ public final class CTestMonitor {
     String m_sLogFolder;
 
     String m_path;
+    File m_file;
+    FileWriter m_fileWriter;
     BufferedWriter m_output;
 
     public CTestMonitor() {
@@ -82,27 +84,36 @@ public final class CTestMonitor {
         limitMaxFiles();
 
         try {
+
+            m_file = new File(m_path);
+
             // Creates a FileWriter
-            FileWriter file = new FileWriter(m_path);
-     
+            m_fileWriter = new FileWriter(m_path);
+
             // Creates a BufferedWriter
-            m_output = new BufferedWriter(file);
+            m_output = new BufferedWriter(m_fileWriter);
         } catch (IOException ex) {
             Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private void limitMaxFiles() {
-        long oldestTime = 0;
-        String sOldestFileName = "";
         File dir = new File(m_sLogFolder);
-        if(dir.listFiles().length > m_nMaxNumberOfFiles) {
+        int nFiles = dir.listFiles().length;
+        if (nFiles > m_nMaxNumberOfFiles) {
+            long oldestTime = 0;
+            String sOldestFileName = "";
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
                 for (File child : directoryListing) {
-                    if (oldestTime < child.lastModified()) {
+                    if (oldestTime == 0) {
                         oldestTime = child.lastModified();
                         sOldestFileName = child.getName();
+                    } else {
+                        if (oldestTime > child.lastModified()) {
+                            oldestTime = child.lastModified();
+                            sOldestFileName = child.getName();
+                        }
                     }
                 }
                 File deleteThisFile = new File(m_sLogFolder + "/" + sOldestFileName);
@@ -194,18 +205,18 @@ public final class CTestMonitor {
 
     public Boolean logWrite(String sLine) {
 
-        
         if (m_isPrintEnabled) {
             dbgMsg_s(sLine);
         }
         if (m_isMonitorEnabled) {
             try {
-                File f = new File(m_path);
-                if(f.length() > m_nMaxFileSize) {
-                    m_output.close();
-                    init();
+                if (m_file.exists()) {
+                    if (m_file.length() > m_nMaxFileSize) {
+                        m_output.close();
+                        init();
+                    }
                 }
-                m_output.write(sLine);
+                m_output.append(sLine);
                 m_output.flush();
             } catch (IOException ex) {
                 Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);

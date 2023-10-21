@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -11,7 +14,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -20,14 +22,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.DriveConstants;
-import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Robot;
+import frc.utils.SwerveUtils;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -61,6 +63,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
+
+  PhotonCamera m_PVcamera = new PhotonCamera("Arducam_12MP");
+  private long nLogCounter = 0;
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
   // Odometry class for tracking robot pose
@@ -117,6 +122,26 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Robot Y", getPose().getY());
 
     if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+
+      var result = m_PVcamera.getLatestResult();
+      boolean hasTargets = result.hasTargets();
+      if (hasTargets) {
+
+        // TBD TBD TBD Get Pose2d from PV
+        Pose2d positionFix = new Pose2d();
+
+        m_odometry_PV = new SwerveDriveOdometry(
+            DriveConstants.kDriveKinematics,
+            Rotation2d.fromDegrees(m_gyro.getAngle()),
+            new SwerveModulePosition[] {
+                m_frontLeft.getPosition(),
+                m_frontRight.getPosition(),
+                m_rearLeft.getPosition(),
+                m_rearRight.getPosition()
+            },
+            positionFix);
+      }
+
       m_odometry_PV.update(
           Rotation2d.fromDegrees(m_gyro.getAngle()),
           new SwerveModulePosition[] {
@@ -130,11 +155,16 @@ public class DriveSubsystem extends SubsystemBase {
           .getDistance(m_odometry_PV.getPoseMeters().getTranslation());
       double diffHeading = m_odometry_PV.getPoseMeters().getRotation().getDegrees()
           - m_odometry.getPoseMeters().getRotation().getDegrees();
-      String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(), distance, diffHeading);
-      Robot.m_testMonitor.logWrite(msg);
+
+      SmartDashboard.putNumber("Odometry distance from PV", distance);
+      SmartDashboard.putNumber("Odometry heading difference from PV", diffHeading);
+
+      nLogCounter++;
+      if (0 == nLogCounter % 200) {
+        String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(), distance, diffHeading);
+        Robot.m_testMonitor.logWrite(msg);
+      }
     }
-    SmartDashboard.putNumber("Robot X", getPose().getX());
-    SmartDashboard.putNumber("Robot Y", getPose().getY());
   }
 
   /**
@@ -239,7 +269,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
-
   }
 
   /**
@@ -258,8 +287,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, maxSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, maxSpeed);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
