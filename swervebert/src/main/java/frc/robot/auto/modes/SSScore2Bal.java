@@ -13,7 +13,7 @@ public class SSScore2Bal extends SequentialCommandGroup {
     private OldBalance oldBalance;
 
     private String path1 = "SSScorePickup1";
-    private String path2 = "SSSCoreBal";
+    private String path2 = "SSScore2Bal";
 
     public SSScore2Bal(){
         mDriveSubsystem = DriveSubsystem.getInstance();
