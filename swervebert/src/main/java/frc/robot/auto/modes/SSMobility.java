@@ -1,5 +1,6 @@
 package frc.robot.auto.modes;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -16,20 +17,22 @@ public class SSMobility extends SequentialCommandGroup {
 
     private followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
-    private String path = "Mobility";
+    private String path = "SSMobility";
 
     public SSMobility(){
         mDriveSubsystem = DriveSubsystem.getInstance();
         mNewElbow = NewElbow.getInstance();
         mIntake = Intake.getInstance();
 
-        addCommands(
-            mNewElbow.ScoreHigh(),
-            new WaitCommand(1),
+        
+        addRequirements(mIntake);
+
+        addCommands(   
             new ParallelCommandGroup(
-                new RunCommand(() -> mIntake.outtake()),
-                new WaitCommand(0.2)),
-            mNewElbow.Stow(),
+            new InstantCommand(() -> mIntake.outtake()),
+            new WaitCommand(0.2)
+        ),
+        new InstantCommand(() -> mIntake.idle()),
             followPathWithEvents.followPPPEvents(path, mDriveSubsystem, 3.5)
             );
     }

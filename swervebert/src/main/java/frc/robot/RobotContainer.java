@@ -47,6 +47,7 @@ public class RobotContainer {
     public RobotContainer() {
         chooser = new AutoPicker();
 
+
         // Configure the button bindings
         configureButtonBindings();
 
@@ -116,7 +117,13 @@ public class RobotContainer {
         new Trigger(m_driverController::getRightBumper)
                 .onTrue(new InstantCommand(() -> m_robotDrive.shiftSpeedUp()));
 
+        
+        new Trigger(m_driverController::getAButton)
+                .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+
         }
+
+
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -150,21 +150,21 @@ public final class Constants {
     public static final int ElbowID = 17;
 
     public static final double elbowArcLength = 0.5639;
-    public static final double elbowGroundOffset = 0;
+    public static final double elbowGroundOffset = 0.16;
 
     // (free RPM / 60 seconds per minute) / gear reduction
-    public static final double powerToRadsConversion = 1.9708333333333 * 2 * Math.PI;
+    public static final double powerToRadsConversion = 1.9708333333333 *2 * Math.PI;
 
     //TODO: Calibrate these
-    public static final double kP = 1;
-    public static final double kI = 1;
+    public static final double kP = 0.5;
+    public static final double kI = 0.0;
     public static final double kD = 0;
 
     public static final double kIRange = 0.2;
 
-    public static final double kS = 0;
-    public static final double kG = 1.09;
-    public static final double kV = 0.94;
+    public static final double kS = 0.025;
+    public static final double kG = 0.109;
+    public static final double kV = 0.3;
     public static final double kA = 0.05;
 
     public static final double manualCoefficient = 0.5;
@@ -175,8 +175,8 @@ public final class Constants {
     public static final double setPointStow = 0.5;
     public static final double setPointIntake = 0.025;
     public static final double setPointLow = 0.025;
-    public static final double setPointMid = 0.025;
-    public static final double setPointHigh = 0.3;
+    public static final double setPointMid = 0.21;
+    public static final double setPointHigh = 0.27;
   }
 
   public static final class IntakeConstants {

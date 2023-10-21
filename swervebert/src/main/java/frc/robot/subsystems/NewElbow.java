@@ -48,6 +48,8 @@ public class NewElbow extends SubsystemBase {
         pidController.enableContinuousInput(0, 1);
         
         pidController.setIntegratorRange(-ElbowConstants.kIRange, ElbowConstants.kIRange);
+        
+        pidController.setTolerance(0.01, 0.05);
 
         armFeedforward = new ArmFeedforward(
             ElbowConstants.kS, 
@@ -82,7 +84,7 @@ public class NewElbow extends SubsystemBase {
 
         speed = pidController.calculate(encoder.getPosition(), setPoint);
 
-        //speed = armFF(speed);
+        speed = armFF(speed);
 
         speed = limitSwitchCheck(speed);
 
@@ -92,10 +94,16 @@ public class NewElbow extends SubsystemBase {
     }
 
     private double armFF(double speed){
-        double position = setPoint + ElbowConstants.elbowGroundOffset;
+        double position = setPoint - ElbowConstants.elbowGroundOffset;
         if (position > 1){
             position -= 1;
         }
+
+        if (position < 0){
+            position = 1 + position;
+        }
+
+        SmartDashboard.putNumber("FF Position ", position);
 
         speed += armFeedforward.calculate(
             2 * Math.PI * position,
@@ -129,6 +137,8 @@ public class NewElbow extends SubsystemBase {
         SmartDashboard.putBoolean("Reverse Limit: ", reverseLimitSwitch.isPressed());
 
         SmartDashboard.putNumber("Elbow Power: ", motor.getAppliedOutput());
+
+        SmartDashboard.putBoolean("Elbow at Setpoint: ", pidController.atSetpoint());
     }
 
     public Command Stow(){
