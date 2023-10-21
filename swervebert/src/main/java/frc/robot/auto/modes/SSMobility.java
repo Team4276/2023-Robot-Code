@@ -25,6 +25,9 @@ public class SSMobility extends SequentialCommandGroup {
         mIntake = Intake.getInstance();
         mNewElbow = NewElbow.getInstance();
 
+        
+        addRequirements(mIntake);
+
         addCommands(   
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.ScoreHigh(),

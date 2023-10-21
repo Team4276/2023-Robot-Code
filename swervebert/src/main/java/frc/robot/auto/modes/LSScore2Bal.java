@@ -29,6 +29,9 @@ public class LSScore2Bal extends SequentialCommandGroup {
         mIntake = Intake.getInstance();
         mNewElbow = NewElbow.getInstance();
 
+        
+        addRequirements(mIntake,mDriveSubsystem);
+
         addCommands(
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.ScoreHigh(),

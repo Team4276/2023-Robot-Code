@@ -34,7 +34,7 @@ public class AutoPicker {
         chooser.addOption("SSScore2Bal", new SSScore2Bal());
         chooser.addOption("SSScore3", new SSScore3());
 
-        SmartDashboard.putData("Auto: ", chooser);
+        SmartDashboard.putData("Aut: ", chooser);
 
     }
 
