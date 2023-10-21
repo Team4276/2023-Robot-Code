@@ -126,10 +126,12 @@ public class DriveSubsystem extends SubsystemBase {
               m_rearRight.getPosition()
           });
 
-          double distance = m_odometry_PV.getPoseMeters().getTranslation().getDistance(m_odometry_PV.getPoseMeters().getTranslation());
-          double diffHeading = m_odometry_PV.getPoseMeters().getRotation().getDegrees()- m_odometry.getPoseMeters().getRotation().getDegrees();
-          String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(),  distance, diffHeading);        
-          Robot.m_testMonitor.logWrite(msg);
+      double distance = m_odometry_PV.getPoseMeters().getTranslation()
+          .getDistance(m_odometry_PV.getPoseMeters().getTranslation());
+      double diffHeading = m_odometry_PV.getPoseMeters().getRotation().getDegrees()
+          - m_odometry.getPoseMeters().getRotation().getDegrees();
+      String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(), distance, diffHeading);
+      Robot.m_testMonitor.logWrite(msg);
     }
     SmartDashboard.putNumber("Robot X", getPose().getX());
     SmartDashboard.putNumber("Robot Y", getPose().getY());
@@ -297,8 +299,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Command followPathCommand(PathPlannerTrajectory path) {
 
-    String msg = new String("Reset Odometry from holonomic pose\n");
-    Robot.m_testMonitor.logWrite(msg);
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      String msg = new String("Reset Odometry from holonomic pose\n");
+      Robot.m_testMonitor.logWrite(msg);
+    }
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {

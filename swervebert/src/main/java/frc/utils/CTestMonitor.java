@@ -33,7 +33,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -41,22 +40,24 @@ import java.util.logging.Logger;
 
 public final class CTestMonitor {
 
+    Boolean m_isPrintEnabled = false;
+    Boolean m_isMonitorEnabled = true;
+    int m_nMaxNumberOfFiles = 10;
+    int m_nMaxFileSize = 5*1024*1024;  // 5 MegaBytes;
+
     final String HOME_NAME = "admin";
 
-    int m_nNextFile;
-    int m_nMaxFileNumber;
     String m_sBaseFileName;
     String m_sLogFolder;
-    Boolean m_isPrintEnabled = false;
-    Boolean m_isMonitorEnabled = false;
+
+    String m_path;
+    BufferedWriter m_output;
 
     public CTestMonitor() {
         init();
     }
 
     public void init() {
-        m_nNextFile = 0;
-        m_nMaxFileNumber = 1000;
 
         Date date = new Date();
         Calendar cal = Calendar.getInstance();
@@ -75,7 +76,39 @@ public final class CTestMonitor {
         m_sLogFolder = "/home/";
         m_sLogFolder += HOME_NAME;
         m_sLogFolder += "/log";
-        m_nNextFile = getNextFileNumber(m_sLogFolder);
+
+        m_path = getLogFilePath();
+
+        limitMaxFiles();
+
+        try {
+            // Creates a FileWriter
+            FileWriter file = new FileWriter(m_path);
+     
+            // Creates a BufferedWriter
+            m_output = new BufferedWriter(file);
+        } catch (IOException ex) {
+            Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void limitMaxFiles() {
+        long oldestTime = 0;
+        String sOldestFileName = "";
+        File dir = new File(m_sLogFolder);
+        if(dir.listFiles().length > m_nMaxNumberOfFiles) {
+            File[] directoryListing = dir.listFiles();
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    if (oldestTime < child.lastModified()) {
+                        oldestTime = child.lastModified();
+                        sOldestFileName = child.getName();
+                    }
+                }
+                File deleteThisFile = new File(m_sLogFolder + "/" + sOldestFileName);
+                deleteThisFile.delete();
+            }
+        }
     }
 
     public boolean isTestMonitorEnabled() {
@@ -138,43 +171,6 @@ public final class CTestMonitor {
         return (int) result;
     }
 
-    public int getNextFileNumber(String sFolderPath) {
-        int uiRet = 0;
-        Boolean bFound = false;
-        long newestTime = 0;
-        String sNewestFileName = "";
-        File dir = new File(sFolderPath);
-        File[] directoryListing = dir.listFiles();
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                if (newestTime < child.lastModified()) {
-                    newestTime = child.lastModified();
-                    sNewestFileName = child.getName();
-                }
-            }
-        }
-        if (bFound) {
-            if (sNewestFileName.length() > 3) {
-                sNewestFileName = sNewestFileName.substring(0, 3);
-                uiRet = atoi(sNewestFileName);
-                if (uiRet >= m_nMaxFileNumber) {
-                    uiRet = 0;
-                }
-            }
-        }
-        m_nNextFile = uiRet;
-        return uiRet;
-    }
-
-    public String getNextFilePath(String sFolderPath) {
-        String sRet = sFolderPath;
-        sRet += "/";
-        sRet += numberToText0000(m_nNextFile++);
-        sRet += "-";
-        sRet += m_sBaseFileName;
-        return sRet;
-    }
-
     public String getLogFilePath() {
         String sRet = m_sLogFolder;
         sRet += "/log-";
@@ -197,25 +193,20 @@ public final class CTestMonitor {
     }
 
     public Boolean logWrite(String sLine) {
+
+        
         if (m_isPrintEnabled) {
             dbgMsg_s(sLine);
         }
         if (m_isMonitorEnabled) {
-            OutputStreamWriter sw;
-            String path = getLogFilePath();
-
             try {
-                // Creates a FileWriter
-                FileWriter file = new FileWriter(path);
-
-                // Creates a BufferedWriter
-                BufferedWriter output = new BufferedWriter(file);
-
-                // Writes the string to the file
-                output.write(sLine);
-
-                // Closes the writer
-                output.close();
+                File f = new File(m_path);
+                if(f.length() > m_nMaxFileSize) {
+                    m_output.close();
+                    init();
+                }
+                m_output.write(sLine);
+                m_output.flush();
             } catch (IOException ex) {
                 Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
             }
