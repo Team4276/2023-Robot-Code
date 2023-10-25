@@ -30,7 +30,7 @@ public class followPathWithEvents{
             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared);
 
         if (Robot.alliance != Alliance.Invalid){
-            path = PathPlannerTrajectory.transformTrajectoryForAlliance(path, Alliance.Red);
+            path = PathPlannerTrajectory.transformTrajectoryForAlliance(path, Alliance.Blue);
         }
 
         FollowPathWithEvents command = new FollowPathWithEvents(

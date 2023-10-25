@@ -80,6 +80,8 @@ public class Robot extends TimedRobot {
       alliance = allianceChooser.getSelected();
     }
 
+    SmartDashboard.putString("Alliance", alliance.name());
+
 
     
 
