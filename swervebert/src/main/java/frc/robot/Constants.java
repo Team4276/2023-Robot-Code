@@ -173,106 +173,7 @@ public final class Constants {
     public static final double setPointIntake = 0.025;
     public static final double setPointLow = 0.025;
     public static final double setPointMid = 0.21;
-    public static final double setPointHigh = 0.27
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    ;
+    public static final double setPointHigh = 0.27;
   }
 
   public static final class IntakeConstants {
@@ -281,5 +182,12 @@ public final class Constants {
     public static final double intakeSpeed = 0.8;
     public static final double outtakeSpeed = -0.85;
     public static final double idleSpeed = 0.05;
+  }
+
+  public static final class SnapConstants{
+    public static final double kP = 0.1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+
   }
 }

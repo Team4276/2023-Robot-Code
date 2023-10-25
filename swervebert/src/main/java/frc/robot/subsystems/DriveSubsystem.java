@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SnapConstants;
 import frc.robot.Robot;
 import frc.utils.SwerveUtils;
 
@@ -114,6 +115,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double maxSpeed = DriveConstants.kMaxSpeedMetersPerSecondB;
   private double maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
 
+  private PIDController snapController = new PIDController(SnapConstants.kP, SnapConstants.kI, SnapConstants.kD);
+
   private static DriveSubsystem mInstance;
 
   public static DriveSubsystem getInstance() {
@@ -126,6 +129,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   private DriveSubsystem() {
+    snapController.enableContinuousInput(0, 2 * Math.PI);
 
     try {
       aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -398,5 +402,17 @@ public class DriveSubsystem extends SubsystemBase {
       maxAttainableSpeed = DriveConstants.kMaxAttainableSpeedB;
     }
   }
+
+  /**
+   * @param desiredRotDeg Must be a value between 0 and 360
+   */
+  public void snapDrive(double xSpeed, double ySpeed, double desiredRotDeg, boolean fieldRelative, boolean rateLimit){
+    double rot = snapController.calculate(Math.toRadians(m_gyro.getAngle()), Math.toRadians(desiredRotDeg));
+
+    SmartDashboard.putNumber("Snap output", rot);
+    //drive(xSpeed, ySpeed, rot, fieldRelative, rateLimit);
+  }
+
+
 
 }

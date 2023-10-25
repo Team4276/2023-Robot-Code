@@ -35,6 +35,7 @@ public class RobotContainer {
 
     // The driver's controller
     private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    private final BetterXboxController m_bDriverController = new BetterXboxController(m_driverController);
 
     private final XboxController m_opController = new XboxController(OIConstants.kopControllerPort);
     private final BetterXboxController m_BetterXboxController = new BetterXboxController(m_opController);
@@ -46,7 +47,6 @@ public class RobotContainer {
      */
     public RobotContainer() {
         chooser = new AutoPicker();
-
 
         // Configure the button bindings
         configureButtonBindings();
@@ -121,7 +121,25 @@ public class RobotContainer {
         new Trigger(m_driverController::getAButton)
                 .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
 
+        new Trigger(m_bDriverController::getLT)
+                .whileTrue(new RunCommand(() -> 
+                m_robotDrive.snapDrive(
+                                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                                0,
+                                true, false)));
+        
+        new Trigger(m_bDriverController::getRT)
+                .whileTrue(new RunCommand(() -> 
+                        m_robotDrive.snapDrive(
+                                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                                180,
+                                true, false)));
+
         }
+
+        
 
 
 

@@ -33,7 +33,6 @@ public class Robot extends TimedRobot {
 
   private SendableChooser<Alliance> allianceChooser;
 
-
   
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -53,6 +52,8 @@ public class Robot extends TimedRobot {
     allianceChooser.addOption("Red", Alliance.Red);
 
     CameraServer.startAutomaticCapture();
+
+
   }
 
 
@@ -81,8 +82,6 @@ public class Robot extends TimedRobot {
     }
 
     SmartDashboard.putString("Alliance", alliance.name());
-
-
     
 
   }
