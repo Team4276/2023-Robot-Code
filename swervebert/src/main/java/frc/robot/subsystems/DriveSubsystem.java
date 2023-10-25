@@ -4,15 +4,26 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -63,7 +74,19 @@ public class DriveSubsystem extends SubsystemBase {
   private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
 
-  PhotonCamera m_PVcamera = new PhotonCamera("Arducam_12MP");
+  AprilTagFieldLayout aprilTagFieldLayout;
+
+  private PhotonCamera m_PVcamera = new PhotonCamera("Arducam_12MP");
+  private double camForwardMeters = 0.5;
+  private double camSideMeters = 0.2;
+  private double camUpMeters = 0.2;
+  private double camPitchDegrees = 45.0;
+  private double camPitchRadians = (camPitchDegrees / 360.0) * (2 * Math.PI);
+
+  private Translation3d xlatCameraToRobot = new Translation3d(camForwardMeters, camSideMeters, camUpMeters);
+  private Rotation3d camRotation = new Rotation3d(0, camPitchRadians, 0); // cam facing forward, tilted up
+  private Transform3d xformCamToRobot = new Transform3d(xlatCameraToRobot, camRotation);
+
   private long nLogCounter = 0;
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
@@ -103,6 +126,13 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   private DriveSubsystem() {
+
+    try {
+      aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -126,20 +156,14 @@ public class DriveSubsystem extends SubsystemBase {
       boolean hasTargets = result.hasTargets();
       if (hasTargets) {
 
-        // TBD TBD TBD Get Pose2d from PV
-        Pose2d positionFix = new Pose2d();
-  
+        PhotonTrackedTarget tgt = result.getBestTarget();
+        Transform3d xformCamToTarget = tgt.getBestCameraToTarget();
+        int tagID = tgt.getFiducialId();
+        Optional<Pose3d> opt = aprilTagFieldLayout.getTagPose(tagID);
+        Pose3d tagPose = opt.get();
 
-        m_odometry_PV = new SwerveDriveOdometry(
-            DriveConstants.kDriveKinematics,
-            Rotation2d.fromDegrees(m_gyro.getAngle()),
-            new SwerveModulePosition[] {
-                m_frontLeft.getPosition(),
-                m_frontRight.getPosition(),
-                m_rearLeft.getPosition(),
-                m_rearRight.getPosition()
-            },
-            positionFix);
+        Pose3d positionFix = PhotonUtils.estimateFieldToRobotAprilTag(xformCamToTarget, tagPose, xformCamToRobot);
+        resetOdometry(positionFix.toPose2d());
       }
 
       m_odometry_PV.update(
