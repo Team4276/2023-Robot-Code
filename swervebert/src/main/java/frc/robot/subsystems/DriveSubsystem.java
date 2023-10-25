@@ -78,10 +78,10 @@ public class DriveSubsystem extends SubsystemBase {
   AprilTagFieldLayout aprilTagFieldLayout;
 
   private PhotonCamera m_PVcamera = new PhotonCamera("Arducam_12MP");
-  private double camForwardMeters = 0.5;
-  private double camSideMeters = 0.2;
-  private double camUpMeters = 0.2;
-  private double camPitchDegrees = 45.0;
+  private double camForwardMeters = 0.1404;
+  private double camSideMeters = -0.32;
+  private double camUpMeters = 0.14;
+  private double camPitchDegrees = 33.0;
   private double camPitchRadians = (camPitchDegrees / 360.0) * (2 * Math.PI);
 
   private Translation3d xlatCameraToRobot = new Translation3d(camForwardMeters, camSideMeters, camUpMeters);
