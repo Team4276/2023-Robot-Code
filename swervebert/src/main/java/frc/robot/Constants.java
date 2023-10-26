@@ -185,9 +185,9 @@ public final class Constants {
   }
 
   public static final class SnapConstants{
-    public static final double kP = 0.1;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kP = 0.2;
+    public static final double kI = kP / 12;
+    public static final double kD = kP / 30;
 
   }
 }

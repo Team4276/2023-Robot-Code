@@ -409,8 +409,8 @@ public class DriveSubsystem extends SubsystemBase {
   public void snapDrive(double xSpeed, double ySpeed, double desiredRotDeg, boolean fieldRelative, boolean rateLimit){
     double rot = snapController.calculate(Math.toRadians(m_gyro.getAngle()), Math.toRadians(desiredRotDeg));
 
-    SmartDashboard.putNumber("Snap output", rot);
-    //drive(xSpeed, ySpeed, rot, fieldRelative, rateLimit);
+    SmartDashboard.putNumber("Snap Output", rot);
+    drive(xSpeed, ySpeed, rot, fieldRelative, rateLimit);
   }
 
 
