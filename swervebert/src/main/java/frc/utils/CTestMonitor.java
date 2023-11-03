@@ -33,6 +33,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -81,19 +82,28 @@ public final class CTestMonitor {
 
         m_path = getLogFilePath();
 
-        limitMaxFiles();
+        File dir = new File(m_sLogFolder);
+        if (dir.exists()) {
+            // Avoid exception
+            // To allow this test to collect logs:
+            // Log into the roboRIO via SSH
+            // Create "log" folder in /home/admin (mkdir log)
+            // Allow all file permissions for this folder (chmod 777 log)
 
-        try {
+            limitMaxFiles();
 
-            m_file = new File(m_path);
+            try {
 
-            // Creates a FileWriter
-            m_fileWriter = new FileWriter(m_path);
+                m_file = new File(m_path);
 
-            // Creates a BufferedWriter
-            m_output = new BufferedWriter(m_fileWriter);
-        } catch (IOException ex) {
-            Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
+                // Creates a FileWriter
+                m_fileWriter = new FileWriter(m_path);
+
+                // Creates a BufferedWriter
+                m_output = new BufferedWriter(m_fileWriter);
+            } catch (IOException ex) {
+                Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -209,17 +219,26 @@ public final class CTestMonitor {
             dbgMsg_s(sLine);
         }
         if (m_isMonitorEnabled) {
-            try {
-                if (m_file.exists()) {
-                    if (m_file.length() > m_nMaxFileSize) {
-                        m_output.close();
-                        init();
+            File dir = new File(m_sLogFolder);
+            if (dir.exists()) {
+                // Avoid exception
+                // To allow this test to collect logs:
+                // Log into the roboRIO via SSH
+                // Create "log" folder in /home/admin (mkdir log)
+                // Allow all file permissions for this folder (chmod 777 log)
+
+                try {
+                    if (m_file.exists()) {
+                        if (m_file.length() > m_nMaxFileSize) {
+                            m_output.close();
+                            init();
+                        }
                     }
+                    m_output.append(sLine);
+                    m_output.flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                m_output.append(sLine);
-                m_output.flush();
-            } catch (IOException ex) {
-                Logger.getLogger(CTestMonitor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return true;
