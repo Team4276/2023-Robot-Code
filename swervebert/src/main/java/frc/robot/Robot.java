@@ -88,7 +88,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      String msg = new String("disabledInit()\n");
+      Robot.m_testMonitor.logWrite(msg);
+    }
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -96,6 +101,11 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      String msg = new String("autonomousInit()\n");
+      Robot.m_testMonitor.logWrite(msg);
+    }
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     /*
@@ -124,6 +134,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      String msg = new String("teleopInit()\n");
+      Robot.m_testMonitor.logWrite(msg);
+    }
   }
 
   /** This function is called periodically during operator control. */
@@ -134,6 +149,11 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
+      String msg = new String("testInit()\n");
+      Robot.m_testMonitor.logWrite(msg);
+    }
   }
 
   /** This function is called periodically during test mode. */

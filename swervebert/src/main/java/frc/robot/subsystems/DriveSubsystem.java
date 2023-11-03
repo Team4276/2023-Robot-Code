@@ -188,8 +188,8 @@ public class DriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Odometry heading difference from PV", diffHeading);
 
       nLogCounter++;
-      if (0 == nLogCounter % 200) {
-        String msg = String.format("%ld, %f, %f\n", Robot.m_testMonitor.getTicks(), distance, diffHeading);
+      if (0 == nLogCounter % 1) {
+        String msg = String.format("%d, %f, %f, %b\n", Robot.m_testMonitor.getTicks(), distance, diffHeading, hasTargets);
         Robot.m_testMonitor.logWrite(msg);
       }
     }
@@ -354,11 +354,6 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Command followPathCommand(PathPlannerTrajectory path) {
-
-    if (Robot.m_testMonitor.isTestMonitorEnabled()) {
-      String msg = new String("Reset Odometry from holonomic pose\n");
-      Robot.m_testMonitor.logWrite(msg);
-    }
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
