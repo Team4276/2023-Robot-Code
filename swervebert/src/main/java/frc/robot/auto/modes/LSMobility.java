@@ -17,6 +17,8 @@ public class LSMobility extends SequentialCommandGroup {
 
     private String path = "LSMobility";
 
+    private final double maxSpeed = 2.5;
+
     
     public followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
@@ -38,7 +40,7 @@ public class LSMobility extends SequentialCommandGroup {
         mNewElbow.Stow(),
         new WaitUntilCommand(() -> mNewElbow.isStable())
 ,
-        followPathWithEvents.followPPPEvents(path, mDriveSubsystem, 3.5)
+        followPathWithEvents.followPPPEvents(path, mDriveSubsystem, maxSpeed)
         );
     }
     

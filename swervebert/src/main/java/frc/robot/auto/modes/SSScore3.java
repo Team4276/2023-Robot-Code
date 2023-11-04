@@ -15,8 +15,10 @@ public class SSScore3 extends SequentialCommandGroup {
     private Intake mIntake;
     private final NewElbow mNewElbow;
 
-    private String path1 = "SSScorePickup1";
+    private String path1 = "BSSScorePickup1";
     private String path2 = "SSScorePickup2";
+
+    private final double maxSpeed = 2.5;
 
     
     public followPathWithEvents followPathWithEvents = new followPathWithEvents();
@@ -40,7 +42,7 @@ public class SSScore3 extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, 2.5),
+            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, maxSpeed),
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.ScoreMid(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
@@ -51,7 +53,7 @@ public class SSScore3 extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, 2.5)
+            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, maxSpeed)
 
 
 

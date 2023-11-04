@@ -21,6 +21,8 @@ public class SSScore2Bal extends SequentialCommandGroup {
     private String path1 = "SSScorePickup1";
     private String path2 = "SSScore2Bal";
 
+    private final double maxSpeed = 2.5;
+
     
     public followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
@@ -43,7 +45,7 @@ public class SSScore2Bal extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, 3.5),
+            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, maxSpeed),
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.ScoreMid(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
@@ -54,7 +56,7 @@ public class SSScore2Bal extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, 3.5),
+            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, maxSpeed),
             new RunCommand(() -> oldBalance.balance(), mDriveSubsystem)
 
 

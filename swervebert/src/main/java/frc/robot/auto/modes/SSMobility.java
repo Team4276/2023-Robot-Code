@@ -17,6 +17,8 @@ public class SSMobility extends SequentialCommandGroup {
 
     private String path = "SSMobility";
 
+    private final double maxSpeed = 2.5;
+
     
     public followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
@@ -39,7 +41,7 @@ public class SSMobility extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-        followPathWithEvents.followPPPEvents(path, mDriveSubsystem, 3.5));
+        followPathWithEvents.followPPPEvents(path, mDriveSubsystem, maxSpeed));
     }
     
 }
