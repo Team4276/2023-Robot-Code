@@ -19,7 +19,7 @@ public class IntakeCommand extends SequentialCommandGroup {
             mNewElbow.Intake(),
             new ParallelCommandGroup(
                 new InstantCommand(() -> mIntake.intake()),
-                new WaitCommand(1)
+                new WaitCommand(1.5)
             ),
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow()

@@ -40,7 +40,7 @@ public class SSScore3 extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, 3.5),
+            followPathWithEvents.followPPPEvents(path1, mDriveSubsystem, 2.5),
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.ScoreMid(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
@@ -51,7 +51,7 @@ public class SSScore3 extends SequentialCommandGroup {
             new InstantCommand(() -> mIntake.idle()),
             mNewElbow.Stow(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
-            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, 3.5)
+            followPathWithEvents.followPPPEvents(path2, mDriveSubsystem, 2.5)
 
 
 
