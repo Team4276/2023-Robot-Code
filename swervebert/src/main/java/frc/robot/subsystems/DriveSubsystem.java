@@ -31,6 +31,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -66,6 +67,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   // The gyro sensor
   private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+  // private final PowerDistribution m_power = new PowerDistribution(0, PowerDistribution.ModuleType.kRev);
+
+
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -141,6 +146,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // SmartDashboard.putNumber("Voltage", m_power.getVoltage());
+    // SmartDashboard.putNumber("Swerve drive power draw", m_power.getCurrent(7));
+
+
     // Update the odometry in the periodic block
     m_odometry.update(
         Rotation2d.fromDegrees(m_gyro.getAngle()),

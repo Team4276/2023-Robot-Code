@@ -35,7 +35,7 @@ public class MobilityBalance extends SequentialCommandGroup{
         //TODO: reverse the start positions of autos
         addCommands(
             new InstantCommand(() -> mIntake.idle()),
-            mNewElbow.ScoreMid(),
+            mNewElbow.ScoreHigh(),
             new WaitUntilCommand(() -> mNewElbow.isStable()),
             new ParallelCommandGroup(
                 new InstantCommand(() -> mIntake.outtake()),

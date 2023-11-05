@@ -7,8 +7,6 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -29,9 +27,6 @@ public class Robot extends TimedRobot {
 
   public static CTestMonitor m_testMonitor = new CTestMonitor();
   
-  public static Alliance alliance;
-
-  private SendableChooser<Alliance> allianceChooser;
 
   
   /**
@@ -46,10 +41,6 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
 
-    allianceChooser = new SendableChooser<Alliance>();
-    allianceChooser.setDefaultOption("No Alliance", Alliance.Invalid);
-    allianceChooser.addOption("Blue", Alliance.Blue);
-    allianceChooser.addOption("Red", Alliance.Red);
 
     CameraServer.startAutomaticCapture();
 
@@ -73,15 +64,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    SmartDashboard.putData(allianceChooser);
-
-    if (DriverStation.isDSAttached()){
-      alliance = DriverStation.getAlliance();
-    } else {
-      alliance = allianceChooser.getSelected();
-    }
-
-    SmartDashboard.putString("Alliance: ", alliance.name());
+    SmartDashboard.putString("DS Alliance", DriverStation.getAlliance().toString());
     
 
   }

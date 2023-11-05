@@ -27,7 +27,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 5.5;
+    public static final double kMaxSpeedMetersPerSecond = 4.7;
     public static final double kMaxAttainableSpeed = kMaxSpeedMetersPerSecond * 0.85;
 
     public static final double kMaxSpeedMetersPerSecondB = 2.3529;
@@ -117,7 +117,7 @@ public final class Constants {
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
 
-    public static final int kDrivingMotorCurrentLimit = 50; // amps
+    public static final int kDrivingMotorCurrentLimit = 40; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 
@@ -133,9 +133,9 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2 * Math.PI;
 
-    public static final double kPXController = 1.35;
-    public static final double kPYController = 1.35;
-    public static final double kPThetaController = 2;
+    public static final double kPXController = 1;
+    public static final double kPYController = 1;
+    public static final double kPThetaController = 1;
 
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(

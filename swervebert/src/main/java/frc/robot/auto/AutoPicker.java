@@ -1,5 +1,6 @@
 package frc.robot.auto;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,7 +20,18 @@ public class AutoPicker {
 
     public followPathWithEvents followPathWithEvents = new followPathWithEvents();
 
+  public static Alliance alliance;
+
+  private SendableChooser<Alliance> allianceChooser;
+
     public AutoPicker(){
+        allianceChooser = new SendableChooser<Alliance>();
+        allianceChooser.setDefaultOption("No Alliance", Alliance.Invalid);
+        allianceChooser.addOption("Blue", Alliance.Blue);
+        allianceChooser.addOption("Red", Alliance.Red);
+
+        SmartDashboard.putData(allianceChooser);
+
         chooser = new SendableChooser<Command>();
 
         chooser.setDefaultOption("Do nothing", null);
@@ -33,6 +45,16 @@ public class AutoPicker {
         chooser.addOption("SSMobility", new SSMobility());
         chooser.addOption("SSScore2Bal", new SSScore2Bal());
         chooser.addOption("SSScore3", new SSScore3());
+
+        
+        
+        // if (DriverStation.isDSAttached()){
+        //   alliance = DriverStation.getAlliance();
+        // } else {
+            alliance = allianceChooser.getSelected();
+            //}
+        
+        SmartDashboard.putString("Alliance: ", alliance.name());
 
         SmartDashboard.putData("Autos: ", chooser);
 
